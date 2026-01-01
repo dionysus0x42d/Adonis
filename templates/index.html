@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}首頁 - GVDB 資料庫管理系統{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>歡迎使用 GVDB 資料庫管理系統</h2>
+    <p>請選擇功能</p>
+</div>
+
+<div class="function-cards">
+    <a href="{{ url_for('add_studio') }}" class="function-card">
+        <h3>🏢 新增公司</h3>
+        <p>新增新的製作公司到資料庫</p>
+    </a>
+
+    <a href="{{ url_for('add_actor') }}" class="function-card">
+        <h3>➕ 新增演員</h3>
+        <p>新增演員到資料庫，包含藝名設定</p>
+    </a>
+
+    <a href="{{ url_for('add_production') }}" class="function-card">
+        <h3>➕ 新增作品</h3>
+        <p>新增單片、專輯或專輯片段</p>
+    </a>
+
+    <a href="{{ url_for('search_page') }}" class="function-card">
+        <h3>🔍 查詢作品</h3>
+        <p>搜尋和瀏覽作品</p>
+    </a>
+
+    <a href="{{ url_for('edit_actor_page') }}" class="function-card">
+        <h3>✏️ 編輯演員</h3>
+        <p>修改演員資料和管理藝名</p>
+    </a>
+
+    <a href="#" class="function-card disabled">
+        <h3>👥 查看演員</h3>
+        <p>瀏覽演員列表和統計（開發中）</p>
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}編輯演員 - GVDB 資料庫管理系統{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>編輯演員資料</h2>
+</div>
+
+<!-- 查詢演員區域 -->
+<section class="form-section">
+    <h3>【查詢演員】</h3>
+    <div class="form-group">
+        <label for="actorSearch">搜尋演員</label>
+        <div class="input-wrapper">
+            <input 
+                type="text" 
+                id="actorSearch" 
+                placeholder="輸入藝名或 Actor Tag..."
+                autocomplete="off"
+            >
+            <div id="actorSuggestions" class="autocomplete-suggestions"></div>
+        </div>
+        <small>輸入藝名或 Actor Tag 搜尋演員</small>
+    </div>
+</section>
+
+<!-- 編輯區域（選擇演員後才顯示） -->
+<div id="editSection" style="display: none;">
+    <form id="editActorForm" class="actor-form">
+        <input type="hidden" id="actorId" name="actor_id">
+        
+        <!-- 基本資料 -->
+        <section class="form-section">
+            <h3>【基本資料】</h3>
+            
+            <div class="form-group">
+                <label for="actorTag">Actor Tag <span class="required">*</span></label>
+                <input 
+                    type="text" 
+                    id="actorTag" 
+                    name="actor_tag" 
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="gvdbId">GVDB ID</label>
+                <input 
+                    type="text" 
+                    id="gvdbId" 
+                    name="gvdb_id" 
+                    placeholder="選填"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="notes">備註</label>
+                <textarea 
+                    id="notes" 
+                    name="notes" 
+                    rows="3"
+                    placeholder="選填"
+                ></textarea>
+            </div>
+        </section>
+
+        <!-- 藝名管理 -->
+        <section class="form-section">
+            <h3>【藝名管理】</h3>
+            
+            <!-- 現有藝名列表 -->
+            <div class="form-group">
+                <label>現有藝名</label>
+                <table class="stage-names-table">
+                    <thead>
+                        <tr>
+                            <th>公司</th>
+                            <th>藝名</th>
+                            <th style="width: 100px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stageNamesTable">
+                        <tr>
+                            <td colspan="3" style="text-align: center; color: #999;">
+                                尚未選擇演員
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 新增藝名 -->
+            <div class="form-group">
+                <label>新增藝名</label>
+                <div class="add-stage-name-row">
+                    <select id="newStudioId" style="flex: 1;">
+                        <option value="">選擇公司</option>
+                    </select>
+                    <input 
+                        type="text" 
+                        id="newStageName" 
+                        placeholder="輸入藝名"
+                        style="flex: 2;"
+                    >
+                    <button type="button" id="addStageNameBtn" class="btn-secondary">
+                        新增藝名
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 送出按鈕 -->
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">儲存所有修改</button>
+            <button type="button" id="cancelBtn" class="btn-secondary">取消</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.input-wrapper {
+    position: relative;
+}
+
+.autocomplete-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: none;
+}
+
+.autocomplete-suggestions.show {
+    display: block;
+}
+
+.suggestion-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.suggestion-item:hover,
+.suggestion-item.keyboard-selected {
+    background-color: #3498db;
+    color: white;
+}
+
+.suggestion-item .actor-info {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    margin-left: 8px;
+}
+
+.suggestion-item.keyboard-selected .actor-info {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.stage-names-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+.stage-names-table th,
+.stage-names-table td {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.stage-names-table th {
+    background: #f8f9fa;
+    font-weight: bold;
+}
+
+.stage-names-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.stage-name-edit-mode input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #3498db;
+    border-radius: 4px;
+}
+
+.add-stage-name-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.add-stage-name-row select,
+.add-stage-name-row input {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.btn-edit,
+.btn-save,
+.btn-cancel-edit {
+    padding: 4px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-edit {
+    background: #3498db;
+    color: white;
+}
+
+.btn-edit:hover {
+    background: #2980b9;
+}
+
+.btn-save {
+    background: #27ae60;
+    color: white;
+    margin-right: 5px;
+}
+
+.btn-save:hover {
+    background: #229954;
+}
+
+.btn-cancel-edit {
+    background: #95a5a6;
+    color: white;
+}
+
+.btn-cancel-edit:hover {
+    background: #7f8c8d;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='edit_actor.js') }}"></script>
+{% endblock %}

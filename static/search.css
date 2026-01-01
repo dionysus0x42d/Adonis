@@ -1,0 +1,528 @@
+.search-container {
+    max-width: 1400px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+/* Tab 切換 */
+.tabs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #ddd;
+}
+
+.tab-button {
+    padding: 12px 30px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-size: 16px;
+    color: #666;
+    transition: all 0.3s;
+}
+
+.tab-button.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+    font-weight: bold;
+}
+
+.tab-button:hover {
+    color: #0056b3;
+}
+
+/* 搜尋面板 */
+.search-panel {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.filter-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.filter-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.filter-row label {
+    min-width: 120px;
+    font-weight: bold;
+    padding-top: 5px;
+}
+
+/* 輸入框包裝器 */
+.input-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.input-wrapper input[type="text"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.input-wrapper input[type="text"]:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+/* 日期範圍特殊樣式 */
+.date-range-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.date-range-wrapper input[type="text"] {
+    width: 120px;
+}
+
+.range-separator {
+    color: #666;
+    font-size: 14px;
+}
+
+/* Checkbox 群組 */
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    flex: 1;
+}
+
+.checkbox-group label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: normal;
+    min-width: auto;
+    transition: all 0.2s;
+}
+
+.checkbox-group label:hover {
+    background: #e9ecef;
+}
+
+.checkbox-group input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"]:checked + span {
+    font-weight: bold;
+}
+
+/* Style 圖示 */
+.style-icon {
+    font-size: 16px;
+    margin-right: 4px;
+}
+
+/* Autocomplete 建議 (下拉式) */
+.autocomplete-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: none;
+    margin-top: -1px;
+}
+
+.autocomplete-suggestions.show {
+    display: block;
+}
+
+.suggestion-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover,
+.suggestion-item.selected {
+    background-color: #f0f0f0;
+}
+
+.suggestion-item.keyboard-selected {
+    background-color: #3498db;
+    color: white;
+}
+
+.suggestion-item .actor-studio {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    margin-left: 8px;
+}
+
+.suggestion-item.keyboard-selected .actor-studio {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.no-results {
+    padding: 0.75rem 1rem;
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+/* 已選項目 */
+.selected-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.selected-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background: #007bff;
+    color: white;
+    border-radius: 15px;
+    font-size: 14px;
+}
+
+.selected-item .remove {
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 5px;
+    padding: 0 4px;
+    border-radius: 3px;
+    transition: background 0.2s;
+}
+
+.selected-item .remove:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* 操作按鈕 */
+.filter-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.btn-secondary {
+    padding: 10px 20px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.result-count {
+    font-size: 14px;
+    color: #666;
+}
+
+/* 控制列 */
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-radius: 8px;
+}
+
+.sort-controls,
+.page-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 排序按鈕 */
+.sort-btn {
+    padding: 6px 12px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.sort-btn:hover {
+    background: #e9ecef;
+}
+
+.sort-btn.active {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.sort-separator {
+    color: #999;
+    font-size: 14px;
+    margin: 0 5px;
+}
+
+/* 每頁顯示控制 */
+.page-controls select {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.full-display-toggle {
+    margin-left: 15px;
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.full-display-toggle input[type="checkbox"] {
+    cursor: pointer;
+}
+
+/* 結果表格 */
+.results-container {
+    overflow-x: auto;
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.results-table th {
+    background: #f8f9fa;
+    padding: 12px 8px;
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 2px solid #ddd;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.results-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+}
+
+.results-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+/* Toggle 按鈕 */
+.toggle-btn {
+    cursor: pointer;
+    user-select: none;
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+}
+
+.toggle-btn:hover {
+    color: #007bff;
+}
+
+/* Album 和 Segment 樣式 */
+.album-row {
+    font-weight: bold;
+}
+
+.segment-row {
+    background: #f9f9f9;
+}
+
+.segment-row td:first-child {
+    padding-left: 30px;
+}
+
+/* Studio 顏色標籤 */
+.studio-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Tag 徽章 */
+.tag-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    margin: 2px;
+    border-radius: 3px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.tag-sex-act {
+    background: #cfe2ff;
+    color: #084298;
+}
+
+.tag-style {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.tag-body-type {
+    background: #fff3cd;
+    color: #997404;
+}
+
+.tag-source {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+/* 文字省略 */
+.truncate {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.truncate:hover {
+    overflow: visible;
+    white-space: normal;
+}
+
+/* 完整顯示模式 */
+body.full-display .truncate {
+    max-width: none;
+    white-space: normal;
+    overflow: visible;
+}
+
+body.full-display .results-table td {
+    white-space: normal;
+}
+
+/* 分頁 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 20px;
+    padding: 20px 0;
+}
+
+.page-btn {
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.page-btn:hover {
+    background: #f0f0f0;
+}
+
+.page-btn.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 載入中 */
+.loading {
+    text-align: center;
+    padding: 50px;
+    color: #999;
+}
+
+/* 空結果 */
+.no-results-message {
+    text-align: center;
+    padding: 50px;
+    color: #999;
+    font-size: 16px;
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+    .filter-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-row label {
+        min-width: auto;
+        padding-top: 0;
+    }
+    
+    .checkbox-group {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .date-range-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .date-range-wrapper input[type="text"] {
+        width: 100%;
+    }
+    
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .sort-controls {
+        flex-wrap: wrap;
+    }
+}

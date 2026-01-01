@@ -1,0 +1,17 @@
+# 先忽略全部
+*
+
+# 允許 gitignore 自己被追蹤
+!.gitignore
+
+# 允許要備份的檔案
+!app.py
+!config.py
+!requirements.txt
+
+# 允許 static / templates 與其底下所有內容
+!static/
+!static/**
+
+!templates/
+!templates/**

@@ -1,0 +1,434 @@
+{% extends "base.html" %}
+
+{% block title %}新增作品 - GVDB 資料庫管理系統{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>新增作品到資料庫</h2>
+</div>
+
+<form method="POST" action="{{ url_for('add_production') }}" class="production-form" id="productionForm" autocomplete="off">
+    
+    <!-- 作品類型選擇 -->
+    <section class="form-section">
+        <h3>【作品類型】</h3>
+        
+        <div class="radio-group">
+            <label class="radio-label">
+                <input type="radio" name="type" value="single" checked onchange="updateFormVisibility()">
+                <span>單片 (single)</span>
+            </label>
+            <label class="radio-label">
+                <input type="radio" name="type" value="album" onchange="updateFormVisibility()">
+                <span>專輯 (album)</span>
+            </label>
+            <label class="radio-label">
+                <input type="radio" name="type" value="segment" onchange="updateFormVisibility()">
+                <span>專輯片段 (segment)</span>
+            </label>
+        </div>
+        
+        <p class="section-note">提示：選擇不同類型會顯示不同的表單欄位</p>
+    </section>
+
+    <!-- 快速填入（新增） -->
+    <section class="form-section quick-fill-section">
+        <h3>【快速填入】從 GVDB 複製貼上</h3>
+        <p class="section-note">貼上格式：[CODE] TITLE (DATE) 或 [CODE1][CODE2] TITLE (DATE)</p>
+        
+        <div class="form-group">
+            <label for="quick_fill_input">GVDB 文字</label>
+            <input 
+                type="text" 
+                id="quick_fill_input" 
+                placeholder="例如：[COAVDV101][COAT1689] ANOTHER VERSION 超乱交 6 (2023.01)"
+                autocomplete="off"
+            >
+            <small>貼上後會自動切片並填入下方欄位，你仍可手動修改</small>
+        </div>
+        
+        <div id="quick_fill_preview" class="quick-fill-preview" style="display: none;">
+            <p><strong>✓ 自動切片結果：</strong></p>
+            <div class="preview-item">
+                <span class="preview-label">Code:</span>
+                <span id="preview_code" class="preview-value"></span>
+            </div>
+            <div class="preview-item">
+                <span class="preview-label">Title:</span>
+                <span id="preview_title" class="preview-value"></span>
+            </div>
+            <div class="preview-item">
+                <span class="preview-label">Date:</span>
+                <span id="preview_date" class="preview-value"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 基本資料（單片和專輯） -->
+    <section class="form-section" id="basic-data-section">
+        <h3>【基本資料】</h3>
+        
+        <div class="form-group">
+            <label for="code">作品編號 <span class="required">*</span></label>
+            <input 
+                type="text" 
+                id="code" 
+                name="code" 
+                placeholder="例如：ABC-001, [WEWEDV967][COAT1441]"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label>公司 <span class="required">*</span></label>
+            <div class="radio-grid">
+                {% for studio in studios %}
+                <label class="radio-label">
+                    <input type="radio" name="studio_id" value="{{ studio.id }}" onchange="updateActorList()">
+                    <span>{{ studio.name }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="title">作品標題</label>
+            <input 
+                type="text" 
+                id="title" 
+                name="title" 
+                placeholder="選填"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="release_date">發行日期 <span class="required">*</span></label>
+            <input 
+                type="text" 
+                id="release_date" 
+                name="release_date" 
+                placeholder="格式：YYYY.MM 或 YYYY.00（不知道月份）"
+                pattern="\d{4}\.(0[0-9]|1[0-2])"
+                required
+            >
+            <small>例如：2024.12 或 2024.00</small>
+        </div>
+    </section>
+
+    <!-- 片段資料（專輯片段） -->
+    <section class="form-section" id="segment-data-section" style="display: none;">
+        <h3>【片段資料】</h3>
+        
+        <div class="form-group">
+            <label for="parent_album">所屬專輯 <span class="required">*</span></label>
+            <input 
+                type="text" 
+                id="parent_album" 
+                name="parent_album" 
+                placeholder="輸入搜尋專輯編號或標題"
+                autocomplete="off"
+            >
+            <div id="album-suggestions" class="autocomplete-suggestions"></div>
+        </div>
+
+        <div class="form-group">
+            <label>片段編號模式 <span class="required">*</span></label>
+            <div class="radio-group">
+                <label class="radio-label">
+                    <input type="radio" name="code_mode" value="prefix" checked onchange="updateCodeMode()">
+                    <span>基於專輯編號（前綴+後綴）</span>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="code_mode" value="custom" onchange="updateCodeMode()">
+                    <span>完全自訂編號</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- 前綴+後綴模式 -->
+        <div id="prefix-mode" class="code-mode-panel">
+            <div class="code-preview-panel">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="code_prefix">前綴</label>
+                        <input 
+                            type="text" 
+                            id="code_prefix" 
+                            name="code_prefix" 
+                            placeholder="自動從專輯提取，可修改"
+                            oninput="updateCodePreview()"
+                        >
+                        <small>自動從專輯編號提取第一個編號</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="code_suffix">後綴</label>
+                        <input 
+                            type="text" 
+                            id="code_suffix" 
+                            name="code_suffix" 
+                            placeholder="例如：01"
+                            oninput="updateCodePreview()"
+                        >
+                    </div>
+                </div>
+                
+                <div class="code-preview">
+                    <strong>➜ 完整編號：</strong>
+                    <span id="code_preview_text">（請填寫前綴和後綴）</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 完全自訂模式 -->
+        <div id="custom-mode" class="code-mode-panel" style="display: none;">
+            <div class="form-group">
+                <label for="code_custom">片段編號</label>
+                <input 
+                    type="text" 
+                    id="code_custom" 
+                    name="code_custom" 
+                    placeholder="自訂片段編號"
+                >
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="segment_title">作品標題</label>
+            <input 
+                type="text" 
+                id="segment_title" 
+                name="title" 
+                placeholder="片段標題"
+            >
+        </div>
+
+        <div class="inherited-info">
+            <p><strong>💡 從所屬專輯自動繼承：</strong></p>
+            <p id="inherited_studio">公司：（請先選擇專輯）</p>
+            <p id="inherited_date">日期：（請先選擇專輯）</p>
+        </div>
+    </section>
+
+    <!-- 演員與角色（單片和片段） -->
+    <section class="form-section" id="actors-section">
+        <h3>【演員與角色】</h3>
+        <p class="section-note">演員選單會根據上方選擇的「公司」自動篩選</p>
+        
+        <!-- Top -->
+        <div class="role-group">
+            <h4>▸ Top（插入方/1號）</h4>
+            <div id="actors-top" class="actors-container">
+                <div class="actor-input-row">
+                    <input 
+                        type="text" 
+                        class="actor-autocomplete" 
+                        data-role="top"
+                        placeholder="輸入演員名稱搜尋"
+                        autocomplete="off"
+                    >
+                    <input type="hidden" name="actor_top[]" class="actor-value">
+                    <div class="autocomplete-suggestions"></div>
+                </div>
+            </div>
+            <div class="role-buttons">
+                <button type="button" class="btn-add-small" onclick="addActorRow('top')">➕ 新增更多 Top</button>
+                <button type="button" class="btn-quick-actor" onclick="addAnonymousActor('top', 'sunglasses')">😎 墨鏡男</button>
+                <button type="button" class="btn-quick-actor" onclick="addAnonymousActor('top', 'passerby')">👥 路人甲</button>
+            </div>
+        </div>
+
+        <!-- Bottom -->
+        <div class="role-group">
+            <h4>▸ Bottom（接受方/0號）</h4>
+            <div id="actors-bottom" class="actors-container">
+                <div class="actor-input-row">
+                    <input 
+                        type="text" 
+                        class="actor-autocomplete" 
+                        data-role="bottom"
+                        placeholder="輸入演員名稱搜尋"
+                        autocomplete="off"
+                    >
+                    <input type="hidden" name="actor_bottom[]" class="actor-value">
+                    <div class="autocomplete-suggestions"></div>
+                </div>
+            </div>
+            <div class="role-buttons">
+                <button type="button" class="btn-add-small" onclick="addActorRow('bottom')">➕ 新增更多 Bottom</button>
+                <button type="button" class="btn-quick-actor" onclick="addAnonymousActor('bottom', 'sunglasses')">😎 墨鏡男</button>
+                <button type="button" class="btn-quick-actor" onclick="addAnonymousActor('bottom', 'passerby')">👥 路人甲</button>
+            </div>
+        </div>
+
+        <!-- Giver -->
+        <div class="role-group">
+            <h4>▸ Giver（口交/手交的主動方）</h4>
+            <div id="actors-giver" class="actors-container">
+                <div class="actor-input-row">
+                    <input 
+                        type="text" 
+                        class="actor-autocomplete" 
+                        data-role="giver"
+                        placeholder="輸入演員名稱搜尋"
+                        autocomplete="off"
+                    >
+                    <input type="hidden" name="actor_giver[]" class="actor-value">
+                    <div class="autocomplete-suggestions"></div>
+                </div>
+            </div>
+            <div class="role-buttons">
+                <button type="button" class="btn-add-small" onclick="addActorRow('giver')">➕ 新增更多 Giver</button>
+                <button type="button" class="btn-quick-actor" onclick="addAnonymousActor('giver', 'sunglasses')">😎 墨鏡男</button>
+                <button type="button" class="btn-quick-actor" onclick="addAnonymousActor('giver', 'passerby')">👥 路人甲</button>
+            </div>
+        </div>
+
+        <!-- Receiver -->
+        <div class="role-group">
+            <h4>▸ Receiver（口交/手交的被動方）</h4>
+            <div id="actors-receiver" class="actors-container">
+                <div class="actor-input-row">
+                    <input 
+                        type="text" 
+                        class="actor-autocomplete" 
+                        data-role="receiver"
+                        placeholder="輸入演員名稱搜尋"
+                        autocomplete="off"
+                    >
+                    <input type="hidden" name="actor_receiver[]" class="actor-value">
+                    <div class="autocomplete-suggestions"></div>
+                </div>
+            </div>
+            <div class="role-buttons">
+                <button type="button" class="btn-add-small" onclick="addActorRow('receiver')">➕ 新增更多 Receiver</button>
+                <button type="button" class="btn-quick-actor" onclick="addAnonymousActor('receiver', 'sunglasses')">😎 墨鏡男</button>
+                <button type="button" class="btn-quick-actor" onclick="addAnonymousActor('receiver', 'passerby')">👥 路人甲</button>
+            </div>
+        </div>
+
+        <!-- 其他演員 -->
+        <div class="role-group">
+            <h4>▸ 其他演員（無特定角色）</h4>
+            <div id="actors-other" class="actors-container">
+                <div class="actor-input-row">
+                    <input 
+                        type="text" 
+                        class="actor-autocomplete" 
+                        data-role="other"
+                        placeholder="輸入演員名稱搜尋"
+                        autocomplete="off"
+                    >
+                    <input type="hidden" name="actor_other[]" class="actor-value">
+                    <div class="autocomplete-suggestions"></div>
+                </div>
+            </div>
+            <div class="role-buttons">
+                <button type="button" class="btn-add-small" onclick="addActorRow('other')">➕ 新增更多</button>
+                <button type="button" class="btn-quick-actor" onclick="addAnonymousActor('other', 'sunglasses')">😎 墨鏡男</button>
+                <button type="button" class="btn-quick-actor" onclick="addAnonymousActor('other', 'passerby')">👥 路人甲</button>
+            </div>
+        </div>
+
+        <p class="helper-text">
+            找不到演員？ <a href="{{ url_for('add_actor') }}" target="_blank">➕ 新增演員到資料庫</a>
+        </p>
+    </section>
+
+    <!-- 標籤分類（單片和片段） -->
+    <section class="form-section" id="tags-section">
+        <h3>【標籤分類】</h3>
+        
+        <!-- 性行為標籤 -->
+        <div class="tag-group">
+            <h4>性行為標籤（可複選）</h4>
+            <div class="checkbox-grid">
+                {% for tag in tags.sex_act %}
+                <label class="checkbox-label">
+                    <input type="checkbox" name="tags[]" value="{{ tag.id }}">
+                    <span>{{ tag.name }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 風格標籤 -->
+        <div class="tag-group">
+            <h4>風格標籤（可複選）</h4>
+            <div class="checkbox-grid">
+                {% for tag in tags.style %}
+                <label class="checkbox-label">
+                    <input type="checkbox" name="tags[]" value="{{ tag.id }}">
+                    <span>{{ tag.display_name if tag.display_name else tag.name }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 場景標籤 -->
+        <div class="tag-group">
+            <h4>場景標籤（可複選）</h4>
+            <div class="checkbox-grid">
+                {% for tag in tags.scenario %}
+                <label class="checkbox-label">
+                    <input type="checkbox" name="tags[]" value="{{ tag.id }}">
+                    <span>{{ tag.name }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 體型標籤 -->
+        <div class="tag-group">
+            <h4>體型標籤（可複選）</h4>
+            <div class="checkbox-grid">
+                {% for tag in tags.body_type %}
+                <label class="checkbox-label">
+                    <input type="checkbox" name="tags[]" value="{{ tag.id }}">
+                    <span>{{ tag.name }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 來源標籤 -->
+        <div class="tag-group">
+            <h4>來源標籤（可複選）- 原 status</h4>
+            <div class="checkbox-grid">
+                {% for tag in tags.source %}
+                <label class="checkbox-label">
+                    <input type="checkbox" name="tags[]" value="{{ tag.id }}">
+                    <span>{{ tag.name }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- 備註 -->
+    <section class="form-section">
+        <h3>【備註】</h3>
+        
+        <div class="form-group">
+            <label for="comment">個人評論</label>
+            <textarea 
+                id="comment" 
+                name="comment" 
+                rows="4"
+                placeholder="選填：關於此作品的備註或評論"
+            ></textarea>
+        </div>
+    </section>
+
+    <!-- 送出按鈕 -->
+    <div class="form-actions">
+        <button type="submit" class="btn-primary">送出並新增</button>
+        <a href="{{ url_for('index') }}" class="btn-secondary">取消</a>
+    </div>
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='production_form.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}新增演員 - GVDB 資料庫管理系統{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>新增演員到資料庫</h2>
+</div>
+
+<form method="POST" action="{{ url_for('add_actor') }}" class="actor-form">
+    
+    <!-- 演員基本資料 -->
+    <section class="form-section">
+        <h3>【演員基本資料】</h3>
+        
+        <div class="form-group">
+            <label for="actor_tag">演員標記 <span class="required">*</span></label>
+            <input 
+                type="text" 
+                id="actor_tag" 
+                name="actor_tag" 
+                value="{{ actor_tag or '' }}"
+                placeholder="例如：ACTOR_001, ACTOR_言嘉佑"
+                required
+            >
+            <small>此標記是演員的唯一識別碼，建議格式：ACTOR_001, ACTOR_002, ACTOR_言嘉佑</small>
+        </div>
+
+        <div class="form-group">
+            <label for="gvdb_id">GVDB ID</label>
+            <input 
+                type="text" 
+                id="gvdb_id" 
+                name="gvdb_id" 
+                value="{{ gvdb_id or '' }}"
+                placeholder="選填：gvdb.org 的演員 ID"
+            >
+        </div>
+    </section>
+
+    <!-- 藝名設定 -->
+    <section class="form-section">
+        <h3>【此演員在各公司的藝名】</h3>
+        <p class="section-note">至少需要新增一個公司的藝名</p>
+        
+        <div id="stage-names-container">
+            <!-- 第一組藝名（預設） -->
+            <div class="stage-name-row">
+                <div class="form-group">
+                    <label>公司</label>
+                    <select name="studio_id[]" class="studio-select" required>
+                        <option value="">選擇公司</option>
+                        {% for studio in studios %}
+                        <option value="{{ studio.id }}">{{ studio.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>藝名</label>
+                    <input 
+                        type="text" 
+                        name="stage_name[]" 
+                        placeholder="在此公司的藝名"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group button-group">
+                    <button type="button" class="btn-remove" onclick="removeStageNameRow(this)" disabled>
+                        ➖ 刪除
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <button type="button" id="add-stage-name" class="btn-add">
+            ➕ 新增更多公司的藝名
+        </button>
+    </section>
+
+    <!-- 備註 -->
+    <section class="form-section">
+        <h3>【備註】</h3>
+        
+        <div class="form-group">
+            <label for="notes">備註</label>
+            <textarea 
+                id="notes" 
+                name="notes" 
+                rows="3"
+                placeholder="選填：關於此演員的備註"
+            >{{ notes or '' }}</textarea>
+        </div>
+    </section>
+
+    <!-- 送出按鈕 -->
+    <div class="form-actions">
+        <button type="submit" class="btn-primary">確定新增演員</button>
+        <a href="{{ url_for('index') }}" class="btn-secondary">取消</a>
+    </div>
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 新增藝名列
+document.getElementById('add-stage-name').addEventListener('click', function() {
+    const container = document.getElementById('stage-names-container');
+    const firstRow = container.querySelector('.stage-name-row');
+    const newRow = firstRow.cloneNode(true);
+    
+    // 清空新列的輸入值
+    newRow.querySelectorAll('input, select').forEach(input => {
+        input.value = '';
+    });
+    
+    // 啟用刪除按鈕
+    newRow.querySelector('.btn-remove').disabled = false;
+    
+    container.appendChild(newRow);
+    updateRemoveButtons();
+});
+
+// 刪除藝名列
+function removeStageNameRow(button) {
+    const row = button.closest('.stage-name-row');
+    row.remove();
+    updateRemoveButtons();
+}
+
+// 更新刪除按鈕狀態（至少保留一列）
+function updateRemoveButtons() {
+    const rows = document.querySelectorAll('.stage-name-row');
+    const removeButtons = document.querySelectorAll('.btn-remove');
+    
+    if (rows.length === 1) {
+        removeButtons[0].disabled = true;
+    } else {
+        removeButtons.forEach(btn => btn.disabled = false);
+    }
+}
+
+// ========== 防止按 Enter 送出表單 ==========
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.actor-form');
+    
+    if (form) {
+        // 阻止表單內所有輸入框的 Enter 鍵送出
+        form.addEventListener('keydown', function(e) {
+            // 如果按下 Enter 且不是在 textarea 中
+            if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                return false;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

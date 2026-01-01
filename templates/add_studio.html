@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}新增公司 - GVDB 資料庫管理系統{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>新增公司到資料庫</h2>
+</div>
+
+<form method="POST" action="{{ url_for('add_studio') }}" class="actor-form">
+    
+    <!-- 公司基本資料 -->
+    <section class="form-section">
+        <h3>【公司基本資料】</h3>
+        
+        <div class="form-group">
+            <label for="studio_name">公司名稱 <span class="required">*</span></label>
+            <input 
+                type="text" 
+                id="studio_name" 
+                name="studio_name" 
+                placeholder="例如：Coat、JUSTICE"
+                required
+            >
+            <small>此名稱是公司的唯一識別，建議使用官方名稱</small>
+        </div>
+
+        <div class="form-group">
+            <label for="country">國家/地區</label>
+            <input 
+                type="text" 
+                id="country" 
+                name="country" 
+                placeholder="例如：Japan、Taiwan、USA"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="website">官方網站</label>
+            <input 
+                type="text" 
+                id="website" 
+                name="website" 
+                placeholder="https://example.com"
+            >
+            <small>請輸入完整的網址，包含 https://</small>
+        </div>
+
+        <div class="form-group">
+            <label for="notes">備註</label>
+            <textarea 
+                id="notes" 
+                name="notes" 
+                rows="3"
+                placeholder="選填：關於此公司的備註"
+            ></textarea>
+        </div>
+    </section>
+
+    <!-- 自動建立匿名演員說明 -->
+    <section class="form-section">
+        <h3>【自動建立匿名演員】</h3>
+        <p class="section-note">新增公司時，系統會自動建立以下兩個匿名演員：</p>
+        <ul style="margin-left: 2rem; color: #666;">
+            <li>墨鏡男（[公司名稱]）</li>
+            <li>路人甲（[公司名稱]）</li>
+        </ul>
+        <p class="section-note" style="margin-top: 1rem;">這些匿名演員可以在「新增作品」時快速選用</p>
+    </section>
+
+    <!-- 送出按鈕 -->
+    <div class="form-actions">
+        <button type="submit" class="btn-primary">確定新增公司</button>
+        <a href="{{ url_for('index') }}" class="btn-secondary">取消</a>
+    </div>
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 防止按 Enter 送出表單
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.actor-form');
+    
+    if (form) {
+        form.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                return false;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
