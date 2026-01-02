@@ -1214,16 +1214,26 @@ def query_actors():
             global_stats = cur.fetchone()
 
             # 取得最新作品信息（只考慮專輯或單片，不包括片段）
+            # 通過 UNION 將單片和專輯片段的父專輯合併
             cur.execute("""
-                SELECT p.code,
-                    p.release_date
+                SELECT p.code, p.release_date
                 FROM performances perf
                 JOIN stage_names sn ON perf.stage_name_id = sn.id
                 JOIN productions p ON perf.production_id = p.id
-                WHERE sn.actor_id = %s AND p.type IN ('single', 'album')
-                ORDER BY p.release_date DESC, p.id DESC
+                WHERE sn.actor_id = %s AND p.type = 'single'
+
+                UNION
+
+                SELECT p.code, p.release_date
+                FROM performances perf
+                JOIN stage_names sn ON perf.stage_name_id = sn.id
+                JOIN productions seg ON perf.production_id = seg.id
+                JOIN productions p ON seg.parent_id = p.id
+                WHERE sn.actor_id = %s AND seg.type = 'segment' AND p.type = 'album'
+
+                ORDER BY release_date DESC
                 LIMIT 1
-            """, (actor_id,))
+            """, (actor_id, actor_id))
             latest_prod = cur.fetchone()
 
             # 計算各公司的詳細統計
@@ -1241,17 +1251,33 @@ def query_actors():
                     COALESCE(SUM(CASE WHEN perf.role = 'bottom' THEN 1 ELSE 0 END), 0) as role_bottom,
                     COALESCE(SUM(CASE WHEN perf.role = 'giver' THEN 1 ELSE 0 END), 0) as role_giver,
                     COALESCE(SUM(CASE WHEN perf.role = 'receiver' THEN 1 ELSE 0 END), 0) as role_receiver,
-                    (SELECT COALESCE(p2.release_date, '') FROM performances perf2
-                     JOIN productions p2 ON perf2.production_id = p2.id
-                     WHERE perf2.stage_name_id = sn.id
-                     AND p2.type IN ('single', 'album')
-                     ORDER BY p2.release_date DESC, p2.id DESC
+                    (SELECT release_date FROM (
+                        SELECT p2.release_date, p2.code FROM performances perf2
+                        JOIN productions p2 ON perf2.production_id = p2.id
+                        WHERE perf2.stage_name_id = sn.id AND p2.type = 'single'
+
+                        UNION
+
+                        SELECT p2.release_date, p2.code FROM performances perf2
+                        JOIN productions seg ON perf2.production_id = seg.id
+                        JOIN productions p2 ON seg.parent_id = p2.id
+                        WHERE perf2.stage_name_id = sn.id AND seg.type = 'segment' AND p2.type = 'album'
+                     ) AS latest_prod
+                     ORDER BY release_date DESC
                      LIMIT 1) as latest_date,
-                    (SELECT p2.code FROM performances perf2
-                     JOIN productions p2 ON perf2.production_id = p2.id
-                     WHERE perf2.stage_name_id = sn.id
-                     AND p2.type IN ('single', 'album')
-                     ORDER BY p2.release_date DESC, p2.id DESC
+                    (SELECT code FROM (
+                        SELECT p2.release_date, p2.code FROM performances perf2
+                        JOIN productions p2 ON perf2.production_id = p2.id
+                        WHERE perf2.stage_name_id = sn.id AND p2.type = 'single'
+
+                        UNION
+
+                        SELECT p2.release_date, p2.code FROM performances perf2
+                        JOIN productions seg ON perf2.production_id = seg.id
+                        JOIN productions p2 ON seg.parent_id = p2.id
+                        WHERE perf2.stage_name_id = sn.id AND seg.type = 'segment' AND p2.type = 'album'
+                     ) AS latest_prod
+                     ORDER BY release_date DESC
                      LIMIT 1) as latest_production_code
                 FROM stage_names sn
                 LEFT JOIN studios s ON sn.studio_id = s.id
