@@ -872,6 +872,7 @@ def api_search_actors():
     
     sql = """
         SELECT DISTINCT
+            a.id as actor_id,
             sn.id as stage_name_id,
             sn.stage_name,
             a.actor_tag as actor_name,
