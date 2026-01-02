@@ -81,50 +81,6 @@
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
-/* 建議下拉框 */
-.suggestions-box {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid #ddd;
-    border-top: none;
-    border-radius: 0 0 4px 4px;
-    max-height: 300px;
-    overflow-y: auto;
-    z-index: 1000;
-    display: none;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.suggestions-box.show {
-    display: block;
-}
-
-.suggestion-item {
-    padding: 12px;
-    cursor: pointer;
-    border-bottom: 1px solid #f0f0f0;
-    transition: background 0.2s;
-}
-
-.suggestion-item:hover {
-    background: #f8f9fa;
-}
-
-.suggestion-item strong {
-    display: block;
-    font-size: 14px;
-    margin-bottom: 3px;
-}
-
-.suggestion-item small {
-    display: block;
-    font-size: 12px;
-    color: #999;
-}
-
 /* 複選框組 */
 .checkbox-group {
     display: flex;
@@ -184,7 +140,7 @@
 /* 列標題 */
 .list-header {
     display: grid;
-    grid-template-columns: 40px 150px 150px 80px 1fr 150px 100px;
+    grid-template-columns: 40px 200px 100px 70px 1fr 100px 80px;
     gap: 15px;
     align-items: center;
     padding: 15px;
@@ -198,6 +154,28 @@
 
 .list-header > div {
     padding: 5px 0;
+}
+
+/* 標題對齐方式 */
+.list-header .header-name {
+    text-align: left;
+}
+
+.list-header .header-companies {
+    text-align: left;
+}
+
+.list-header .header-count,
+.list-header .header-roles {
+    text-align: center;
+}
+
+.list-header .header-latest {
+    text-align: center;
+}
+
+.list-header .header-date {
+    text-align: right;
 }
 
 .actors-list {
@@ -222,7 +200,7 @@
 /* 演員標題行（母項） */
 .actor-header {
     display: grid;
-    grid-template-columns: 40px 150px 150px 80px 1fr 150px 100px;
+    grid-template-columns: 40px 200px 100px 70px 1fr 100px 80px;
     gap: 15px;
     align-items: center;
     padding: 15px;
@@ -399,29 +377,20 @@
 /* 公司項目（在詳細區內） */
 .studio-item {
     display: grid;
-    grid-template-columns: 40px 150px 150px 80px 1fr 150px 100px;
+    grid-template-columns: 40px 200px 100px 70px 1fr 100px 80px;
     gap: 15px;
     align-items: center;
     padding: 15px;
-    padding-left: 15px; /* 去掉過度縮進，對齐母項 */
     background: #fafafa;
     border-bottom: 1px solid #f0f0f0;
     border-left: 3px solid #007bff; /* 左邊藍色條表示子項 */
-    margin-left: 40px; /* 只縮進一個 toggle 按鈕的寬度 */
 }
 
 .studio-item:last-child {
     border-bottom: none;
 }
 
-/* 公司名稱（藝名） */
-.studio-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-}
-
+/* 藝名（在該公司） */
 .stage-name {
     font-size: 14px;
     font-weight: bold;
@@ -431,8 +400,8 @@
     text-overflow: ellipsis;
 }
 
+/* 公司 badge */
 .studio-badge {
-    display: inline-block;
     padding: 4px 8px;
     border-radius: 3px;
     font-size: 11px;
@@ -440,10 +409,6 @@
     color: white;
     width: fit-content;
     white-space: nowrap;
-}
-
-/* 默認公司顏色 */
-.studio-badge {
     background: #95a5a6;
 }
 

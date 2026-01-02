@@ -1251,7 +1251,13 @@ def query_actors():
                     MAX(CASE
                         WHEN p.type IN ('single', 'album') THEN p.release_date
                         ELSE (SELECT release_date FROM productions WHERE id = p.parent_id)
-                    END) as latest_date
+                    END) as latest_date,
+                    (SELECT p2.code FROM performances perf2
+                     JOIN productions p2 ON perf2.production_id = p2.id
+                     WHERE perf2.stage_name_id = sn.id
+                     AND p2.type IN ('single', 'album')
+                     ORDER BY p2.release_date DESC, p2.id DESC
+                     LIMIT 1) as latest_production_code
                 FROM stage_names sn
                 LEFT JOIN studios s ON sn.studio_id = s.id
                 LEFT JOIN performances perf ON sn.id = perf.stage_name_id
@@ -1278,6 +1284,7 @@ def query_actors():
                     'stage_name': studio['stage_name'],
                     'productions': studio['productions'],
                     'latest_date': studio['latest_date'],
+                    'latest_production_code': studio['latest_production_code'],
                     'role_breakdown': {
                         'top': studio['role_top'],
                         'bottom': studio['role_bottom'],

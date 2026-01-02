@@ -42,6 +42,7 @@ const studioColors = {
 document.addEventListener('DOMContentLoaded', async () => {
     await loadFilters();
     setupEventListeners();
+    // 初始時顯示所有演員（不搜尋任何關鍵字）
     await performSearch();
 });
 
@@ -79,56 +80,6 @@ async function loadFilters() {
 // ==================== 事件監聽設置 ====================
 
 function setupEventListeners() {
-    // 搜尋框
-    const searchInput = document.getElementById('actorSearch');
-    searchInput.addEventListener('input', debounce(async (e) => {
-        state.filters.search = e.target.value.trim();
-        state.currentPage = 1;
-
-        if (state.filters.search.length > 0) {
-            await showSuggestions(state.filters.search);
-        } else {
-            hideSuggestions();
-        }
-
-        await performSearch();
-    }, 300));
-
-    // 搜尋框鍵盤導航
-    searchInput.addEventListener('keydown', (e) => {
-        const suggestionsBox = document.getElementById('suggestions');
-        const items = suggestionsBox.querySelectorAll('.suggestion-item');
-
-        if (items.length === 0) return;
-
-        switch(e.key) {
-            case 'ArrowDown':
-                e.preventDefault();
-                state.keyboardSelectedIndex = Math.min(state.keyboardSelectedIndex + 1, items.length - 1);
-                updateKeyboardSelection(items);
-                break;
-
-            case 'ArrowUp':
-                e.preventDefault();
-                state.keyboardSelectedIndex = Math.max(state.keyboardSelectedIndex - 1, -1);
-                updateKeyboardSelection(items);
-                break;
-
-            case 'Enter':
-                e.preventDefault();
-                if (state.keyboardSelectedIndex >= 0) {
-                    items[state.keyboardSelectedIndex].click();
-                }
-                break;
-
-            case 'Escape':
-                e.preventDefault();
-                hideSuggestions();
-                state.keyboardSelectedIndex = -1;
-                break;
-        }
-    });
-
     // 公司篩選複選框
     document.addEventListener('change', (e) => {
         if (e.target.matches('input[data-filter="studios"]')) {
@@ -159,6 +110,16 @@ function setupEventListeners() {
         performSearch();
     });
 
+    // 搜尋輸入框（debounce 版本，無自動補全）
+    const searchInput = document.getElementById('actorSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', debounce((e) => {
+            state.filters.search = e.target.value.trim();
+            state.currentPage = 1;
+            performSearch();
+        }, 300));
+    }
+
     // 清除篩選按鈕
     document.getElementById('clearFilters').addEventListener('click', clearFilters);
 
@@ -169,76 +130,9 @@ function setupEventListeners() {
             toggleActor(parseInt(actorId));
         }
     });
-
-    // 防止建議框外點擊時的默認行為
-    document.addEventListener('click', (e) => {
-        if (!e.target.matches('#actorSearch') && !e.target.closest('.suggestions-box')) {
-            setTimeout(hideSuggestions, 100);
-        }
-    });
 }
 
-// ==================== 自動補齊 ====================
-
-async function showSuggestions(query) {
-    try {
-        const response = await fetch(`/api/actors/suggestions?q=${encodeURIComponent(query)}`);
-        const suggestions = await response.json();
-
-        const container = document.getElementById('suggestions');
-        container.innerHTML = '';
-
-        if (suggestions.length === 0) {
-            container.innerHTML = '<div class="suggestion-item" style="color: #999; cursor: default;">找不到相符的演員</div>';
-        } else {
-            suggestions.forEach((actor, index) => {
-                const item = document.createElement('div');
-                item.className = 'suggestion-item';
-                item.dataset.index = index;
-
-                const stageName = actor.stage_names ? actor.stage_names.join(', ') : '無藝名';
-                const studios = actor.studios ? actor.studios.join(', ') : '無';
-
-                item.innerHTML = `
-                    <strong>${escapeHtml(actor.actor_tag)}</strong>
-                    <small>${escapeHtml(stageName)} (${escapeHtml(studios)})</small>
-                `;
-
-                item.addEventListener('click', () => {
-                    document.getElementById('actorSearch').value = actor.actor_tag;
-                    state.filters.search = actor.actor_tag;
-                    state.currentPage = 1;
-                    hideSuggestions();
-                    performSearch();
-                });
-
-                container.appendChild(item);
-            });
-        }
-
-        container.classList.add('show');
-        state.keyboardSelectedIndex = -1;
-
-    } catch (error) {
-        console.error('獲取建議失敗:', error);
-    }
-}
-
-function hideSuggestions() {
-    document.getElementById('suggestions').classList.remove('show');
-    state.keyboardSelectedIndex = -1;
-}
-
-function updateKeyboardSelection(items) {
-    items.forEach((item, index) => {
-        if (index === state.keyboardSelectedIndex) {
-            item.style.background = '#f8f9fa';
-            item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-        } else {
-            item.style.background = '';
-        }
-    });
-}
+// [自動補齊功能已移除 - 使用下方篩選面板進行查詢]
 
 // ==================== 搜尋和篩選 ====================
 
@@ -369,22 +263,26 @@ function createActorItem(actor) {
     const productionSpan = document.createElement('span');
     productionSpan.className = 'production-count';
     productionSpan.textContent = globalStats.total_productions;
+    productionSpan.style.textAlign = 'center';
 
     // 5. 角色比例條形圖
     const chartDiv = document.createElement('div');
     chartDiv.className = 'role-chart';
     chartDiv.appendChild(createRoleBar(globalStats.role_breakdown, globalRolePercentages));
+    chartDiv.style.textAlign = 'center';
 
     // 6. 最新作品
     const latestSpan = document.createElement('span');
     latestSpan.className = 'latest-production';
     latestSpan.title = globalStats.latest_production_code || '無';
     latestSpan.textContent = globalStats.latest_production_code || '無';
+    latestSpan.style.textAlign = 'center';
 
     // 7. 最新日期
     const dateSpan = document.createElement('span');
     dateSpan.className = 'latest-date';
     dateSpan.textContent = globalStats.latest_release_date || '無';
+    dateSpan.style.textAlign = 'right';
 
     headerDiv.appendChild(toggleBtn);
     headerDiv.appendChild(nameSpan);
@@ -419,59 +317,53 @@ function createStudioItem(studio) {
     studioItem.className = 'studio-item';
     studioItem.dataset.studioId = studio.studio_id;
 
-    // 1. Spacer
+    // 1. Spacer (matches toggle button column)
     const spacer = document.createElement('div');
-    spacer.style.display = 'none';
+    spacer.style.width = '40px';
 
-    // 2. 公司名稱和藝名
-    const infoDiv = document.createElement('div');
-    infoDiv.className = 'studio-info';
-
-    const stageName = document.createElement('span');
+    // 2. 藝名（在該公司）
+    const stageName = document.createElement('div');
     stageName.className = 'stage-name';
     stageName.textContent = studio.stage_name || '無藝名';
 
-    const badge = document.createElement('span');
+    // 3. 公司名稱 badge
+    const badge = document.createElement('div');
     badge.className = 'studio-badge';
     badge.style.background = studioColors[studio.studio_name] || '#95a5a6';
     badge.textContent = studio.studio_name;
 
-    infoDiv.appendChild(stageName);
-    infoDiv.appendChild(badge);
-
-    // 3. 作品總數
-    const productionSpan = document.createElement('span');
+    // 4. 作品總數
+    const productionSpan = document.createElement('div');
     productionSpan.className = 'production-count';
     productionSpan.textContent = studio.productions;
+    productionSpan.style.textAlign = 'center';
 
-    // 4. 角色比例條形圖
+    // 5. 角色比例條形圖
     const chartDiv = document.createElement('div');
     chartDiv.className = 'role-chart';
     chartDiv.appendChild(createRoleBar(studio.role_breakdown, studio.role_percentage));
+    chartDiv.style.textAlign = 'center';
 
-    // 5. 最新作品
-    const latestSpan = document.createElement('span');
+    // 6. 最新作品
+    const latestSpan = document.createElement('div');
     latestSpan.className = 'latest-production';
-    latestSpan.textContent = '---';
+    latestSpan.textContent = studio.latest_production_code || '---';
+    latestSpan.style.textAlign = 'center';
 
-    // 6. 最新日期
-    const dateSpan = document.createElement('span');
+    // 7. 最新日期
+    const dateSpan = document.createElement('div');
     dateSpan.className = 'latest-date';
     dateSpan.textContent = studio.latest_date || '無';
+    dateSpan.style.textAlign = 'right';
 
-    // 組合所有元素
-    const gridItem = document.createElement('div');
-    gridItem.style.gridColumn = '1 / -1';
-    gridItem.style.display = 'contents';
-
-    gridItem.appendChild(spacer);
-    gridItem.appendChild(infoDiv);
-    gridItem.appendChild(productionSpan);
-    gridItem.appendChild(chartDiv);
-    gridItem.appendChild(latestSpan);
-    gridItem.appendChild(dateSpan);
-
-    studioItem.appendChild(gridItem);
+    // 附加元素到 studioItem
+    studioItem.appendChild(spacer);
+    studioItem.appendChild(stageName);
+    studioItem.appendChild(badge);
+    studioItem.appendChild(productionSpan);
+    studioItem.appendChild(chartDiv);
+    studioItem.appendChild(latestSpan);
+    studioItem.appendChild(dateSpan);
 
     return studioItem;
 }
