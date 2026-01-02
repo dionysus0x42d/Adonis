@@ -1213,22 +1213,15 @@ def query_actors():
             """, (actor_id,))
             global_stats = cur.fetchone()
 
-            # 取得最新作品信息
+            # 取得最新作品信息（只考慮專輯或單片，不包括片段）
             cur.execute("""
                 SELECT p.code,
-                    CASE
-                        WHEN p.type IN ('single', 'album') THEN p.release_date
-                        ELSE (SELECT release_date FROM productions WHERE id = p.parent_id)
-                    END as release_date
+                    p.release_date
                 FROM performances perf
                 JOIN stage_names sn ON perf.stage_name_id = sn.id
                 JOIN productions p ON perf.production_id = p.id
-                WHERE sn.actor_id = %s AND p.type IN ('single', 'segment')
-                ORDER BY
-                    CASE
-                        WHEN p.type IN ('single', 'album') THEN p.release_date
-                        ELSE (SELECT release_date FROM productions WHERE id = p.parent_id)
-                    END DESC, p.id DESC
+                WHERE sn.actor_id = %s AND p.type IN ('single', 'album')
+                ORDER BY p.release_date DESC, p.id DESC
                 LIMIT 1
             """, (actor_id,))
             latest_prod = cur.fetchone()
@@ -1248,10 +1241,12 @@ def query_actors():
                     COALESCE(SUM(CASE WHEN perf.role = 'bottom' THEN 1 ELSE 0 END), 0) as role_bottom,
                     COALESCE(SUM(CASE WHEN perf.role = 'giver' THEN 1 ELSE 0 END), 0) as role_giver,
                     COALESCE(SUM(CASE WHEN perf.role = 'receiver' THEN 1 ELSE 0 END), 0) as role_receiver,
-                    MAX(CASE
-                        WHEN p.type IN ('single', 'album') THEN p.release_date
-                        ELSE (SELECT release_date FROM productions WHERE id = p.parent_id)
-                    END) as latest_date,
+                    (SELECT COALESCE(p2.release_date, '') FROM performances perf2
+                     JOIN productions p2 ON perf2.production_id = p2.id
+                     WHERE perf2.stage_name_id = sn.id
+                     AND p2.type IN ('single', 'album')
+                     ORDER BY p2.release_date DESC, p2.id DESC
+                     LIMIT 1) as latest_date,
                     (SELECT p2.code FROM performances perf2
                      JOIN productions p2 ON perf2.production_id = p2.id
                      WHERE perf2.stage_name_id = sn.id
