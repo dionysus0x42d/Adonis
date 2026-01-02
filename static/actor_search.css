@@ -38,7 +38,7 @@
 }
 
 .filter-row label {
-    flex: 0 0 120px;
+    flex: 0 0 150px;
     font-weight: 500;
     color: #333;
     padding-top: 8px;
@@ -156,7 +156,7 @@
     padding: 5px 0;
 }
 
-/* 標題對齐方式 */
+/* 標題對齊方式 */
 .list-header .header-name {
     text-align: left;
 }
