@@ -12,7 +12,8 @@ const state = {
         search: '',
         studios: [],
         sort: 'name',
-        sort_order: 'asc'
+        sort_order: 'asc',
+        showAnonymous: false
     },
     data: {
         actors: [],
@@ -23,17 +24,17 @@ const state = {
     keyboardSelectedIndex: -1
 };
 
-// 公司顏色映射
+// 公司顏色映射（統一灰色背景）
 const studioColors = {
-    'Coat': '#FF6B6B',
-    'JUSTICE': '#4ECDC4',
-    'ACCEED': '#95E1D3',
-    'Carabineer': '#F38181',
-    'Omega Tribe': '#AA96DA',
-    'K-Tribe': '#FCBAD3',
-    'Hunters': '#A8D8EA',
-    'MUST': '#8B9DC3',
-    'Fantastic': '#C2B0C5'
+    'Coat': '#95a5a6',
+    'JUSTICE': '#95a5a6',
+    'ACCEED': '#95a5a6',
+    'Carabineer': '#95a5a6',
+    'Omega Tribe': '#95a5a6',
+    'K-Tribe': '#95a5a6',
+    'Hunters': '#95a5a6',
+    'MUST': '#95a5a6',
+    'Fantastic': '#95a5a6'
 };
 
 // ==================== 初始化 ====================
@@ -136,6 +137,13 @@ function setupEventListeners() {
             state.currentPage = 1;
             performSearch();
         }
+    });
+
+    // 匿名演員篩選勾選框
+    document.getElementById('showAnonymous').addEventListener('change', (e) => {
+        state.filters.showAnonymous = e.target.checked;
+        state.currentPage = 1;
+        performSearch();
     });
 
     // 排序選項
@@ -245,6 +253,7 @@ async function performSearch() {
         params.append('sort_order', state.filters.sort_order);
         params.append('page', state.currentPage);
         params.append('per_page', state.perPage);
+        params.append('show_anonymous', state.filters.showAnonymous ? '1' : '0');
 
         if (state.filters.studios.length > 0) {
             params.append('studios', state.filters.studios.join(','));
@@ -273,6 +282,7 @@ async function performSearch() {
 function clearFilters() {
     document.getElementById('actorSearch').value = '';
     document.querySelectorAll('input[data-filter="studios"]').forEach(cb => cb.checked = false);
+    document.getElementById('showAnonymous').checked = false;
     document.getElementById('sortBy').value = 'name';
     document.getElementById('sortOrder').value = 'asc';
 
@@ -280,7 +290,8 @@ function clearFilters() {
         search: '',
         studios: [],
         sort: 'name',
-        sort_order: 'asc'
+        sort_order: 'asc',
+        showAnonymous: false
     };
     state.currentPage = 1;
     state.expandedActors.clear();

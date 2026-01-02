@@ -1088,6 +1088,7 @@ def query_actors():
         sort_order = request.args.get('sort_order', 'asc').lower()
         page = int(request.args.get('page', 1))
         per_page = int(request.args.get('per_page', 20))
+        show_anonymous = request.args.get('show_anonymous', '0') == '1'
 
         # 驗證參數
         if sort not in ['name', 'latest', 'count']:
@@ -1103,7 +1104,13 @@ def query_actors():
         cur = conn.cursor(cursor_factory=RealDictCursor)
 
         # 建立基礎查詢 - 查詢符合條件的演員（去重）
+        # 排除 STUDIO_ 開頭的自動生成演員
         query_where = "a.actor_tag NOT LIKE 'STUDIO_%%'"
+
+        # 排除或包含匿名演員
+        if not show_anonymous:
+            query_where += " AND a.actor_tag NOT IN ('ANONYMOUS_POOL', 'UNKNOWN_POOL')"
+
         params = []
 
         # 搜尋條件

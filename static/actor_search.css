@@ -181,11 +181,31 @@
     font-weight: 500;
 }
 
+/* 列標題 */
+.list-header {
+    display: grid;
+    grid-template-columns: 40px 150px 150px 80px 1fr 150px 100px;
+    gap: 15px;
+    align-items: center;
+    padding: 15px;
+    background: #e8e8e8;
+    font-weight: bold;
+    font-size: 13px;
+    color: #333;
+    border-bottom: 2px solid #d0d0d0;
+    border-radius: 8px 8px 0 0;
+}
+
+.list-header > div {
+    padding: 5px 0;
+}
+
 .actors-list {
     background: white;
-    border-radius: 8px;
+    border-radius: 0 0 8px 8px;
     overflow: hidden;
     border: 1px solid #e0e0e0;
+    border-top: none;
 }
 
 /* ==================== 演員項目樣式 ==================== */
@@ -316,19 +336,23 @@
 
 /* 四種顏色對應四種角色 */
 .segment.top {
-    background: #FF6B6B; /* 紅色 */
+    background: #e74c3c; /* 紅色 */
 }
 
 .segment.bottom {
-    background: #4ECDC4; /* 藍綠色 */
+    background: #27ae60; /* 綠色 */
 }
 
 .segment.giver {
-    background: #FFD93D; /* 黃色 */
+    background: #3498db; /* 藍色 */
 }
 
 .segment.receiver {
-    background: #6BCB77; /* 綠色 */
+    background: #f39c12; /* 橘色 */
+}
+
+.segment.other {
+    background: #95a5a6; /* 灰色 */
 }
 
 .segment .count {
@@ -379,10 +403,11 @@
     gap: 15px;
     align-items: center;
     padding: 15px;
-    padding-left: 70px; /* 縮進，區分子項 */
-    background: white;
+    padding-left: 15px; /* 去掉過度縮進，對齐母項 */
+    background: #fafafa;
     border-bottom: 1px solid #f0f0f0;
-    border-left: 2px solid #007bff;
+    border-left: 3px solid #007bff; /* 左邊藍色條表示子項 */
+    margin-left: 40px; /* 只縮進一個 toggle 按鈕的寬度 */
 }
 
 .studio-item:last-child {

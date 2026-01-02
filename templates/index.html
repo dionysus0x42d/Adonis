@@ -34,9 +34,9 @@
         <p>修改演員資料和管理藝名</p>
     </a>
 
-    <a href="#" class="function-card disabled">
-        <h3>👥 查看演員</h3>
-        <p>瀏覽演員列表和統計（開發中）</p>
+    <a href="{{ url_for('actor_search_page') }}" class="function-card">
+        <h3>👥 查詢演員</h3>
+        <p>搜尋演員、查看出演統計和角色分佈</p>
     </a>
 </div>
 {% endblock %}
