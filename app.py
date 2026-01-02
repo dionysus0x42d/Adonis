@@ -997,6 +997,330 @@ def update_actor(actor_id):
         return jsonify({'error': str(e)}), 500
 
 
+# ==================== 演員查詢功能 ====================
+
+@app.route('/actors')
+def actor_search_page():
+    """演員查詢頁面"""
+    return render_template('actor_search.html')
+
+
+@app.route('/api/actors/filters', methods=['GET'])
+def get_actor_filters():
+    """取得演員查詢篩選選項（公司列表、排序選項）"""
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # 取得所有公司
+    cur.execute("SELECT id, name FROM studios ORDER BY name")
+    studios = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return jsonify({
+        'studios': studios,
+        'sort_options': [
+            {'value': 'name', 'label': '按名字 (A-Z)'},
+            {'value': 'latest', 'label': '按最新作品'},
+            {'value': 'count', 'label': '按作品數量'}
+        ]
+    })
+
+
+@app.route('/api/actors/suggestions', methods=['GET'])
+def get_actor_suggestions():
+    """取得演員建議（自動補齊）"""
+    query = request.args.get('q', '').strip()
+
+    if not query:
+        return jsonify([])
+
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # 搜尋 actor_tag 和 stage_name（排除自動生成的演員）
+    sql = """
+        SELECT DISTINCT
+            a.id as actor_id,
+            a.actor_tag,
+            array_agg(DISTINCT sn.stage_name) as stage_names,
+            array_agg(DISTINCT s.name) as studios
+        FROM actors a
+        LEFT JOIN stage_names sn ON a.id = sn.actor_id
+        LEFT JOIN studios s ON sn.studio_id = s.id
+        WHERE (a.actor_tag ILIKE %s OR sn.stage_name ILIKE %s)
+            AND a.actor_tag NOT LIKE 'STUDIO_%%'
+        GROUP BY a.id, a.actor_tag
+        ORDER BY
+            CASE WHEN a.actor_tag ILIKE %s THEN 0 ELSE 1 END,
+            a.actor_tag
+        LIMIT 10
+    """
+
+    search_pattern = f'%{query}%'
+    exact_pattern = f'{query}%'
+    cur.execute(sql, (search_pattern, search_pattern, exact_pattern))
+    results = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    return jsonify(results)
+
+
+@app.route('/api/actors/query', methods=['GET'])
+def query_actors():
+    """
+    演員查詢 API
+    參數:
+    - search: 搜尋關鍵字 (actor_tag 或 stage_name)
+    - studios: 公司 ID (逗號分隔，可選)
+    - sort: 排序欄位 (name|latest|count，默認 name)
+    - sort_order: 排序順序 (asc|desc，默認 asc)
+    - page: 頁碼（默認 1）
+    - per_page: 每頁筆數（默認 20）
+    """
+
+    try:
+        search = request.args.get('search', '').strip()
+        studios = request.args.get('studios', '')
+        sort = request.args.get('sort', 'name')
+        sort_order = request.args.get('sort_order', 'asc').lower()
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 20))
+
+        # 驗證參數
+        if sort not in ['name', 'latest', 'count']:
+            sort = 'name'
+        if sort_order not in ['asc', 'desc']:
+            sort_order = 'asc'
+        if page < 1:
+            page = 1
+        if per_page < 1 or per_page > 100:
+            per_page = 20
+
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+
+        # 建立基礎查詢 - 查詢符合條件的演員（去重）
+        query_where = "a.actor_tag NOT LIKE 'STUDIO_%%'"
+        params = []
+
+        # 搜尋條件
+        if search:
+            query_where += " AND (a.actor_tag ILIKE %s OR sn.stage_name ILIKE %s)"
+            search_pattern = f'%{search}%'
+            params.extend([search_pattern, search_pattern])
+
+        # 公司篩選
+        if studios:
+            try:
+                studio_ids = [int(x) for x in studios.split(',')]
+                placeholders = ','.join(['%s'] * len(studio_ids))
+                query_where += f" AND sn.studio_id IN ({placeholders})"
+                params.extend(studio_ids)
+            except ValueError:
+                pass
+
+        # 計算總數
+        count_query = f"""
+            SELECT COUNT(DISTINCT a.id) as total
+            FROM actors a
+            LEFT JOIN stage_names sn ON a.id = sn.actor_id
+            WHERE {query_where}
+        """
+        cur.execute(count_query, params)
+        total = cur.fetchone()['total']
+
+        # 排序子句
+        sort_by = "a.actor_tag"
+        if sort_order == 'desc' and sort == 'name':
+            sort_by = "a.actor_tag DESC"
+        elif sort_order == 'asc' and sort == 'name':
+            sort_by = "a.actor_tag ASC"
+        elif sort == 'latest':
+            # 按最新作品日期排序
+            sort_by = """(
+                COALESCE(
+                    (SELECT MAX(CASE
+                        WHEN p.type IN ('single', 'album') THEN p.release_date
+                        ELSE (SELECT release_date FROM productions WHERE id = p.parent_id)
+                    END)
+                    FROM performances perf
+                    JOIN productions p ON perf.production_id = p.id
+                    WHERE perf.stage_name_id IN (SELECT id FROM stage_names WHERE actor_id = a.id)
+                    AND p.type IN ('single', 'segment')), '0000-01-01')
+                ) DESC"""
+        elif sort == 'count':
+            # 按作品數量排序
+            sort_by = """(
+                COALESCE(
+                    (SELECT COUNT(DISTINCT CASE
+                        WHEN p.type IN ('single', 'album') THEN p.id
+                        WHEN p.type = 'segment' THEN p.parent_id
+                    END)
+                    FROM performances perf
+                    JOIN productions p ON perf.production_id = p.id
+                    WHERE perf.stage_name_id IN (SELECT id FROM stage_names WHERE actor_id = a.id)
+                    AND p.type IN ('single', 'segment')), 0)
+                ) DESC"""
+
+        # 分頁
+        offset = (page - 1) * per_page
+        # 使用 GROUP BY 避免 DISTINCT 與複雜 ORDER BY 的衝突
+        full_query = f"""
+            SELECT a.id as actor_id
+            FROM actors a
+            LEFT JOIN stage_names sn ON a.id = sn.actor_id
+            WHERE {query_where}
+            GROUP BY a.id
+            ORDER BY {sort_by}
+            LIMIT {per_page} OFFSET {offset}
+        """
+
+        cur.execute(full_query, params)
+        actor_ids = [row['actor_id'] for row in cur.fetchall()]
+
+        # 為每個演員取得詳細統計信息
+        results = []
+        for actor_id in actor_ids:
+            # 取得演員基本信息
+            cur.execute("SELECT id, actor_tag, gvdb_id, notes FROM actors WHERE id = %s", (actor_id,))
+            actor = cur.fetchone()
+
+            # 計算全局統計
+            cur.execute("""
+                SELECT
+                    COUNT(DISTINCT CASE
+                        WHEN p.type IN ('single', 'album') THEN p.id
+                        WHEN p.type = 'segment' THEN p.parent_id
+                    END) as total_productions,
+                    COALESCE(SUM(CASE WHEN perf.role = 'top' THEN 1 ELSE 0 END), 0) as role_top,
+                    COALESCE(SUM(CASE WHEN perf.role = 'bottom' THEN 1 ELSE 0 END), 0) as role_bottom,
+                    COALESCE(SUM(CASE WHEN perf.role = 'giver' THEN 1 ELSE 0 END), 0) as role_giver,
+                    COALESCE(SUM(CASE WHEN perf.role = 'receiver' THEN 1 ELSE 0 END), 0) as role_receiver
+                FROM performances perf
+                JOIN stage_names sn ON perf.stage_name_id = sn.id
+                JOIN productions p ON perf.production_id = p.id
+                WHERE sn.actor_id = %s AND p.type IN ('single', 'segment')
+            """, (actor_id,))
+            global_stats = cur.fetchone()
+
+            # 取得最新作品信息
+            cur.execute("""
+                SELECT p.code,
+                    CASE
+                        WHEN p.type IN ('single', 'album') THEN p.release_date
+                        ELSE (SELECT release_date FROM productions WHERE id = p.parent_id)
+                    END as release_date
+                FROM performances perf
+                JOIN stage_names sn ON perf.stage_name_id = sn.id
+                JOIN productions p ON perf.production_id = p.id
+                WHERE sn.actor_id = %s AND p.type IN ('single', 'segment')
+                ORDER BY
+                    CASE
+                        WHEN p.type IN ('single', 'album') THEN p.release_date
+                        ELSE (SELECT release_date FROM productions WHERE id = p.parent_id)
+                    END DESC, p.id DESC
+                LIMIT 1
+            """, (actor_id,))
+            latest_prod = cur.fetchone()
+
+            # 計算各公司的詳細統計
+            cur.execute("""
+                SELECT
+                    s.id as studio_id,
+                    s.name as studio_name,
+                    sn.id as stage_name_id,
+                    sn.stage_name,
+                    COUNT(DISTINCT CASE
+                        WHEN p.type IN ('single', 'album') THEN p.id
+                        WHEN p.type = 'segment' THEN p.parent_id
+                    END) as productions,
+                    COALESCE(SUM(CASE WHEN perf.role = 'top' THEN 1 ELSE 0 END), 0) as role_top,
+                    COALESCE(SUM(CASE WHEN perf.role = 'bottom' THEN 1 ELSE 0 END), 0) as role_bottom,
+                    COALESCE(SUM(CASE WHEN perf.role = 'giver' THEN 1 ELSE 0 END), 0) as role_giver,
+                    COALESCE(SUM(CASE WHEN perf.role = 'receiver' THEN 1 ELSE 0 END), 0) as role_receiver,
+                    MAX(CASE
+                        WHEN p.type IN ('single', 'album') THEN p.release_date
+                        ELSE (SELECT release_date FROM productions WHERE id = p.parent_id)
+                    END) as latest_date
+                FROM stage_names sn
+                LEFT JOIN studios s ON sn.studio_id = s.id
+                LEFT JOIN performances perf ON sn.id = perf.stage_name_id
+                LEFT JOIN productions p ON perf.production_id = p.id
+                WHERE sn.actor_id = %s AND (p.type IN ('single', 'segment') OR p.id IS NULL)
+                GROUP BY s.id, s.name, sn.id, sn.stage_name
+                ORDER BY s.name
+            """, (actor_id,))
+            studio_details = cur.fetchall()
+
+            # 計算角色百分比
+            total_roles = (global_stats['role_top'] + global_stats['role_bottom'] +
+                          global_stats['role_giver'] + global_stats['role_receiver']) or 1
+
+            studio_details_list = []
+            for studio in studio_details:
+                studio_total_roles = (studio['role_top'] + studio['role_bottom'] +
+                                     studio['role_giver'] + studio['role_receiver']) or 1
+
+                studio_details_list.append({
+                    'studio_id': studio['studio_id'],
+                    'studio_name': studio['studio_name'],
+                    'stage_name_id': studio['stage_name_id'],
+                    'stage_name': studio['stage_name'],
+                    'productions': studio['productions'],
+                    'latest_date': studio['latest_date'],
+                    'role_breakdown': {
+                        'top': studio['role_top'],
+                        'bottom': studio['role_bottom'],
+                        'giver': studio['role_giver'],
+                        'receiver': studio['role_receiver']
+                    },
+                    'role_percentage': {
+                        'top': round((studio['role_top'] / studio_total_roles) * 100) if studio['role_top'] > 0 else 0,
+                        'bottom': round((studio['role_bottom'] / studio_total_roles) * 100) if studio['role_bottom'] > 0 else 0,
+                        'giver': round((studio['role_giver'] / studio_total_roles) * 100) if studio['role_giver'] > 0 else 0,
+                        'receiver': round((studio['role_receiver'] / studio_total_roles) * 100) if studio['role_receiver'] > 0 else 0
+                    }
+                })
+
+            results.append({
+                'actor_id': actor['id'],
+                'actor_tag': actor['actor_tag'],
+                'gvdb_id': actor['gvdb_id'],
+                'notes': actor['notes'],
+                'global_stats': {
+                    'total_productions': global_stats['total_productions'],
+                    'latest_production_code': latest_prod['code'] if latest_prod else None,
+                    'latest_release_date': latest_prod['release_date'] if latest_prod else None,
+                    'role_breakdown': {
+                        'top': global_stats['role_top'],
+                        'bottom': global_stats['role_bottom'],
+                        'giver': global_stats['role_giver'],
+                        'receiver': global_stats['role_receiver']
+                    }
+                },
+                'studio_details': studio_details_list
+            })
+
+        cur.close()
+        conn.close()
+
+        return jsonify({
+            'total': total,
+            'page': page,
+            'per_page': per_page,
+            'total_pages': (total + per_page - 1) // per_page,
+            'results': results
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
 # ==================== 啟動應用程式 ====================
 
 if __name__ == '__main__':

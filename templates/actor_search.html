@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}演員查詢{% endblock %}
+
+{% block content %}
+<div class="actors-search-container">
+    <h1>👥 演員查詢</h1>
+
+    <!-- 搜尋和篩選區 -->
+    <div class="filter-section">
+        <!-- 演員搜尋 -->
+        <div class="filter-row">
+            <label>🔍 搜尋演員：</label>
+            <div class="input-wrapper">
+                <input type="text" id="actorSearch" placeholder="輸入演員名字或藝名..." autocomplete="off">
+                <div id="suggestions" class="suggestions-box"></div>
+            </div>
+        </div>
+
+        <!-- 公司篩選 -->
+        <div class="filter-row">
+            <label>🏢 按公司篩選：</label>
+            <div id="studioFilters" class="checkbox-group"></div>
+        </div>
+
+        <!-- 排序控制 -->
+        <div class="filter-row">
+            <label>↕️ 排序方式：</label>
+            <select id="sortBy">
+                <option value="name">按名字 (A-Z)</option>
+                <option value="latest">按最新作品</option>
+                <option value="count">按作品數量</option>
+            </select>
+            <select id="sortOrder">
+                <option value="asc">升序</option>
+                <option value="desc">降序</option>
+            </select>
+        </div>
+
+        <!-- 操作按鈕 -->
+        <div class="filter-actions">
+            <button id="clearFilters" class="btn-secondary">清除篩選</button>
+        </div>
+    </div>
+
+    <!-- 結果區 -->
+    <div class="results-section">
+        <div id="resultCount" class="result-count"></div>
+
+        <!-- 演員列表 -->
+        <div id="actorsList" class="actors-list">
+            <!-- 動態渲染 -->
+        </div>
+
+        <!-- 載入中 -->
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>載入中...</p>
+        </div>
+
+        <!-- 錯誤信息 -->
+        <div id="errorMessage" class="error-message" style="display: none;">
+            <!-- 動態顯示 -->
+        </div>
+    </div>
+
+    <!-- 分頁 -->
+    <div id="pagination" class="pagination">
+        <!-- 動態渲染 -->
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='actor_search.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='actor_search.css') }}">
+
+{% endblock %}
