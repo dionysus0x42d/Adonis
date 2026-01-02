@@ -140,7 +140,7 @@
 /* 列標題 */
 .list-header {
     display: grid;
-    grid-template-columns: 40px 200px 100px 70px 1fr 100px 80px;
+    grid-template-columns: 36px 200px 100px 70px 0.7fr 150px 80px;
     gap: 15px;
     align-items: center;
     padding: 15px;
@@ -200,7 +200,7 @@
 /* 演員標題行（母項） */
 .actor-header {
     display: grid;
-    grid-template-columns: 40px 200px 100px 70px 1fr 100px 80px;
+    grid-template-columns: 36px 200px 100px 70px 0.7fr 150px 80px;
     gap: 15px;
     align-items: center;
     padding: 15px;
@@ -216,12 +216,12 @@
 
 /* Toggle 按鈕 */
 .toggle-btn {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border: none;
     background: white;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 16px;
     border-radius: 4px;
     transition: all 0.2s;
     display: flex;
@@ -333,6 +333,11 @@
     background: #95a5a6; /* 灰色 */
 }
 
+/* 'other' role interactive style */
+.segment.other:hover {
+    opacity: 0.8;
+}
+
 .segment .count {
     font-size: 11px;
     font-weight: bold;
@@ -377,7 +382,7 @@
 /* 公司項目（在詳細區內） */
 .studio-item {
     display: grid;
-    grid-template-columns: 40px 200px 100px 70px 1fr 100px 80px;
+    grid-template-columns: 36px 200px 100px 70px 0.7fr 150px 80px;
     gap: 15px;
     align-items: center;
     padding: 15px;

@@ -1205,7 +1205,8 @@ def query_actors():
                     COALESCE(SUM(CASE WHEN perf.role = 'top' THEN 1 ELSE 0 END), 0) as role_top,
                     COALESCE(SUM(CASE WHEN perf.role = 'bottom' THEN 1 ELSE 0 END), 0) as role_bottom,
                     COALESCE(SUM(CASE WHEN perf.role = 'giver' THEN 1 ELSE 0 END), 0) as role_giver,
-                    COALESCE(SUM(CASE WHEN perf.role = 'receiver' THEN 1 ELSE 0 END), 0) as role_receiver
+                    COALESCE(SUM(CASE WHEN perf.role = 'receiver' THEN 1 ELSE 0 END), 0) as role_receiver,
+                    COALESCE(SUM(CASE WHEN perf.role NOT IN ('top', 'bottom', 'giver', 'receiver') THEN 1 ELSE 0 END), 0) as role_other
                 FROM performances perf
                 JOIN stage_names sn ON perf.stage_name_id = sn.id
                 JOIN productions p ON perf.production_id = p.id
@@ -1251,6 +1252,7 @@ def query_actors():
                     COALESCE(SUM(CASE WHEN perf.role = 'bottom' THEN 1 ELSE 0 END), 0) as role_bottom,
                     COALESCE(SUM(CASE WHEN perf.role = 'giver' THEN 1 ELSE 0 END), 0) as role_giver,
                     COALESCE(SUM(CASE WHEN perf.role = 'receiver' THEN 1 ELSE 0 END), 0) as role_receiver,
+                    COALESCE(SUM(CASE WHEN perf.role NOT IN ('top', 'bottom', 'giver', 'receiver') THEN 1 ELSE 0 END), 0) as role_other,
                     (SELECT release_date FROM (
                         SELECT p2.release_date, p2.code FROM performances perf2
                         JOIN productions p2 ON perf2.production_id = p2.id
@@ -1291,12 +1293,14 @@ def query_actors():
 
             # 計算角色百分比
             total_roles = (global_stats['role_top'] + global_stats['role_bottom'] +
-                          global_stats['role_giver'] + global_stats['role_receiver']) or 1
+                          global_stats['role_giver'] + global_stats['role_receiver'] +
+                          global_stats['role_other']) or 1
 
             studio_details_list = []
             for studio in studio_details:
                 studio_total_roles = (studio['role_top'] + studio['role_bottom'] +
-                                     studio['role_giver'] + studio['role_receiver']) or 1
+                                     studio['role_giver'] + studio['role_receiver'] +
+                                     studio['role_other']) or 1
 
                 studio_details_list.append({
                     'studio_id': studio['studio_id'],
@@ -1310,13 +1314,15 @@ def query_actors():
                         'top': studio['role_top'],
                         'bottom': studio['role_bottom'],
                         'giver': studio['role_giver'],
-                        'receiver': studio['role_receiver']
+                        'receiver': studio['role_receiver'],
+                        'other': studio['role_other']
                     },
                     'role_percentage': {
                         'top': round((studio['role_top'] / studio_total_roles) * 100) if studio['role_top'] > 0 else 0,
                         'bottom': round((studio['role_bottom'] / studio_total_roles) * 100) if studio['role_bottom'] > 0 else 0,
                         'giver': round((studio['role_giver'] / studio_total_roles) * 100) if studio['role_giver'] > 0 else 0,
-                        'receiver': round((studio['role_receiver'] / studio_total_roles) * 100) if studio['role_receiver'] > 0 else 0
+                        'receiver': round((studio['role_receiver'] / studio_total_roles) * 100) if studio['role_receiver'] > 0 else 0,
+                        'other': round((studio['role_other'] / studio_total_roles) * 100) if studio['role_other'] > 0 else 0
                     }
                 })
 
@@ -1333,7 +1339,8 @@ def query_actors():
                         'top': global_stats['role_top'],
                         'bottom': global_stats['role_bottom'],
                         'giver': global_stats['role_giver'],
-                        'receiver': global_stats['role_receiver']
+                        'receiver': global_stats['role_receiver'],
+                        'other': global_stats['role_other']
                     }
                 },
                 'studio_details': studio_details_list

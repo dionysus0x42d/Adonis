@@ -217,13 +217,15 @@ function createActorItem(actor) {
     // 計算全局角色百分比
     const globalStats = actor.global_stats;
     const totalRoles = (globalStats.role_breakdown.top + globalStats.role_breakdown.bottom +
-                       globalStats.role_breakdown.giver + globalStats.role_breakdown.receiver) || 1;
+                       globalStats.role_breakdown.giver + globalStats.role_breakdown.receiver +
+                       globalStats.role_breakdown.other) || 1;
 
     const globalRolePercentages = {
         top: Math.round((globalStats.role_breakdown.top / totalRoles) * 100),
         bottom: Math.round((globalStats.role_breakdown.bottom / totalRoles) * 100),
         giver: Math.round((globalStats.role_breakdown.giver / totalRoles) * 100),
-        receiver: Math.round((globalStats.role_breakdown.receiver / totalRoles) * 100)
+        receiver: Math.round((globalStats.role_breakdown.receiver / totalRoles) * 100),
+        other: Math.round((globalStats.role_breakdown.other / totalRoles) * 100)
     };
 
     // 創建容器
@@ -319,7 +321,7 @@ function createStudioItem(studio) {
 
     // 1. Spacer (matches toggle button column)
     const spacer = document.createElement('div');
-    spacer.style.width = '40px';
+    spacer.style.width = '36px';
 
     // 2. 藝名（在該公司）
     const stageName = document.createElement('div');
@@ -372,12 +374,13 @@ function createRoleBar(roleBreakdown, rolePercentages) {
     const chartBar = document.createElement('div');
     chartBar.className = 'chart-bar';
 
-    const roles = ['top', 'bottom', 'giver', 'receiver'];
+    const roles = ['top', 'bottom', 'giver', 'receiver', 'other'];
     const roleLabels = {
         top: 'Top',
         bottom: 'Bottom',
         giver: 'Giver',
-        receiver: 'Receiver'
+        receiver: 'Receiver',
+        other: 'Other'
     };
 
     roles.forEach(role => {
