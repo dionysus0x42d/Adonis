@@ -387,6 +387,13 @@ function createRoleBar(roleBreakdown, rolePercentages) {
         const count = roleBreakdown[role];
         const percentage = rolePercentages[role];
 
+        // Debug: Log role data
+        if (!window.roleDebugLogged) {
+            console.log('Role breakdown:', roleBreakdown);
+            console.log('Role percentages:', rolePercentages);
+            window.roleDebugLogged = true;
+        }
+
         if (percentage > 0) {
             const segment = document.createElement('div');
             segment.className = `segment ${role}`;

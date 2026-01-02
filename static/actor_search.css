@@ -140,7 +140,7 @@
 /* 列標題 */
 .list-header {
     display: grid;
-    grid-template-columns: 36px 200px 100px 70px 0.7fr 150px 80px;
+    grid-template-columns: 36px 250px 100px 70px 1fr 150px 80px;
     gap: 15px;
     align-items: center;
     padding: 15px;
@@ -200,7 +200,7 @@
 /* 演員標題行（母項） */
 .actor-header {
     display: grid;
-    grid-template-columns: 36px 200px 100px 70px 0.7fr 150px 80px;
+    grid-template-columns: 36px 250px 100px 70px 1fr 150px 80px;
     gap: 15px;
     align-items: center;
     padding: 15px;
@@ -382,7 +382,7 @@
 /* 公司項目（在詳細區內） */
 .studio-item {
     display: grid;
-    grid-template-columns: 36px 200px 100px 70px 0.7fr 150px 80px;
+    grid-template-columns: 36px 250px 100px 70px 1fr 150px 80px;
     gap: 15px;
     align-items: center;
     padding: 15px;

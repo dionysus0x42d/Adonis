@@ -1206,7 +1206,7 @@ def query_actors():
                     COALESCE(SUM(CASE WHEN perf.role = 'bottom' THEN 1 ELSE 0 END), 0) as role_bottom,
                     COALESCE(SUM(CASE WHEN perf.role = 'giver' THEN 1 ELSE 0 END), 0) as role_giver,
                     COALESCE(SUM(CASE WHEN perf.role = 'receiver' THEN 1 ELSE 0 END), 0) as role_receiver,
-                    COALESCE(SUM(CASE WHEN perf.role NOT IN ('top', 'bottom', 'giver', 'receiver') THEN 1 ELSE 0 END), 0) as role_other
+                    COALESCE(SUM(CASE WHEN perf.role NOT IN ('top', 'bottom', 'giver', 'receiver') OR perf.role IS NULL THEN 1 ELSE 0 END), 0) as role_other
                 FROM performances perf
                 JOIN stage_names sn ON perf.stage_name_id = sn.id
                 JOIN productions p ON perf.production_id = p.id
@@ -1252,7 +1252,7 @@ def query_actors():
                     COALESCE(SUM(CASE WHEN perf.role = 'bottom' THEN 1 ELSE 0 END), 0) as role_bottom,
                     COALESCE(SUM(CASE WHEN perf.role = 'giver' THEN 1 ELSE 0 END), 0) as role_giver,
                     COALESCE(SUM(CASE WHEN perf.role = 'receiver' THEN 1 ELSE 0 END), 0) as role_receiver,
-                    COALESCE(SUM(CASE WHEN perf.role NOT IN ('top', 'bottom', 'giver', 'receiver') THEN 1 ELSE 0 END), 0) as role_other,
+                    COALESCE(SUM(CASE WHEN perf.role NOT IN ('top', 'bottom', 'giver', 'receiver') OR perf.role IS NULL THEN 1 ELSE 0 END), 0) as role_other,
                     (SELECT release_date FROM (
                         SELECT p2.release_date, p2.code FROM performances perf2
                         JOIN productions p2 ON perf2.production_id = p2.id
