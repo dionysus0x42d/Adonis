@@ -939,10 +939,10 @@ def get_actor(actor_id):
 def update_actor(actor_id):
     """更新演員資料"""
     data = request.get_json()
-    
-    actor_tag = data.get('actor_tag', '').strip()
-    gvdb_id = data.get('gvdb_id', '').strip() or None
-    notes = data.get('notes', '').strip() or None
+
+    actor_tag = (data.get('actor_tag') or '').strip()
+    gvdb_id = (data.get('gvdb_id') or '').strip() or None
+    notes = (data.get('notes') or '').strip() or None
     stage_names = data.get('stage_names', [])
     
     if not actor_tag:
@@ -974,7 +974,7 @@ def update_actor(actor_id):
                 cur.execute("""
                     INSERT INTO stage_names (actor_id, studio_id, stage_name)
                     VALUES (%s, %s, %s)
-                """, (actor_id, sn['studio_id'], sn['stage_name']))
+                """, (actor_id, int(sn['studio_id']), sn['stage_name']))
             elif sn.get('modified'):
                 # 更新藝名
                 cur.execute("""
