@@ -314,18 +314,40 @@ function addStageName() {
     renderStageNames();
 }
 
+// 顯示訊息橫幅（自動消失）
+function showFlashMessage(message, category = 'success', duration = 3000) {
+    // 取得或創建 flash-messages 容器
+    let flashContainer = document.querySelector('.flash-messages');
+    if (!flashContainer) {
+        flashContainer = document.createElement('div');
+        flashContainer.className = 'flash-messages';
+        document.querySelector('main.container').insertBefore(flashContainer, document.querySelector('.page-header') || document.querySelector('main.container').firstChild);
+    }
+
+    // 創建訊息元素
+    const messageEl = document.createElement('div');
+    messageEl.className = `flash-message flash-${category}`;
+    messageEl.textContent = message;
+    flashContainer.appendChild(messageEl);
+
+    // 自動消失
+    setTimeout(() => {
+        messageEl.remove();
+    }, duration);
+}
+
 // 儲存演員資料
 async function saveActor() {
     const actorId = document.getElementById('actorId').value;
     const actorTag = document.getElementById('actorTag').value.trim();
     const gvdbId = document.getElementById('gvdbId').value.trim() || null;
     const notes = document.getElementById('notes').value.trim() || null;
-    
+
     if (!actorTag) {
-        alert('Actor Tag 不可為空');
+        showFlashMessage('Actor Tag 不可為空', 'error');
         return;
     }
-    
+
     try {
         const response = await fetch(`/api/actor/${actorId}`, {
             method: 'PUT',
@@ -339,19 +361,19 @@ async function saveActor() {
                 stage_names: state.stageNames
             })
         });
-        
+
         const result = await response.json();
-        
+
         if (response.ok) {
-            alert('✓ 演員資料已儲存');
+            showFlashMessage('✓ 演員資料已儲存');
             clearForm();
         } else {
-            alert('儲存失敗: ' + (result.error || '未知錯誤'));
+            showFlashMessage('儲存失敗: ' + (result.error || '未知錯誤'), 'error');
         }
-        
+
     } catch (error) {
         console.error('儲存失敗:', error);
-        alert('儲存失敗，請稍後再試');
+        showFlashMessage('儲存失敗，請稍後再試', 'error');
     }
 }
 
