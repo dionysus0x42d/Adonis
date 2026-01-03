@@ -547,7 +547,7 @@ def api_studio_actors(studio_id):
 @app.route('/search')
 def search_page():
     """查詢作品頁面"""
-    return render_template('search.html')
+    return render_template('view_production.html')
 
 
 @app.route('/api/filter-options', methods=['GET'])
@@ -1003,7 +1003,7 @@ def update_actor(actor_id):
 @app.route('/actors')
 def actor_search_page():
     """演員查詢頁面"""
-    return render_template('actor_search.html')
+    return render_template('view_actor.html')
 
 
 @app.route('/api/actors/filters', methods=['GET'])
