@@ -319,6 +319,11 @@ function createStudioItem(studio) {
     studioItem.className = 'studio-item';
     studioItem.dataset.studioId = studio.studio_id;
 
+    // 如果沒有作品，添加 disabled 類名使其顯示為淺灰色
+    if (studio.productions === 0) {
+        studioItem.classList.add('disabled');
+    }
+
     // 1. Spacer (matches toggle button column)
     const spacer = document.createElement('div');
     spacer.style.width = '36px';
@@ -343,7 +348,26 @@ function createStudioItem(studio) {
     // 5. 角色比例條形圖
     const chartDiv = document.createElement('div');
     chartDiv.className = 'role-chart';
-    chartDiv.appendChild(createRoleBar(studio.role_breakdown, studio.role_percentage));
+
+    // 如果沒有作品，顯示灰色占位符；否則顯示角色條
+    if (studio.productions === 0) {
+        // 顯示灰色占位符，表示沒有數據
+        const placeholder = document.createElement('div');
+        placeholder.className = 'chart-bar-disabled';
+        placeholder.style.display = 'flex';
+        placeholder.style.height = '24px';
+        placeholder.style.borderRadius = '4px';
+        placeholder.style.overflow = 'hidden';
+        placeholder.style.flex = '1';
+        placeholder.style.minWidth = '200px';
+        placeholder.style.background = '#e8e8e8';
+        placeholder.style.boxShadow = 'inset 0 1px 2px rgba(0, 0, 0, 0.05)';
+        placeholder.style.cursor = 'default';
+        placeholder.title = '尚無作品數據';
+        chartDiv.appendChild(placeholder);
+    } else {
+        chartDiv.appendChild(createRoleBar(studio.role_breakdown, studio.role_percentage));
+    }
     chartDiv.style.textAlign = 'center';
 
     // 6. 最新作品

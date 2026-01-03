@@ -1240,6 +1240,7 @@ def query_actors():
             latest_prod = cur.fetchone()
 
             # 計算各公司的詳細統計
+            # 顯示演員在所有公司的信息（即使沒有出演過）
             # 演員的作品數 = 單片數 + 專輯數（通過片段統計）
             # 角色統計 = 單片的角色 + 片段的角色（不包括專輯自身）
             cur.execute("""
@@ -1285,11 +1286,11 @@ def query_actors():
                      ) AS latest_prod
                      ORDER BY release_date DESC
                      LIMIT 1) as latest_production_code
-                FROM performances perf
-                JOIN stage_names sn ON perf.stage_name_id = sn.id
-                JOIN productions p ON perf.production_id = p.id
+                FROM stage_names sn
                 LEFT JOIN studios s ON sn.studio_id = s.id
-                WHERE sn.actor_id = %s AND p.type IN ('single', 'segment')
+                LEFT JOIN performances perf ON sn.id = perf.stage_name_id
+                LEFT JOIN productions p ON perf.production_id = p.id AND p.type IN ('single', 'segment')
+                WHERE sn.actor_id = %s
                 GROUP BY s.id, s.name, sn.id, sn.stage_name
                 ORDER BY s.name
             """, (actor_id,))
