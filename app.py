@@ -216,8 +216,7 @@ def add_studio():
         try:
             # 取得表單資料
             studio_name = request.form.get('studio_name', '').strip()
-            studio_code = request.form.get('studio_code', '').strip() or None
-            
+
             # 驗證資料
             if not studio_name:
                 flash('公司名稱不可為空', 'error')
@@ -239,8 +238,8 @@ def add_studio():
                 
                 # 2. 新增公司
                 cur.execute(
-                    "INSERT INTO studios (name, code) VALUES (%s, %s) RETURNING id",
-                    (studio_name, studio_code)
+                    "INSERT INTO studios (name) VALUES (%s) RETURNING id",
+                    (studio_name,)
                 )
                 studio_id = cur.fetchone()[0]
                 
