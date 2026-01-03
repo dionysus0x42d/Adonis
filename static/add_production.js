@@ -612,31 +612,34 @@ function parseGVDBText(text) {
         title: '',
         date: ''
     };
-    
+
     // 提取所有 [...] 作為 code
     const codeMatches = text.match(/\[[^\]]+\]/g);
     if (codeMatches) {
         result.code = codeMatches.join('');
     }
-    
-    // 提取 (...) 作為 date
-    const dateMatch = text.match(/\(([^)]+)\)/);
-    if (dateMatch) {
-        result.date = dateMatch[1].trim();
+
+    // 查找最後一個 (...) 作為 date
+    const lastParenIndex = text.lastIndexOf('(');
+    const lastCloseParenIndex = text.lastIndexOf(')');
+    if (lastParenIndex !== -1 && lastCloseParenIndex !== -1 && lastParenIndex < lastCloseParenIndex) {
+        result.date = text.substring(lastParenIndex + 1, lastCloseParenIndex).trim();
     }
-    
-    // 提取 title（移除 code 和 date 部分後的文字）
+
+    // 提取 title（移除 code 和 最後一個 date 部分後的文字）
     let titleText = text;
-    
+
     // 移除所有 [...]
     titleText = titleText.replace(/\[[^\]]+\]/g, '');
-    
-    // 移除 (...)
-    titleText = titleText.replace(/\([^)]+\)/g, '');
-    
+
+    // 只移除最後一個 (...)
+    if (lastParenIndex !== -1 && lastCloseParenIndex !== -1 && lastParenIndex < lastCloseParenIndex) {
+        titleText = titleText.substring(0, lastParenIndex) + titleText.substring(lastCloseParenIndex + 1);
+    }
+
     // 去除前後空格
     result.title = titleText.trim();
-    
+
     return result;
 }
 
