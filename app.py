@@ -762,18 +762,17 @@ def search_productions():
         for key in ['sex_acts', 'styles', 'body_types', 'sources', 'performer_ids']:
             if row[key] is None:
                 row[key] = []
-        
+
         # 將 performer_ids 轉換為演員名稱
-        if row['type'] == 'album':
-            # 專輯：顯示所有片段中的具名演員
+        if row['type'] == 'album' and row.get('performer_ids'):
+            # 專輯：直接從 performer_ids 獲取演員名稱
+            # 優化：不需要 JOIN performances 和 segments，直接查詢 stage_names
             cur.execute("""
-                SELECT DISTINCT sn.stage_name 
-                FROM performances p
-                JOIN stage_names sn ON p.stage_name_id = sn.id
-                JOIN productions seg ON p.production_id = seg.id
-                WHERE seg.parent_id = %s 
+                SELECT sn.stage_name
+                FROM stage_names sn
+                WHERE sn.id = ANY(%s)
                 ORDER BY sn.stage_name
-            """, (row['id'],))
+            """, (row['performer_ids'],))
             actors = [r['stage_name'] for r in cur.fetchall()]
             # 過濾掉匿名演員
             actors = [a for a in actors if '墨鏡男' not in a and '路人甲' not in a]
@@ -781,17 +780,17 @@ def search_productions():
         elif row.get('performer_ids'):
             # 單片/片段：依照角色排序（保持原來的邏輯）
             cur.execute("""
-                SELECT sn.stage_name 
-                FROM stage_names sn 
+                SELECT sn.stage_name
+                FROM stage_names sn
                 JOIN performances p ON sn.id = p.stage_name_id
                 WHERE sn.id = ANY(%s) AND p.production_id = %s
-                ORDER BY 
-                    CASE p.role 
-                        WHEN 'top' THEN 1 
-                        WHEN 'bottom' THEN 2 
-                        WHEN 'giver' THEN 3 
-                        WHEN 'receiver' THEN 4 
-                        ELSE 5 
+                ORDER BY
+                    CASE p.role
+                        WHEN 'top' THEN 1
+                        WHEN 'bottom' THEN 2
+                        WHEN 'giver' THEN 3
+                        WHEN 'receiver' THEN 4
+                        ELSE 5
                     END,
                     sn.stage_name
             """, (row['performer_ids'], row['id']))
@@ -1197,10 +1196,12 @@ def query_actors():
             actor = cur.fetchone()
 
             # 計算全局統計
+            # 演員的作品數 = 單片數 + 專輯數（通過片段統計）
+            # 角色統計 = 單片的角色 + 片段的角色（不包括專輯自身）
             cur.execute("""
                 SELECT
                     COUNT(DISTINCT CASE
-                        WHEN p.type IN ('single', 'album') THEN p.id
+                        WHEN p.type = 'single' THEN p.id
                         WHEN p.type = 'segment' THEN p.parent_id
                     END) as total_productions,
                     COALESCE(SUM(CASE WHEN perf.role = 'top' THEN 1 ELSE 0 END), 0) as role_top,
@@ -1239,6 +1240,8 @@ def query_actors():
             latest_prod = cur.fetchone()
 
             # 計算各公司的詳細統計
+            # 演員的作品數 = 單片數 + 專輯數（通過片段統計）
+            # 角色統計 = 單片的角色 + 片段的角色（不包括專輯自身）
             cur.execute("""
                 SELECT
                     s.id as studio_id,
@@ -1246,7 +1249,7 @@ def query_actors():
                     sn.id as stage_name_id,
                     sn.stage_name,
                     COUNT(DISTINCT CASE
-                        WHEN p.type IN ('single', 'album') THEN p.id
+                        WHEN p.type = 'single' THEN p.id
                         WHEN p.type = 'segment' THEN p.parent_id
                     END) as productions,
                     COALESCE(SUM(CASE WHEN perf.role = 'top' THEN 1 ELSE 0 END), 0) as role_top,
@@ -1282,11 +1285,11 @@ def query_actors():
                      ) AS latest_prod
                      ORDER BY release_date DESC
                      LIMIT 1) as latest_production_code
-                FROM stage_names sn
+                FROM performances perf
+                JOIN stage_names sn ON perf.stage_name_id = sn.id
+                JOIN productions p ON perf.production_id = p.id
                 LEFT JOIN studios s ON sn.studio_id = s.id
-                LEFT JOIN performances perf ON sn.id = perf.stage_name_id
-                LEFT JOIN productions p ON perf.production_id = p.id
-                WHERE sn.actor_id = %s AND (p.type IN ('single', 'segment') OR p.id IS NULL)
+                WHERE sn.actor_id = %s AND p.type IN ('single', 'segment')
                 GROUP BY s.id, s.name, sn.id, sn.stage_name
                 ORDER BY s.name
             """, (actor_id,))
