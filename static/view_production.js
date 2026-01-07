@@ -605,12 +605,19 @@ function removeSegments(albumId) {
     const tbody = document.getElementById('resultsBody');
     const albumRow = tbody.querySelector(`.toggle-btn[data-id="${albumId}"]`)?.closest('tr');
     if (!albumRow) return;
-    
+
     let nextRow = albumRow.nextElementSibling;
     while (nextRow && nextRow.classList.contains('segment-row')) {
         const toRemove = nextRow;
         nextRow = nextRow.nextElementSibling;
-        toRemove.remove();
+
+        // 添加移除動畫
+        toRemove.classList.add('removing');
+
+        // 動畫完成後移除
+        setTimeout(() => {
+            toRemove.remove();
+        }, 300);
     }
 }
 

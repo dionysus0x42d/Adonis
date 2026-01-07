@@ -335,9 +335,10 @@
 
 .results-table th {
     background: #f8f9fa;
-    padding: 12px 8px;
+    padding: 10px 6px;
     text-align: left;
     font-weight: bold;
+    font-size: 12px;
     border-bottom: 2px solid #ddd;
     position: sticky;
     top: 0;
@@ -345,9 +346,10 @@
 }
 
 .results-table td {
-    padding: 10px 8px;
+    padding: 8px 6px;
     border-bottom: 1px solid #eee;
     vertical-align: top;
+    font-size: 12px;
 }
 
 .results-table tbody tr:hover {
@@ -374,6 +376,33 @@
 
 .segment-row {
     background: #f9f9f9;
+    animation: slideDown 0.3s ease;
+}
+
+.segment-row.removing {
+    animation: slideUp 0.3s ease forwards;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 100px;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 1;
+        max-height: 100px;
+    }
+    to {
+        opacity: 0;
+        max-height: 0;
+    }
 }
 
 .segment-row td:first-child {
