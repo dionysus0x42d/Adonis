@@ -18,6 +18,7 @@ const state = {
 document.addEventListener('DOMContentLoaded', async () => {
     await loadStudios();
     await loadFilterOptions();
+    generateStudioCheckboxes();
     setupEventListeners();
 });
 
@@ -60,9 +61,40 @@ async function loadFilterOptions() {
     }
 }
 
+// 生成公司複選框
+function generateStudioCheckboxes() {
+    const container = document.getElementById('studioFilters');
+    container.innerHTML = '';
+
+    state.studios.forEach(studio => {
+        const label = document.createElement('label');
+        label.className = 'checkbox-filter-label';
+
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.value = studio.id;
+        input.checked = true;
+
+        const span = document.createElement('span');
+        span.textContent = studio.name;
+
+        label.appendChild(input);
+        label.appendChild(span);
+        container.appendChild(label);
+    });
+}
+
 // 設定事件監聽
 function setupEventListeners() {
     const productionSearchInput = document.getElementById('productionSearch');
+
+    // 類型篩選變更
+    document.getElementById('filterTypeSingle').addEventListener('change', triggerSearch);
+    document.getElementById('filterTypeAlbum').addEventListener('change', triggerSearch);
+    document.getElementById('filterTypeSegment').addEventListener('change', triggerSearch);
+
+    // 公司篩選變更
+    document.getElementById('studioFilters').addEventListener('change', triggerSearch);
 
     // 作品搜尋
     productionSearchInput.addEventListener('input', debounce(async (e) => {
@@ -197,6 +229,34 @@ function setupEventListeners() {
     });
 }
 
+// 觸發搜尋
+function triggerSearch() {
+    const searchInput = document.getElementById('productionSearch');
+    const query = searchInput.value.trim();
+
+    if (query.length > 0) {
+        searchProductions(query);
+    }
+}
+
+// 取得選定的篩選條件
+function getSelectedFilters() {
+    const types = [];
+    if (document.getElementById('filterTypeSingle').checked) types.push('single');
+    if (document.getElementById('filterTypeAlbum').checked) types.push('album');
+    if (document.getElementById('filterTypeSegment').checked) types.push('segment');
+
+    const studios = [];
+    document.querySelectorAll('#studioFilters input:checked').forEach(checkbox => {
+        studios.push(checkbox.value);
+    });
+
+    return {
+        types: types.join(','),
+        studios: studios.join(',')
+    };
+}
+
 // 更新鍵盤選擇的視覺效果
 function updateKeyboardSelection(items) {
     items.forEach((item, index) => {
@@ -224,7 +284,9 @@ function updatePerformerKeyboardSelection(items) {
 // 搜尋作品
 async function searchProductions(query) {
     try {
-        const response = await fetch(`/api/search_productions?q=${encodeURIComponent(query)}`);
+        const filters = getSelectedFilters();
+        const url = `/api/search_productions?q=${encodeURIComponent(query)}&types=${encodeURIComponent(filters.types)}&studios=${encodeURIComponent(filters.studios)}`;
+        const response = await fetch(url);
         const productions = await response.json();
 
         showProductionSuggestions(productions);
@@ -254,8 +316,13 @@ function showProductionSuggestions(productions) {
             'segment': '片段'
         }[prod.type] || prod.type;
 
+        let displayText = `${escapeHtml(prod.code)}`;
+        if (prod.type === 'segment' && prod.parent_code) {
+            displayText += ` (片段：${escapeHtml(prod.parent_code)})`;
+        }
+
         item.innerHTML = `
-            ${escapeHtml(prod.code)}
+            ${displayText}
             <span class="production-info" style="display: block; margin-top: 4px;">
                 ${escapeHtml(prod.title || '(無標題)')} | ${escapeHtml(prod.studio_name || '?')} | ${typeLabel}
             </span>
@@ -290,6 +357,11 @@ async function selectProduction(productionId) {
         state.currentProduction = productionData;
         state.performers = [...productionData.performers];
         state.performerToDelete = [];
+
+        // 更新可用標籤（包含 scenario 類別）
+        if (productionData.available_tags) {
+            state.availableTags = productionData.available_tags;
+        }
 
         // 填充表單
         populateForm(productionData);
@@ -338,7 +410,7 @@ function populateForm(production) {
         document.getElementById('releaseDateGroup').innerHTML = `
             <label>發行日期（繼承自父專輯）</label>
             <div style="padding: 0.75rem; background: #f8f9fa; border-radius: 4px; color: #666;">
-                ${escapeHtml(production.parent_album.release_date || '?')}
+                ${escapeHtml(production.parent_album.code || '?')}
             </div>
         `;
         document.getElementById('studioId').value = '';
@@ -410,6 +482,7 @@ function renderPerformersTable() {
             </td>
             <td class="action-cell">
                 <button type="button" class="btn-edit" onclick="editPerformer(${index})">編輯</button>
+                <button type="button" class="btn-remove" onclick="removePerformer(${index})">移除</button>
             </td>
         `;
 
@@ -553,7 +626,7 @@ function selectPerformer(actor) {
     showFlashMessage('✓ 演員已新增');
 }
 
-// 新增演員按鈕點擊事件（備用，實際使用 selectPerformer）
+// 新增演員按鈕點擊事件
 function addPerformer() {
     showFlashMessage('請從搜尋結果選擇演員', 'info');
 }
@@ -581,6 +654,7 @@ function renderTagsCheckboxes(currentTags) {
     document.getElementById('bodyTypeTags').innerHTML = '';
     document.getElementById('sourceTags').innerHTML = '';
 
+    // 對應 API 類別名稱到 HTML 容器 ID
     const containers = {
         'sex_act': document.getElementById('sexActTags'),
         'style': document.getElementById('styleTags'),
@@ -590,8 +664,9 @@ function renderTagsCheckboxes(currentTags) {
     };
 
     // 渲染每個類別的標籤
-    for (const [category, tags] of Object.entries(state.availableTags)) {
-        if (!containers[category]) continue;
+    for (const [categoryKey, tags] of Object.entries(state.availableTags)) {
+        const container = containers[categoryKey];
+        if (!container || !tags || !Array.isArray(tags)) continue;
 
         tags.forEach(tag => {
             const label = document.createElement('label');
@@ -613,11 +688,12 @@ function renderTagsCheckboxes(currentTags) {
             });
 
             const span = document.createElement('span');
-            span.textContent = tag.name;
+            // Handle both regular tags and style tags with display_name
+            span.textContent = tag.display_name ? tag.display_name : tag.name;
 
             label.appendChild(input);
             label.appendChild(span);
-            containers[category].appendChild(label);
+            container.appendChild(label);
         });
     }
 }

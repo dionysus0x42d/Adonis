@@ -1377,35 +1377,56 @@ def edit_production_page():
 
 @app.route('/api/search_productions', methods=['GET'])
 def api_search_productions():
-    """搜尋作品（按編號、標題或公司）"""
+    """搜尋作品（按編號、標題或公司，可依類型和公司篩選）"""
     query = request.args.get('q', '').strip()
     limit = int(request.args.get('limit', 10))
+    studios = request.args.get('studios', '')  # 逗號分隔的 studio IDs
+    types = request.args.get('types', '')      # 逗號分隔的類型
 
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    if query:
-        # 搜尋編號、標題或公司名稱（只顯示 single 和 album，不顯示 segment）
-        cur.execute("""
-            SELECT p.id, p.code, p.title, p.release_date, p.type, p.studio_id, s.name AS studio_name
-            FROM productions p
-            LEFT JOIN studios s ON p.studio_id = s.id
-            WHERE p.type IN ('single', 'album')
-              AND (p.code ILIKE %s OR p.title ILIKE %s OR s.name ILIKE %s)
-            ORDER BY p.release_date DESC
-            LIMIT %s
-        """, (f'%{query}%', f'%{query}%', f'%{query}%', limit))
-    else:
-        # 如果沒有查詢，返回最近的作品
-        cur.execute("""
-            SELECT p.id, p.code, p.title, p.release_date, p.type, p.studio_id, s.name AS studio_name
-            FROM productions p
-            LEFT JOIN studios s ON p.studio_id = s.id
-            WHERE p.type IN ('single', 'album')
-            ORDER BY p.release_date DESC
-            LIMIT %s
-        """, (limit,))
+    # 建立基礎查詢
+    sql = """
+        SELECT p.id, p.code, p.title, p.release_date, p.type, p.studio_id, s.name AS studio_name,
+               parent.code AS parent_code
+        FROM productions p
+        LEFT JOIN studios s ON p.studio_id = s.id
+        LEFT JOIN productions parent ON p.parent_id = parent.id
+        WHERE 1=1
+    """
+    params = []
 
+    # 類型篩選
+    if types:
+        type_list = types.split(',')
+        placeholders = ','.join(['%s'] * len(type_list))
+        sql += f" AND p.type IN ({placeholders})"
+        params.extend(type_list)
+    else:
+        # 預設顯示 single, album, segment
+        sql += " AND p.type IN ('single', 'album', 'segment')"
+
+    # 公司篩選
+    if studios:
+        try:
+            studio_ids = [int(x) for x in studios.split(',')]
+            placeholders = ','.join(['%s'] * len(studio_ids))
+            sql += f" AND (p.studio_id IN ({placeholders}) OR p.parent_id IN (SELECT id FROM productions WHERE studio_id IN ({placeholders})))"
+            params.extend(studio_ids)
+            params.extend(studio_ids)
+        except ValueError:
+            pass
+
+    # 關鍵字搜尋
+    if query:
+        sql += " AND (p.code ILIKE %s OR p.title ILIKE %s OR s.name ILIKE %s)"
+        params.extend([f'%{query}%', f'%{query}%', f'%{query}%'])
+
+    sql += " ORDER BY p.release_date DESC LIMIT %s"
+    params.append(limit)
+
+    cur.execute(sql, params)
     results = cur.fetchall()
     cur.close()
     conn.close()

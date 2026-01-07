@@ -7,6 +7,32 @@
     max-width: 1000px;
 }
 
+/* Checkbox filter */
+.checkbox-filter {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.checkbox-filter-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    font-weight: normal;
+}
+
+.checkbox-filter-label input {
+    margin-right: 0.5rem;
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+}
+
+.checkbox-filter-label span {
+    margin-left: 0.25rem;
+}
+
 /* Form sections */
 .form-section {
     background: #fff;

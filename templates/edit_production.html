@@ -10,13 +10,42 @@
 <!-- 查詢作品區域 -->
 <section class="form-section">
     <h3>【查詢作品】</h3>
+
+    <!-- 作品類型篩選 -->
     <div class="form-group">
-        <label for="productionSearch">搜尋作品</label>
+        <label>作品類型</label>
+        <div class="checkbox-filter">
+            <label class="checkbox-filter-label">
+                <input type="checkbox" id="filterTypeSingle" value="single" checked>
+                <span>單片</span>
+            </label>
+            <label class="checkbox-filter-label">
+                <input type="checkbox" id="filterTypeAlbum" value="album" checked>
+                <span>專輯</span>
+            </label>
+            <label class="checkbox-filter-label">
+                <input type="checkbox" id="filterTypeSegment" value="segment" checked>
+                <span>片段</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- 公司篩選 -->
+    <div class="form-group">
+        <label>公司</label>
+        <div class="checkbox-filter" id="studioFilters">
+            <!-- 由 JavaScript 動態生成 -->
+        </div>
+    </div>
+
+    <!-- 搜尋文字框 -->
+    <div class="form-group">
+        <label for="productionSearch">搜尋編號、標題或公司名稱</label>
         <div class="input-wrapper">
             <input
                 type="text"
                 id="productionSearch"
-                placeholder="輸入作品編號、標題或公司名稱..."
+                placeholder="輸入關鍵字..."
                 autocomplete="off"
             >
             <div id="productionSuggestions" class="autocomplete-suggestions"></div>
