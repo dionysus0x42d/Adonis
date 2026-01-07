@@ -1588,12 +1588,22 @@ def update_production(production_id):
 
         # 開始交易
         # 1. 更新作品基本資料
-        cur.execute("""
-            UPDATE productions
-            SET code = %s, title = %s, release_date = %s, comment = %s,
-                studio_id = %s, updated_at = CURRENT_TIMESTAMP
-            WHERE id = %s
-        """, (code, title, release_date, comment, studio_id if production_type != 'segment' else None, production_id))
+        if production_type == 'segment':
+            # 片段只更新 code, title, comment（release_date 和 studio_id 繼承自父專輯）
+            cur.execute("""
+                UPDATE productions
+                SET code = %s, title = %s, comment = %s,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = %s
+            """, (code, title, comment, production_id))
+        else:
+            # 單片和專輯更新所有欄位
+            cur.execute("""
+                UPDATE productions
+                SET code = %s, title = %s, release_date = %s, comment = %s,
+                    studio_id = %s, updated_at = CURRENT_TIMESTAMP
+                WHERE id = %s
+            """, (code, title, release_date, comment, studio_id, production_id))
 
         # 2. 處理演員（只針對 single 和 segment）
         if production_type in ['single', 'segment']:

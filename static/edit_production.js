@@ -61,7 +61,7 @@ async function loadFilterOptions() {
     }
 }
 
-// 生成公司複選框
+// 生成公司複選框（預設不選，表示搜尋全部）
 function generateStudioCheckboxes() {
     const container = document.getElementById('studioFilters');
     container.innerHTML = '';
@@ -73,7 +73,7 @@ function generateStudioCheckboxes() {
         const input = document.createElement('input');
         input.type = 'checkbox';
         input.value = studio.id;
-        input.checked = true;
+        input.checked = false;  // 預設不選（表示搜尋所有公司）
 
         const span = document.createElement('span');
         span.textContent = studio.name;
@@ -217,9 +217,7 @@ function setupEventListeners() {
 
     // 取消按鈕
     document.getElementById('cancelBtn').addEventListener('click', () => {
-        if (confirm('確定要取消編輯？未儲存的修改將會遺失。')) {
-            clearForm();
-        }
+        clearForm();
     });
 
     // 表單送出
@@ -398,26 +396,26 @@ function populateForm(production) {
     document.getElementById('releaseDateGroup').style.display = production.type !== 'segment' ? 'block' : 'none';
 
     // 填充公司和日期
+    const studioIdEl = document.getElementById('studioId');
+    const releaseDateEl = document.getElementById('releaseDate');
+
     if (production.type === 'segment' && production.parent_album) {
-        // 顯示父專輯資訊
+        // 片段：禁用並顯示父專輯資訊
         const parentStudio = state.studios.find(s => s.id === production.parent_album.studio_id);
-        document.getElementById('studioGroup').innerHTML = `
-            <label>公司（繼承自父專輯）</label>
-            <div style="padding: 0.75rem; background: #f8f9fa; border-radius: 4px; color: #666;">
-                ${escapeHtml(parentStudio?.name || '?')}
-            </div>
-        `;
-        document.getElementById('releaseDateGroup').innerHTML = `
-            <label>發行日期（繼承自父專輯）</label>
-            <div style="padding: 0.75rem; background: #f8f9fa; border-radius: 4px; color: #666;">
-                ${escapeHtml(production.parent_album.code || '?')}
-            </div>
-        `;
-        document.getElementById('studioId').value = '';
-        document.getElementById('releaseDate').value = '';
+        studioIdEl.value = production.parent_album.studio_id || '';
+        studioIdEl.disabled = true;
+        studioIdEl.title = '片段繼承自父專輯，無法編輯';
+
+        releaseDateEl.value = production.parent_album.release_date || '';
+        releaseDateEl.disabled = true;
+        releaseDateEl.title = '片段繼承自父專輯，無法編輯';
     } else {
-        document.getElementById('studioId').value = production.studio_id || '';
-        document.getElementById('releaseDate').value = production.release_date || '';
+        // 單片和專輯：可編輯
+        studioIdEl.disabled = false;
+        studioIdEl.value = production.studio_id || '';
+
+        releaseDateEl.disabled = false;
+        releaseDateEl.value = production.release_date || '';
     }
 
     // 渲染演員列表
@@ -722,40 +720,44 @@ async function saveProduction() {
     const productionId = document.getElementById('productionId').value;
     const code = document.getElementById('productionCode').value.trim();
     const title = document.getElementById('productionTitle').value.trim() || null;
-    const releaseDate = document.getElementById('releaseDate').value.trim() || null;
     const comment = document.getElementById('comment').value.trim() || null;
-    const studioId = document.getElementById('studioId').value || null;
 
     if (!code) {
         showFlashMessage('作品編號不可為空', 'error');
         return;
     }
 
-    try {
-        // 準備表演者資料
-        const performersData = state.performers.map(p => ({
+    // 取得可能的 release_date 和 studio_id（如果未被禁用）
+    const releaseDateEl = document.getElementById('releaseDate');
+    const studioIdEl = document.getElementById('studioId');
+
+    const releaseDate = (releaseDateEl && !releaseDateEl.disabled && releaseDateEl.value) ? releaseDateEl.value.trim() : null;
+    const studioId = (studioIdEl && !studioIdEl.disabled && studioIdEl.value) ? parseInt(studioIdEl.value) : null;
+
+    const requestData = {
+        code: code,
+        title: title,
+        comment: comment,
+        release_date: releaseDate,
+        studio_id: studioId,
+        performers: state.performers.map(p => ({
             stage_name_id: p.stage_name_id,
             role: p.role,
             performer_type: p.performer_type,
             is_new: p.is_new,
             modified: p.modified
-        }));
+        })),
+        tags: state.tags,
+        delete_performers: state.performerToDelete
+    };
 
+    try {
         const response = await fetch(`/api/production/${productionId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                code: code,
-                title: title,
-                release_date: releaseDate,
-                comment: comment,
-                studio_id: studioId ? parseInt(studioId) : null,
-                performers: performersData,
-                tags: state.tags,
-                delete_performers: state.performerToDelete
-            })
+            body: JSON.stringify(requestData)
         });
 
         const result = await response.json();
@@ -771,31 +773,35 @@ async function saveProduction() {
 
     } catch (error) {
         console.error('儲存失敗:', error);
-        showFlashMessage('儲存失敗，請稍後再試', 'error');
+        showFlashMessage('儲存失敗，請稱後再試', 'error');
     }
 }
 
 // 清空表單
 function clearForm() {
+    // 清空狀態
     state.currentProduction = null;
     state.performers = [];
     state.performerToDelete = [];
     state.tags = [];
 
-    document.getElementById('productionId').value = '';
-    document.getElementById('productionCode').value = '';
-    document.getElementById('productionType').textContent = '';
-    document.getElementById('productionTitle').value = '';
-    document.getElementById('releaseDate').value = '';
-    document.getElementById('comment').value = '';
-    document.getElementById('studioId').value = '';
-    document.getElementById('performerStudioId').value = '';
-    document.getElementById('performerSearch').value = '';
-    document.getElementById('performerRole').value = '';
-    document.getElementById('performerType').value = 'named';
-
+    // 隱藏編輯區域
     document.getElementById('editSection').style.display = 'none';
+
+    // 重新啟用所有表單欄位（以防被禁用）
+    const studioIdEl = document.getElementById('studioId');
+    const releaseDateEl = document.getElementById('releaseDate');
+    if (studioIdEl) studioIdEl.disabled = false;
+    if (releaseDateEl) releaseDateEl.disabled = false;
+
+    // 清空搜尋框和隱藏建議
     document.getElementById('productionSearch').value = '';
+    const suggestions = document.getElementById('productionSuggestions');
+    if (suggestions) {
+        suggestions.classList.remove('show');
+    }
+
+    // 焦點回到搜尋框
     document.getElementById('productionSearch').focus();
 }
 
