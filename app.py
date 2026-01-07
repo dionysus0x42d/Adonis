@@ -243,41 +243,51 @@ def add_studio():
                 )
                 studio_id = cur.fetchone()[0]
                 
-                # 3. 自動建立匿名演員
-                anonymous_actors = [
+                # 3. 自動為 3 個全局演員池建立藝名
+                pool_data = [
                     {
-                        'actor_tag': f'STUDIO_{studio_name}_SUNGLASSES',
+                        'actor_tag': 'ANONYMOUS_POOL',
                         'stage_name': f'墨鏡男（{studio_name}）'
                     },
                     {
-                        'actor_tag': f'STUDIO_{studio_name}_PASSERBY',
+                        'actor_tag': 'UNKNOWN_POOL',
                         'stage_name': f'路人甲（{studio_name}）'
+                    },
+                    {
+                        'actor_tag': 'GIRL_POOL',
+                        'stage_name': f'女（{studio_name}）'
                     }
                 ]
-                
-                for anon in anonymous_actors:
-                    # 新增演員
+
+                flash_messages = [f'✓ 公司「{studio_name}」新增成功！']
+                for pool in pool_data:
+                    # 取得演員 ID
                     cur.execute(
-                        "INSERT INTO actors (actor_tag) VALUES (%s) RETURNING id",
-                        (anon['actor_tag'],)
+                        "SELECT id FROM actors WHERE actor_tag = %s",
+                        (pool['actor_tag'],)
                     )
-                    actor_id = cur.fetchone()[0]
-                    
-                    # 新增藝名
-                    cur.execute(
-                        "INSERT INTO stage_names (actor_id, studio_id, stage_name) VALUES (%s, %s, %s)",
-                        (actor_id, studio_id, anon['stage_name'])
-                    )
-                
+                    result = cur.fetchone()
+                    if result:
+                        actor_id = result[0]
+
+                        # 新增藝名（若不存在）
+                        cur.execute(
+                            "INSERT INTO stage_names (actor_id, studio_id, stage_name) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING",
+                            (actor_id, studio_id, pool['stage_name'])
+                        )
+                        flash_messages.append(f'  • 已自動建立：{pool["stage_name"]}')
+
                 # 提交交易
                 conn.commit()
                 cur.close()
                 conn.close()
-                
+
                 # 顯示成功訊息
-                flash(f'✓ 公司「{studio_name}」新增成功！', 'success')
-                flash(f'  • 已自動建立：墨鏡男（{studio_name}）', 'info')
-                flash(f'  • 已自動建立：路人甲（{studio_name}）', 'info')
+                for msg in flash_messages:
+                    if msg.startswith('✓'):
+                        flash(msg, 'success')
+                    else:
+                        flash(msg, 'info')
                 
                 # 重定向到新增頁面（清空表單）
                 return redirect(url_for('add_studio'))
@@ -1106,9 +1116,9 @@ def query_actors():
         # 排除 STUDIO_ 開頭的自動生成演員
         query_where = "a.actor_tag NOT LIKE 'STUDIO_%%'"
 
-        # 排除或包含匿名演員
+        # 排除或包含匿名/特殊演員池
         if not show_anonymous:
-            query_where += " AND a.actor_tag NOT IN ('ANONYMOUS_POOL', 'UNKNOWN_POOL')"
+            query_where += " AND a.actor_tag NOT IN ('ANONYMOUS_POOL', 'UNKNOWN_POOL', 'GIRL_POOL')"
 
         params = []
 
