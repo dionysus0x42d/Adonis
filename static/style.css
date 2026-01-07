@@ -113,9 +113,32 @@ main {
 
 .function-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(4, minmax(250px, 1fr));
     gap: 1.5rem;
     margin-top: 2rem;
+}
+
+.function-card-blank {
+    /* Invisible placeholder for layout */
+}
+
+/* Responsive: Reduce columns on smaller screens */
+@media (max-width: 1200px) {
+    .function-cards {
+        grid-template-columns: repeat(3, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .function-cards {
+        grid-template-columns: repeat(2, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .function-cards {
+        grid-template-columns: 1fr;
+    }
 }
 
 .function-card {

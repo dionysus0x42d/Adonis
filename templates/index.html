@@ -9,11 +9,7 @@
 </div>
 
 <div class="function-cards">
-    <a href="{{ url_for('add_studio') }}" class="function-card">
-        <h3>🏢 新增公司</h3>
-        <p>新增新的製作公司到資料庫</p>
-    </a>
-
+    <!-- Row 1: Add (Actor, Production, Studio, Blank) -->
     <a href="{{ url_for('add_actor') }}" class="function-card">
         <h3>➕ 新增演員</h3>
         <p>新增演員到資料庫，包含藝名設定</p>
@@ -24,11 +20,28 @@
         <p>新增單片、專輯或專輯片段</p>
     </a>
 
+    <a href="{{ url_for('add_studio') }}" class="function-card">
+        <h3>🏢 新增公司</h3>
+        <p>新增新的製作公司到資料庫</p>
+    </a>
+
+    <div class="function-card-blank"></div>
+
+    <!-- Row 2: View (Actor, Production, Blank, Blank) -->
+    <a href="{{ url_for('actor_search_page') }}" class="function-card">
+        <h3>👥 查詢演員</h3>
+        <p>搜尋演員、查看出演統計和角色分佈</p>
+    </a>
+
     <a href="{{ url_for('search_page') }}" class="function-card">
         <h3>🔍 查詢作品</h3>
         <p>搜尋和瀏覽作品</p>
     </a>
 
+    <div class="function-card-blank"></div>
+    <div class="function-card-blank"></div>
+
+    <!-- Row 3: Edit (Actor, Production, Blank, Blank) -->
     <a href="{{ url_for('edit_actor_page') }}" class="function-card">
         <h3>✏️ 編輯演員</h3>
         <p>修改演員資料和管理藝名</p>
@@ -39,9 +52,7 @@
         <p>修改已有的作品資料、演員和標籤</p>
     </a>
 
-    <a href="{{ url_for('actor_search_page') }}" class="function-card">
-        <h3>👥 查詢演員</h3>
-        <p>搜尋演員、查看出演統計和角色分佈</p>
-    </a>
+    <div class="function-card-blank"></div>
+    <div class="function-card-blank"></div>
 </div>
 {% endblock %}
