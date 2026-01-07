@@ -23,7 +23,8 @@ const state = {
         studio: 'asc',
         code: 'asc',
         title: 'asc',
-        date: 'asc'
+        date: 'asc',
+        updated: 'desc'
     }
 };
 
@@ -31,6 +32,7 @@ const state = {
 document.addEventListener('DOMContentLoaded', async () => {
     await loadFilterOptions();
     setupEventListeners();
+    updateSortButtons();
     await performSearch();
 });
 
@@ -374,16 +376,19 @@ function clearAllFilters() {
         studio: 'asc',
         code: 'asc',
         title: 'asc',
-        date: 'asc'
+        date: 'asc',
+        updated: 'desc'
     };
     
     // 重置排序按鈕狀態和文字
     document.querySelectorAll('.sort-btn').forEach(btn => {
         btn.classList.remove('active');
-        btn.dataset.order = 'asc';
         const field = btn.dataset.field;
+        const order = state.sortOrders[field];
+        btn.dataset.order = order;
         const fieldName = field.charAt(0).toUpperCase() + field.slice(1);
-        btn.textContent = `${fieldName} ▲`;
+        const arrow = order === 'asc' ? '▲' : '▼';
+        btn.textContent = `${fieldName} ${arrow}`;
     });
     document.querySelector('.sort-btn[data-field="studio"]').classList.add('active');
     
