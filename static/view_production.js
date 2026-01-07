@@ -117,10 +117,8 @@ function setupEventListeners() {
         performSearch();
     });
     
-    // 完整顯示切換
-    document.getElementById('fullDisplay').addEventListener('change', (e) => {
-        document.body.classList.toggle('full-display', e.target.checked);
-    });
+    // 默認啟用完整顯示
+    document.body.classList.add('full-display');
     
     // 關鍵字搜尋
     document.getElementById('keyword').addEventListener('input', debounce((e) => {
