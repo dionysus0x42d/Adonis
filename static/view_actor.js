@@ -42,6 +42,7 @@ const studioColors = {
 document.addEventListener('DOMContentLoaded', async () => {
     await loadFilters();
     setupEventListeners();
+    updateSortButtons();
     // 初始時顯示所有演員（不搜尋任何關鍵字）
     await performSearch();
 });
@@ -97,17 +98,12 @@ function setupEventListeners() {
         performSearch();
     });
 
-    // 排序選項
-    document.getElementById('sortBy').addEventListener('change', (e) => {
-        state.filters.sort = e.target.value;
-        state.currentPage = 1;
-        performSearch();
-    });
-
-    document.getElementById('sortOrder').addEventListener('change', (e) => {
-        state.filters.sort_order = e.target.value;
-        state.currentPage = 1;
-        performSearch();
+    // 排序按鈕
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const field = btn.dataset.field;
+            handleSortClick(field);
+        });
     });
 
     // 搜尋輸入框（debounce 版本，無自動補全）
@@ -177,8 +173,6 @@ function clearFilters() {
     document.getElementById('actorSearch').value = '';
     document.querySelectorAll('input[data-filter="studios"]').forEach(cb => cb.checked = false);
     document.getElementById('showAnonymous').checked = false;
-    document.getElementById('sortBy').value = 'name';
-    document.getElementById('sortOrder').value = 'asc';
 
     state.filters = {
         search: '',
@@ -190,7 +184,44 @@ function clearFilters() {
     state.currentPage = 1;
     state.expandedActors.clear();
 
+    updateSortButtons();
     performSearch();
+}
+
+// ==================== 排序管理 ====================
+
+function handleSortClick(field) {
+    // 如果點擊的是當前排序欄位，切換排序方向
+    if (state.filters.sort === field) {
+        state.filters.sort_order = state.filters.sort_order === 'asc' ? 'desc' : 'asc';
+    } else {
+        // 如果是新的排序欄位，設置為預設方向（大多數為asc，newest_edit預設desc）
+        state.filters.sort = field;
+        state.filters.sort_order = field === 'newest_edit' ? 'desc' : 'asc';
+    }
+
+    state.currentPage = 1;
+    updateSortButtons();
+    performSearch();
+}
+
+function updateSortButtons() {
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+        const field = btn.dataset.field;
+
+        if (field === state.filters.sort) {
+            // 當前排序欄位 - 顯示active狀態和排序方向
+            btn.classList.add('active');
+            const order = state.filters.sort_order === 'asc' ? ' ▲' : ' ▼';
+            btn.textContent = btn.textContent.replace(/\s[▲▼]$/, '') + order;
+        } else {
+            // 非當前排序欄位 - 移除active，設置預設方向
+            btn.classList.remove('active');
+            let defaultText = btn.textContent.replace(/\s[▲▼]$/, '');
+            const defaultOrder = field === 'newest_edit' ? ' ▼' : ' ▲';
+            btn.textContent = defaultText + defaultOrder;
+        }
+    });
 }
 
 // ==================== 結果渲染 ====================

@@ -128,6 +128,62 @@
     background: #5a6268;
 }
 
+/* ==================== 排序控制 ==================== */
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.sort-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sort-controls label {
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+    flex: 0 0 auto;
+}
+
+/* 排序按鈕 */
+.sort-btn {
+    padding: 6px 12px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.sort-btn:hover {
+    background: #e9ecef;
+    border-color: #007bff;
+}
+
+.sort-btn.active {
+    font-weight: bold;
+    background: #e3f2fd;
+    border-color: #007bff;
+    color: #007bff;
+}
+
+.sort-separator {
+    color: #999;
+    font-size: 14px;
+    margin: 0 5px;
+}
+
 /* ==================== 結果區樣式 ==================== */
 
 .result-count {
@@ -514,6 +570,16 @@
 
     .input-wrapper {
         width: 100%;
+    }
+
+    .sort-controls {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .sort-btn {
+        font-size: 12px;
+        padding: 5px 10px;
     }
 
     .actor-header,

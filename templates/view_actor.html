@@ -33,24 +33,31 @@
             </div>
         </div>
 
-        <!-- 排序控制 -->
-        <div class="filter-row">
-            <label>↕️ 排序方式：</label>
-            <select id="sortBy">
-                <option value="name">按名字 (A-Z)</option>
-                <option value="latest">按最新作品</option>
-                <option value="count">按作品數量</option>
-                <option value="newest_edit">按最新編輯</option>
-            </select>
-            <select id="sortOrder">
-                <option value="asc">升序</option>
-                <option value="desc">降序</option>
-            </select>
-        </div>
-
         <!-- 操作按鈕 -->
         <div class="filter-actions">
             <button id="clearFilters" class="btn-secondary">清除篩選</button>
+        </div>
+    </div>
+
+    <!-- 排序控制 -->
+    <div class="controls">
+        <div class="sort-controls">
+            <label>排序:</label>
+            <button class="sort-btn active" data-field="name" data-order="asc">
+                名字 ▲
+            </button>
+            <span class="sort-separator">></span>
+            <button class="sort-btn" data-field="latest" data-order="asc">
+                最新作品 ▲
+            </button>
+            <span class="sort-separator">></span>
+            <button class="sort-btn" data-field="count" data-order="asc">
+                作品數量 ▲
+            </button>
+            <span class="sort-separator">></span>
+            <button class="sort-btn" data-field="newest_edit" data-order="desc">
+                最新編輯 ▼
+            </button>
         </div>
     </div>
 
