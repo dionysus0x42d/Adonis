@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}編輯作品 - GVDB 資料庫管理系統{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>編輯作品資料</h2>
+</div>
+
+<!-- 查詢作品區域 -->
+<section class="form-section">
+    <h3>【查詢作品】</h3>
+    <div class="form-group">
+        <label for="productionSearch">搜尋作品</label>
+        <div class="input-wrapper">
+            <input
+                type="text"
+                id="productionSearch"
+                placeholder="輸入作品編號、標題或公司名稱..."
+                autocomplete="off"
+            >
+            <div id="productionSuggestions" class="autocomplete-suggestions"></div>
+        </div>
+    </div>
+</section>
+
+<!-- 編輯區域（選擇作品後才顯示） -->
+<div id="editSection" style="display: none;">
+    <form id="editProductionForm" class="production-form">
+        <input type="hidden" id="productionId" name="production_id">
+
+        <!-- 基本資料 -->
+        <section class="form-section">
+            <h3>【基本資料】</h3>
+
+            <div class="form-group">
+                <label for="productionCode">作品編號 <span class="required">*</span></label>
+                <input
+                    type="text"
+                    id="productionCode"
+                    name="code"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>作品類型</label>
+                <span id="productionType" style="font-weight: bold; color: #666; padding: 0.75rem 0;">
+                    <!-- Display only, not editable -->
+                </span>
+                <small style="display: block; color: #999; margin-top: 0.5rem;">作品類型無法編輯</small>
+            </div>
+
+            <div class="form-group" id="studioGroup">
+                <label for="studioId">公司 <span class="required">*</span></label>
+                <select id="studioId" name="studio_id"></select>
+            </div>
+
+            <div class="form-group">
+                <label for="productionTitle">標題</label>
+                <input
+                    type="text"
+                    id="productionTitle"
+                    name="title"
+                    placeholder="選填"
+                >
+            </div>
+
+            <div class="form-group" id="releaseDateGroup">
+                <label for="releaseDate">發行日期 <span class="required">*</span></label>
+                <input
+                    type="text"
+                    id="releaseDate"
+                    name="release_date"
+                    placeholder="格式：YYYY.MM"
+                >
+                <small style="display: block; color: #999; margin-top: 0.5rem;">例如：2024.12</small>
+            </div>
+
+            <div class="form-group">
+                <label for="comment">備註</label>
+                <textarea
+                    id="comment"
+                    name="comment"
+                    rows="3"
+                    placeholder="選填"
+                ></textarea>
+            </div>
+        </section>
+
+        <!-- 演員管理（只顯示給 single 和 segment） -->
+        <section class="form-section" id="performersSection" style="display: none;">
+            <h3>【演員管理】</h3>
+
+            <!-- 現有演員列表 -->
+            <div class="form-group">
+                <label>現有演員</label>
+                <table class="performers-table">
+                    <thead>
+                        <tr>
+                            <th>藝名</th>
+                            <th>公司</th>
+                            <th>角色</th>
+                            <th>類型</th>
+                            <th style="width: 100px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="performersTable">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #999;">
+                                尚未選擇作品
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 新增演員 -->
+            <div class="form-group">
+                <label>新增演員</label>
+                <div class="add-performer-row">
+                    <select id="performerStudioId" style="flex: 1;">
+                        <option value="">選擇公司</option>
+                    </select>
+                    <input
+                        type="text"
+                        id="performerSearch"
+                        placeholder="搜尋演員藝名"
+                        autocomplete="off"
+                        style="flex: 2;"
+                    >
+                    <div id="performerSuggestions" class="autocomplete-suggestions"></div>
+                    <select id="performerRole" style="flex: 1;">
+                        <option value="">-- 角色 --</option>
+                        <option value="top">Top</option>
+                        <option value="bottom">Bottom</option>
+                        <option value="giver">Giver</option>
+                        <option value="receiver">Receiver</option>
+                    </select>
+                    <select id="performerType" style="flex: 1;">
+                        <option value="named">Named</option>
+                        <option value="anonymous">Anonymous</option>
+                        <option value="masked">Masked</option>
+                        <option value="pov_only">POV Only</option>
+                    </select>
+                    <button type="button" id="addPerformerBtn" class="btn-secondary">
+                        新增演員
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 標籤管理（只顯示給 single 和 segment） -->
+        <section class="form-section" id="tagsSection" style="display: none;">
+            <h3>【標籤管理】</h3>
+
+            <!-- 性行為標籤 -->
+            <div class="tag-group">
+                <h4>性行為標籤</h4>
+                <div class="checkbox-grid" id="sexActTags">
+                    <!-- 由 JavaScript 動態生成 -->
+                </div>
+            </div>
+
+            <!-- 風格標籤 -->
+            <div class="tag-group">
+                <h4>風格標籤</h4>
+                <div class="checkbox-grid" id="styleTags">
+                    <!-- 由 JavaScript 動態生成 -->
+                </div>
+            </div>
+
+            <!-- 場景標籤 -->
+            <div class="tag-group">
+                <h4>場景標籤</h4>
+                <div class="checkbox-grid" id="scenarioTags">
+                    <!-- 由 JavaScript 動態生成 -->
+                </div>
+            </div>
+
+            <!-- 體型標籤 -->
+            <div class="tag-group">
+                <h4>體型標籤</h4>
+                <div class="checkbox-grid" id="bodyTypeTags">
+                    <!-- 由 JavaScript 動態生成 -->
+                </div>
+            </div>
+
+            <!-- 來源標籤 -->
+            <div class="tag-group">
+                <h4>來源標籤</h4>
+                <div class="checkbox-grid" id="sourceTags">
+                    <!-- 由 JavaScript 動態生成 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 送出按鈕 -->
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">儲存所有修改</button>
+            <button type="button" id="cancelBtn" class="btn-secondary">取消</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='edit_production.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='edit_production.js') }}"></script>
+{% endblock %}

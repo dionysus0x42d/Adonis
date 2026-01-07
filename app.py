@@ -1367,6 +1367,270 @@ def query_actors():
         return jsonify({'error': str(e)}), 500
 
 
+# ==================== 編輯作品功能 ====================
+
+@app.route('/edit_production')
+def edit_production_page():
+    """編輯作品頁面"""
+    return render_template('edit_production.html')
+
+
+@app.route('/api/search_productions', methods=['GET'])
+def api_search_productions():
+    """搜尋作品（按編號、標題或公司）"""
+    query = request.args.get('q', '').strip()
+    limit = int(request.args.get('limit', 10))
+
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    if query:
+        # 搜尋編號、標題或公司名稱（只顯示 single 和 album，不顯示 segment）
+        cur.execute("""
+            SELECT p.id, p.code, p.title, p.release_date, p.type, p.studio_id, s.name AS studio_name
+            FROM productions p
+            LEFT JOIN studios s ON p.studio_id = s.id
+            WHERE p.type IN ('single', 'album')
+              AND (p.code ILIKE %s OR p.title ILIKE %s OR s.name ILIKE %s)
+            ORDER BY p.release_date DESC
+            LIMIT %s
+        """, (f'%{query}%', f'%{query}%', f'%{query}%', limit))
+    else:
+        # 如果沒有查詢，返回最近的作品
+        cur.execute("""
+            SELECT p.id, p.code, p.title, p.release_date, p.type, p.studio_id, s.name AS studio_name
+            FROM productions p
+            LEFT JOIN studios s ON p.studio_id = s.id
+            WHERE p.type IN ('single', 'album')
+            ORDER BY p.release_date DESC
+            LIMIT %s
+        """, (limit,))
+
+    results = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    return jsonify(results)
+
+
+@app.route('/api/production/<int:production_id>', methods=['GET'])
+def get_production(production_id):
+    """取得作品完整資料（用於編輯）"""
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    try:
+        # 取得作品基本資料
+        cur.execute("""
+            SELECT p.id, p.code, p.type, p.title, p.release_date, p.comment,
+                   p.studio_id, s.name AS studio_name, p.parent_id
+            FROM productions p
+            LEFT JOIN studios s ON p.studio_id = s.id
+            WHERE p.id = %s
+        """, (production_id,))
+        production = cur.fetchone()
+
+        if not production:
+            cur.close()
+            conn.close()
+            return jsonify({'error': '找不到作品'}), 404
+
+        # 如果是片段，取得父專輯資料
+        parent_album = None
+        if production['parent_id']:
+            cur.execute("""
+                SELECT id, code, studio_id
+                FROM productions
+                WHERE id = %s
+            """, (production['parent_id'],))
+            parent_album = cur.fetchone()
+
+        # 取得所有演員（只針對 single 和 segment）
+        performers = []
+        if production['type'] in ['single', 'segment']:
+            cur.execute("""
+                SELECT perf.id, perf.stage_name_id, perf.role, perf.performer_type,
+                       sn.stage_name, sn.studio_id, s.name AS studio_name
+                FROM performances perf
+                JOIN stage_names sn ON perf.stage_name_id = sn.id
+                LEFT JOIN studios s ON sn.studio_id = s.id
+                WHERE perf.production_id = %s
+                ORDER BY sn.stage_name
+            """, (production_id,))
+            performers = cur.fetchall()
+
+        # 取得所有標籤（只針對 single 和 segment）
+        tags = []
+        if production['type'] in ['single', 'segment']:
+            cur.execute("""
+                SELECT pt.tag_id, t.category, t.name
+                FROM production_tags pt
+                JOIN tags t ON pt.tag_id = t.id
+                WHERE pt.production_id = %s
+                ORDER BY t.category, t.name
+            """, (production_id,))
+            tags = cur.fetchall()
+
+        # 取得所有可用的標籤（用於前端表單）
+        cur.execute("""
+            SELECT id, category, name FROM tags
+            ORDER BY category, name
+        """)
+        all_tags = cur.fetchall()
+
+        cur.close()
+        conn.close()
+
+        # 組織標籤
+        available_tags = {
+            'sex_act': [],
+            'style': [],
+            'scenario': [],
+            'body_type': [],
+            'source': []
+        }
+        for tag in all_tags:
+            if tag['category'] in available_tags:
+                available_tags[tag['category']].append(tag)
+
+        return jsonify({
+            'id': production['id'],
+            'code': production['code'],
+            'type': production['type'],
+            'title': production['title'],
+            'release_date': production['release_date'],
+            'comment': production['comment'],
+            'studio_id': production['studio_id'],
+            'studio_name': production['studio_name'],
+            'parent_id': production['parent_id'],
+            'parent_album': parent_album,
+            'performers': performers,
+            'tags': tags,
+            'available_tags': available_tags
+        })
+
+    except Exception as e:
+        cur.close()
+        conn.close()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/production/<int:production_id>', methods=['PUT'])
+def update_production(production_id):
+    """更新作品資料"""
+    data = request.get_json()
+
+    code = (data.get('code') or '').strip()
+    title = (data.get('title') or '').strip() or None
+    release_date = (data.get('release_date') or '').strip() or None
+    comment = (data.get('comment') or '').strip() or None
+    studio_id = data.get('studio_id')
+    performers = data.get('performers', [])
+    tag_ids = data.get('tags', [])
+    delete_performer_ids = data.get('delete_performers', [])
+
+    # 驗證必要欄位
+    if not code:
+        return jsonify({'error': '作品編號不可為空'}), 400
+
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    try:
+        # 取得原始作品資料
+        cur.execute("SELECT type, studio_id, parent_id FROM productions WHERE id = %s", (production_id,))
+        original = cur.fetchone()
+        if not original:
+            conn.close()
+            return jsonify({'error': '找不到作品'}), 404
+
+        production_type = original['type']
+
+        # 驗證編號唯一性（除了自己）
+        cur.execute("SELECT id FROM productions WHERE code = %s AND id != %s", (code, production_id))
+        if cur.fetchone():
+            conn.rollback()
+            cur.close()
+            conn.close()
+            return jsonify({'error': f'作品編號「{code}」已存在'}), 400
+
+        # 驗證 release_date 格式（如果有提供）
+        if release_date and not (len(release_date) == 7 and release_date.count('.') == 1):
+            return jsonify({'error': '發行日期格式應為 YYYY.MM'}), 400
+
+        # 驗證非片段作品必須有 studio_id 和 release_date
+        if production_type in ['single', 'album']:
+            if not studio_id:
+                return jsonify({'error': '非片段作品必須選擇公司'}), 400
+            if not release_date:
+                return jsonify({'error': '非片段作品必須有發行日期'}), 400
+
+        # 開始交易
+        # 1. 更新作品基本資料
+        cur.execute("""
+            UPDATE productions
+            SET code = %s, title = %s, release_date = %s, comment = %s,
+                studio_id = %s, updated_at = CURRENT_TIMESTAMP
+            WHERE id = %s
+        """, (code, title, release_date, comment, studio_id if production_type != 'segment' else None, production_id))
+
+        # 2. 處理演員（只針對 single 和 segment）
+        if production_type in ['single', 'segment']:
+            # 刪除指定的演員
+            for stage_name_id in delete_performer_ids:
+                cur.execute("""
+                    DELETE FROM performances
+                    WHERE production_id = %s AND stage_name_id = %s
+                """, (production_id, stage_name_id))
+
+            # 添加或更新演員
+            for perf in performers:
+                stage_name_id = perf.get('stage_name_id')
+                role = perf.get('role') or None
+                performer_type = perf.get('performer_type', 'named')
+
+                if perf.get('is_new'):
+                    # 新增演員
+                    cur.execute("""
+                        INSERT INTO performances (production_id, stage_name_id, role, performer_type)
+                        VALUES (%s, %s, %s, %s)
+                    """, (production_id, stage_name_id, role, performer_type))
+                elif perf.get('modified'):
+                    # 更新演員角色和類型
+                    cur.execute("""
+                        UPDATE performances
+                        SET role = %s, performer_type = %s
+                        WHERE production_id = %s AND stage_name_id = %s
+                    """, (role, performer_type, production_id, stage_name_id))
+
+        # 3. 處理標籤（只針對 single 和 segment）
+        if production_type in ['single', 'segment']:
+            # 刪除舊標籤
+            cur.execute("DELETE FROM production_tags WHERE production_id = %s", (production_id,))
+
+            # 插入新標籤
+            for tag_id in tag_ids:
+                cur.execute("""
+                    INSERT INTO production_tags (production_id, tag_id)
+                    VALUES (%s, %s)
+                """, (production_id, tag_id))
+
+        # 提交交易
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return jsonify({'success': True, 'message': '作品資料已更新'})
+
+    except Exception as e:
+        conn.rollback()
+        cur.close()
+        conn.close()
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
 # ==================== 啟動應用程式 ====================
 
 if __name__ == '__main__':
