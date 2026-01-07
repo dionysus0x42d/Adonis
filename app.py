@@ -743,7 +743,7 @@ def search_productions():
         if '_' in sort_item:
             field, order = sort_item.rsplit('_', 1)
             # 安全檢查
-            allowed_fields = {'studio': 'studio', 'code': 'code', 'title': 'title', 'date': 'release_date'}
+            allowed_fields = {'studio': 'studio', 'code': 'code', 'title': 'title', 'date': 'release_date', 'updated': 'updated_at'}
             if field in allowed_fields and order in ['asc', 'desc']:
                 order_by_parts.append(f"{allowed_fields[field]} {order.upper()}")
     
@@ -1032,7 +1032,8 @@ def get_actor_filters():
         'sort_options': [
             {'value': 'name', 'label': '按名字 (A-Z)'},
             {'value': 'latest', 'label': '按最新作品'},
-            {'value': 'count', 'label': '按作品數量'}
+            {'value': 'count', 'label': '按作品數量'},
+            {'value': 'newest_edit', 'label': '按最新編輯'}
         ]
     })
 
@@ -1100,7 +1101,7 @@ def query_actors():
         show_anonymous = request.args.get('show_anonymous', '0') == '1'
 
         # 驗證參數
-        if sort not in ['name', 'latest', 'count']:
+        if sort not in ['name', 'latest', 'count', 'newest_edit']:
             sort = 'name'
         if sort_order not in ['asc', 'desc']:
             sort_order = 'asc'
@@ -1179,6 +1180,16 @@ def query_actors():
                     JOIN productions p ON perf.production_id = p.id
                     WHERE perf.stage_name_id IN (SELECT id FROM stage_names WHERE actor_id = a.id)
                     AND p.type IN ('single', 'segment')), 0)
+                ) DESC"""
+        elif sort == 'newest_edit':
+            # 按最新編輯時間排序
+            sort_by = """(
+                COALESCE(
+                    (SELECT MAX(p.updated_at)
+                    FROM performances perf
+                    JOIN productions p ON perf.production_id = p.id
+                    WHERE perf.stage_name_id IN (SELECT id FROM stage_names WHERE actor_id = a.id)
+                    AND p.type IN ('single', 'segment')), '1900-01-01')
                 ) DESC"""
 
         # 分頁
