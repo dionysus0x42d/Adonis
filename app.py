@@ -34,7 +34,7 @@ def get_db_connection():
     """建立資料庫連接"""
     if isinstance(DB_CONFIG, str):
         # DATABASE_URL 字串格式（Render/Supabase）
-        conn = psycopg2.connect(DB_CONFIG)
+        conn = psycopg2.connect(DB_CONFIG, client_encoding='utf8')
     else:
         # 字典格式（本地開發）
         conn = psycopg2.connect(**DB_CONFIG)
