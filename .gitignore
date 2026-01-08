@@ -28,3 +28,4 @@ __pycache__/
 
 !templates/
 !templates/**
+CLAUDE.md
