@@ -32,7 +32,12 @@ SOURCE_ORDER = ['4horlover', 'igay69', 'javboys', 'poapan', 'notebook', 'ssd', '
 
 def get_db_connection():
     """建立資料庫連接"""
-    conn = psycopg2.connect(**DB_CONFIG)
+    if isinstance(DB_CONFIG, str):
+        # DATABASE_URL 字串格式（Render/Supabase）
+        conn = psycopg2.connect(DB_CONFIG)
+    else:
+        # 字典格式（本地開發）
+        conn = psycopg2.connect(**DB_CONFIG)
     return conn
 
 
