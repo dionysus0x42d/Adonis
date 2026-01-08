@@ -8,6 +8,19 @@
 !app.py
 !config.py
 !requirements.txt
+!CLAUDE.md
+!gvdb_schema.sql
+
+# 忽略環境變數檔案（敏感資訊）
+.env.local
+.env
+.env.*.local
+
+# 忽略 Python 相關
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
 
 # 允許 static / templates 與其底下所有內容
 !static/
