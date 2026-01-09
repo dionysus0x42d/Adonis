@@ -8,6 +8,9 @@
 !app.py
 !config.py
 !requirements.txt
+!CLAUDE.md
+!gvdb_schema.sql
+!README.md
 
 # 允許 static / templates 與其底下所有內容
 !static/
@@ -15,3 +18,11 @@
 
 !templates/
 !templates/**
+
+# 允許 view_only 靜態網站（用於 GitHub Pages）
+!view_only/
+!view_only/**
+
+# 允許 scripts 目錄（用於資料匯出等工具）
+!scripts/
+!scripts/**
