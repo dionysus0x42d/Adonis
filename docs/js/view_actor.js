@@ -12,8 +12,7 @@ const state = {
         search: '',
         studios: [],
         sort: 'name',
-        sort_order: 'asc',
-        showAnonymous: false
+        sort_order: 'asc'
     },
     data: {
         actors: [],
@@ -94,13 +93,6 @@ function setupEventListeners() {
         }
     });
 
-    // 匿名演員篩選勾選框
-    document.getElementById('showAnonymous').addEventListener('change', (e) => {
-        state.filters.showAnonymous = e.target.checked;
-        state.currentPage = 1;
-        performSearch();
-    });
-
     // 排序按鈕
     document.querySelectorAll('.sort-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -143,8 +135,7 @@ async function performSearch() {
         // 構建過濾器物件
         const filters = {
             search: state.filters.search,
-            studios: state.filters.studios.length > 0 ? state.filters.studios : null,
-            showAnonymous: state.filters.showAnonymous
+            studios: state.filters.studios.length > 0 ? state.filters.studios : null
         };
 
         // 構建排序物件
@@ -207,14 +198,12 @@ async function performSearch() {
 function clearFilters() {
     document.getElementById('actorSearch').value = '';
     document.querySelectorAll('input[data-filter="studios"]').forEach(cb => cb.checked = false);
-    document.getElementById('showAnonymous').checked = false;
 
     state.filters = {
         search: '',
         studios: [],
         sort: 'name',
-        sort_order: 'asc',
-        showAnonymous: false
+        sort_order: 'asc'
     };
     state.currentPage = 1;
     state.expandedActors.clear();

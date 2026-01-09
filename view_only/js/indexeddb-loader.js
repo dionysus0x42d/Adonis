@@ -136,8 +136,9 @@ class GVDBData {
     static async applyActorFilters(actors, filters) {
         let filtered = actors;
 
-        // 排除 STUDIO_* 模式的自动生成演员
-        filtered = filtered.filter(a => !a.actor_tag.startsWith('STUDIO_'));
+        // 排除特殊演員（STUDIO_*, 匿名池等）
+        const excludePatterns = ['STUDIO_', 'ANONYMOUS_POOL', 'GIRL_POOL', 'UNKNOWN_POOL'];
+        filtered = filtered.filter(a => !excludePatterns.some(pattern => a.actor_tag.includes(pattern)));
 
         // 按公司过滤
         if (filters.studios && filters.studios.length > 0) {
