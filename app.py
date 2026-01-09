@@ -44,6 +44,15 @@ def get_db_connection():
     return conn
 
 
+# ==================== Favicon 處理 ====================
+
+@app.route('/favicon.ico')
+@app.route('/favicon.png')
+def favicon():
+    """處理 favicon 請求，返回 204 No Content 避免 404 錯誤"""
+    return '', 204
+
+
 # ==================== 首頁 ====================
 
 @app.route('/')
