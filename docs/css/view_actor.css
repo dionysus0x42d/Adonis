@@ -1,0 +1,696 @@
+/* ==================== 演員查詢頁面樣式 ==================== */
+
+.actors-search-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.actors-search-container h1 {
+    margin: 20px 0;
+    font-size: 28px;
+    color: #333;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 15px;
+}
+
+/* ==================== 篩選區樣式 ==================== */
+
+.filter-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border: 1px solid #e0e0e0;
+}
+
+.filter-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.filter-row:last-child {
+    margin-bottom: 0;
+}
+
+.filter-row label {
+    flex: 0 0 150px;
+    font-weight: 500;
+    color: #333;
+    padding-top: 8px;
+}
+
+.filter-row select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.filter-row select:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+/* 搜尋輸入框 */
+.input-wrapper {
+    flex: 1;
+    min-width: 250px;
+    position: relative;
+}
+
+#actorSearch {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+#actorSearch:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* 複選框組 */
+.checkbox-group {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    flex: 1;
+    align-items: center;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-weight: normal;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+.checkbox-group input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+}
+
+/* 操作按鈕 */
+.filter-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-secondary {
+    padding: 10px 20px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+/* ==================== 排序控制 ==================== */
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.sort-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sort-controls label {
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+    flex: 0 0 auto;
+}
+
+/* 排序按鈕 */
+.sort-btn {
+    padding: 6px 12px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.sort-btn:hover {
+    background: #e9ecef;
+    border-color: #007bff;
+}
+
+.sort-btn.active {
+    font-weight: bold;
+    background: #e3f2fd;
+    border-color: #007bff;
+    color: #007bff;
+}
+
+.sort-separator {
+    color: #999;
+    font-size: 14px;
+    margin: 0 5px;
+}
+
+/* ==================== 結果區樣式 ==================== */
+
+.result-count {
+    margin: 20px 0;
+    font-size: 16px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* 列標題 */
+.list-header {
+    display: grid;
+    grid-template-columns: 36px 250px 100px 70px 1fr 150px 80px;
+    gap: 15px;
+    align-items: center;
+    padding: 15px;
+    background: #e8e8e8;
+    font-weight: bold;
+    font-size: 13px;
+    color: #333;
+    border-bottom: 2px solid #d0d0d0;
+    border-radius: 8px 8px 0 0;
+}
+
+.list-header > div {
+    padding: 5px 0;
+}
+
+/* 標題對齊方式 */
+.list-header .header-name {
+    text-align: left;
+}
+
+.list-header .header-companies {
+    text-align: left;
+}
+
+.list-header .header-count,
+.list-header .header-roles {
+    text-align: center;
+}
+
+.list-header .header-latest {
+    text-align: center;
+}
+
+.list-header .header-date {
+    text-align: right;
+}
+
+.actors-list {
+    background: white;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+    border-top: none;
+}
+
+/* ==================== 演員項目樣式 ==================== */
+
+.actor-item {
+    border-bottom: 1px solid #e0e0e0;
+    overflow: hidden;
+}
+
+.actor-item:last-child {
+    border-bottom: none;
+}
+
+/* 演員標題行（母項） */
+.actor-header {
+    display: grid;
+    grid-template-columns: 36px 250px 100px 70px 1fr 150px 80px;
+    gap: 15px;
+    align-items: center;
+    padding: 15px;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.actor-header:hover {
+    background: #e9ecef;
+}
+
+/* Toggle 按鈕 */
+.toggle-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: white;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    padding: 0;
+}
+
+.toggle-btn:hover {
+    background: #fff;
+    border-color: #007bff;
+    color: #007bff;
+}
+
+.toggle-icon {
+    display: inline-block;
+    transition: transform 0.3s;
+}
+
+/* 演員名字 */
+.actor-name {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 公司 badges */
+.company-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    min-height: 24px;
+}
+
+.company-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background: #e0e0e0;
+    color: #333;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* 作品數 */
+.production-count {
+    font-size: 14px;
+    font-weight: bold;
+    color: #007bff;
+    text-align: center;
+}
+
+/* 角色比例條形圖 */
+.role-chart {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.chart-bar {
+    display: flex;
+    height: 24px;
+    border-radius: 4px;
+    overflow: hidden;
+    flex: 1;
+    min-width: 200px;
+    background: #f0f0f0;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    min-width: 20px;
+    transition: opacity 0.2s;
+    cursor: pointer;
+}
+
+.segment:hover {
+    opacity: 0.8;
+}
+
+/* 四種顏色對應四種角色 */
+.segment.top {
+    background: #e74c3c; /* 紅色 */
+}
+
+.segment.bottom {
+    background: #27ae60; /* 綠色 */
+}
+
+.segment.giver {
+    background: #3498db; /* 藍色 */
+}
+
+.segment.receiver {
+    background: #f39c12; /* 橘色 */
+}
+
+.segment.other {
+    background: #95a5a6; /* 灰色 */
+}
+
+/* 'other' role interactive style */
+.segment.other:hover {
+    opacity: 0.8;
+}
+
+.segment .count {
+    font-size: 11px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+}
+
+/* 最新作品 */
+.latest-production {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 最新日期 */
+.latest-date {
+    font-size: 12px;
+    color: #999;
+    white-space: nowrap;
+    text-align: right;
+}
+
+/* ==================== 詳細信息區樣式 (展開後) ==================== */
+
+.actor-details {
+    display: none;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+}
+
+.actor-details.expanded {
+    display: block;
+    opacity: 1;
+    max-height: 2000px;
+}
+
+/* 公司項目（在詳細區內） */
+.studio-item {
+    display: grid;
+    grid-template-columns: 36px 250px 100px 70px 1fr 150px 80px;
+    gap: 15px;
+    align-items: center;
+    padding: 15px;
+    background: #fafafa;
+    border-bottom: 1px solid #f0f0f0;
+    border-left: 3px solid #007bff; /* 左邊藍色條表示子項 */
+}
+
+.studio-item:last-child {
+    border-bottom: none;
+}
+
+/* 藝名（在該公司） */
+.stage-name {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 公司 badge */
+.studio-badge {
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #333;
+    width: fit-content;
+    white-space: nowrap;
+    background: #95a5a6;
+}
+
+/* ==================== 載入和錯誤提示 ==================== */
+
+.loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-message {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 4px;
+    margin: 20px 0;
+}
+
+/* ==================== 分頁樣式 ==================== */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.page-btn {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    background: white;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.page-btn:hover {
+    background: #f8f9fa;
+    border-color: #007bff;
+}
+
+.page-btn.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.page-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ==================== 響應式設計 ==================== */
+
+@media (max-width: 1200px) {
+    .actor-header,
+    .studio-item {
+        grid-template-columns: 40px 120px 120px 70px 1fr 120px 80px;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .studio-item {
+        padding-left: 60px;
+    }
+}
+
+@media (max-width: 992px) {
+    .filter-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-row label {
+        flex: 0 0 auto;
+    }
+
+    .input-wrapper {
+        width: 100%;
+    }
+
+    .sort-controls {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .sort-btn {
+        font-size: 12px;
+        padding: 5px 10px;
+    }
+
+    .actor-header,
+    .studio-item {
+        grid-template-columns: 40px 1fr;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .actor-name,
+    .stage-name,
+    .company-badges,
+    .production-count,
+    .chart-bar,
+    .latest-production,
+    .latest-date {
+        grid-column: 2;
+        margin-bottom: 8px;
+    }
+
+    .chart-bar {
+        height: 28px;
+    }
+
+    .studio-item {
+        padding-left: 50px;
+    }
+}
+
+@media (max-width: 768px) {
+    .actors-search-container {
+        padding: 15px;
+    }
+
+    .actors-search-container h1 {
+        font-size: 22px;
+    }
+
+    .filter-section {
+        padding: 15px;
+    }
+
+    .filter-row {
+        gap: 10px;
+    }
+
+    .checkbox-group {
+        gap: 10px;
+    }
+
+    .actor-header,
+    .studio-item {
+        padding: 10px;
+        gap: 8px;
+    }
+
+    .toggle-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+
+    .actor-name,
+    .stage-name {
+        font-size: 13px;
+    }
+
+    .latest-production {
+        font-size: 11px;
+    }
+
+    .latest-date {
+        font-size: 11px;
+    }
+}
+
+/* ==================== 工具函數 ==================== */
+
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 提示框樣式（Tooltip） */
+.tooltip {
+    position: absolute;
+    background: #333;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 10000;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ==================== 動畫 ==================== */
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.actor-details.expanded {
+    animation: slideDown 0.3s ease;
+}

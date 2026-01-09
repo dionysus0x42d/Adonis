@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>編輯作品 - GVDB 資料庫管理系統</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/edit_production.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">GVDB 管理系統</h1>
+            <ul class="nav-menu">
+                <li><a href="./index.html">首頁</a></li>
+                <li><a href="./add_actor.html">➕新增演員</a></li>
+                <li><a href="./add_production.html">➕新增作品</a></li>
+                <li><a href="./search.html">🔍查詢作品</a></li>
+                <li><a href="./view_actor.html">👥查詢演員</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h2>編輯作品資料</h2>
+        </div>
+
+        <section class="form-section">
+            <h3>【查詢作品】</h3>
+            <div class="form-group">
+                <label for="productionSearch">搜尋編號、標題或公司名稱</label>
+                <input
+                    type="text"
+                    id="productionSearch"
+                    placeholder="輸入關鍵字..."
+                    autocomplete="off"
+                >
+                <div id="productionSuggestions" class="autocomplete-suggestions"></div>
+            </div>
+        </section>
+
+        <div id="editSection" style="display: none;">
+            <form id="editProductionForm" class="production-form">
+                <input type="hidden" id="productionId" name="production_id">
+                <section class="form-section">
+                    <h3>【基本資料】</h3>
+                    <div class="form-group">
+                        <label for="productionCode">作品編號 <span class="required">*</span></label>
+                        <input type="text" id="productionCode" name="code" required>
+                    </div>
+                </section>
+
+                <!-- API Key 驗證 -->
+                <section class="form-section">
+                    <h3>【權限驗證】</h3>
+                    <div class="form-group">
+                        <label for="apiKey">API Key <span class="required">*</span></label>
+                        <input type="password" id="apiKey" name="api_key" placeholder="輸入 API Key 以確認權限" required>
+                        <small>只有擁有有效 API Key 的用戶才能編輯資料</small>
+                    </div>
+                </section>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">儲存所有修改</button>
+                    <button type="button" id="cancelBtn" class="btn-secondary">取消</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 GVDB 資料庫管理系統</p>
+        </div>
+    </footer>
+
+    <script src="./js/script.js"></script>
+    <script src="./js/edit_production.js"></script>
+</body>
+</html>

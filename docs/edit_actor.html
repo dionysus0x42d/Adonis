@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>編輯演員 - GVDB 資料庫管理系統</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="./css/style.css">
+    <style>
+    .input-wrapper {
+        position: relative;
+    }
+    .autocomplete-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-top: none;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        display: none;
+    }
+    .autocomplete-suggestions.show {
+        display: block;
+    }
+    .suggestion-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .suggestion-item:hover {
+        background-color: #f0f0f0;
+    }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">GVDB 管理系統</h1>
+            <ul class="nav-menu">
+                <li><a href="./index.html">首頁</a></li>
+                <li><a href="./add_actor.html">➕新增演員</a></li>
+                <li><a href="./add_production.html">➕新增作品</a></li>
+                <li><a href="./search.html">🔍查詢作品</a></li>
+                <li><a href="./view_actor.html">👥查詢演員</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h2>編輯演員資料</h2>
+        </div>
+
+        <section class="form-section">
+            <h3>【查詢演員】</h3>
+            <div class="form-group">
+                <label for="actorSearch">搜尋演員</label>
+                <div class="input-wrapper">
+                    <input
+                        type="text"
+                        id="actorSearch"
+                        placeholder="輸入藝名或 Actor Tag ..."
+                        autocomplete="off"
+                    >
+                    <div id="actorSuggestions" class="autocomplete-suggestions"></div>
+                </div>
+            </div>
+        </section>
+
+        <div id="editSection" style="display: none;">
+            <form id="editActorForm" class="actor-form">
+                <input type="hidden" id="actorId" name="actor_id">
+
+                <!-- 基本資料 -->
+                <section class="form-section">
+                    <h3>【基本資料】</h3>
+                    <div class="form-group">
+                        <label for="actorTag">Actor Tag <span class="required">*</span></label>
+                        <input type="text" id="actorTag" name="actor_tag" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="gvdbId">GVDB ID</label>
+                        <input type="text" id="gvdbId" name="gvdb_id" placeholder="選填">
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">備註</label>
+                        <textarea id="notes" name="notes" rows="3" placeholder="選填"></textarea>
+                    </div>
+                </section>
+
+                <!-- 藝名管理 -->
+                <section class="form-section">
+                    <h3>【藝名管理】</h3>
+                    <div class="form-group">
+                        <label>現有藝名</label>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #f8f9fa;">
+                                    <th style="padding: 10px 6px; border: 1px solid #ddd;">公司</th>
+                                    <th style="padding: 10px 6px; border: 1px solid #ddd;">藝名</th>
+                                    <th style="padding: 10px 6px; border: 1px solid #ddd; width: 100px;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stageNamesTable">
+                                <tr>
+                                    <td colspan="3" style="text-align: center; color: #999; padding: 10px;">
+                                        尚未選擇演員
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- API Key 驗證 -->
+                <section class="form-section">
+                    <h3>【權限驗證】</h3>
+                    <div class="form-group">
+                        <label for="apiKey">API Key <span class="required">*</span></label>
+                        <input type="password" id="apiKey" name="api_key" placeholder="輸入 API Key 以確認權限" required>
+                        <small>只有擁有有效 API Key 的用戶才能編輯資料</small>
+                    </div>
+                </section>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">儲存所有修改</button>
+                    <button type="button" id="cancelBtn" class="btn-secondary">取消</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 GVDB 資料庫管理系統</p>
+        </div>
+    </footer>
+
+    <script src="./js/script.js"></script>
+    <script src="./js/edit_actor.js"></script>
+</body>
+</html>
