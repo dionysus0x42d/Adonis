@@ -4,7 +4,7 @@
  */
 
 // API 基礎 URL 配置
-const API_BASE = 'https://c58125c5-b98d-4a7d-9e80-966d7f52fc65-00-1zoxvj3uh84e8.pike.replit.dev';
+const API_BASE = 'https://adonis-delta.vercel.app';
 
 // 頁面載入完成後執行
 document.addEventListener('DOMContentLoaded', function() {
