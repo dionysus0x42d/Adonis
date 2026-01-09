@@ -8,9 +8,11 @@
 !app.py
 !config.py
 !requirements.txt
-!CLAUDE.md
 !gvdb_schema.sql
 !README.md
+
+# 本地專用檔案（不推送到 GitHub）
+CLAUDE.md
 
 # 允許 static / templates 與其底下所有內容
 !static/
