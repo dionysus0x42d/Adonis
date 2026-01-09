@@ -1000,15 +1000,16 @@ docs/
 | **Render** | ✅ Yes | IPv4-only, Supabase uses IPv6 | Network incompatibility | ❌ DELETE |
 | **PythonAnywhere** | ✅ Yes | No external DB access | Security restrictions | ❌ DELETE |
 | **GCP App Engine** | ⚠️ Limited | Requires billing account | No credit card | N/A (Never created account) |
-| **Replit** | ✅ Yes | 1-hour idle timeout | Not viable for public site | ✅ KEEP (local dev) |
+| **Replit** | ✅ Yes | 1-hour idle timeout | Not viable for public site | ❌ DELETE |
 | **Vercel** | ✅ Yes | Flask not ideal for serverless | Architectural mismatch | ❌ DELETE |
+| **Supabase** | ✅ Yes | Data in local DB | Not needed | ❌ DELETE |
 
 ### Accounts to Delete
 
 1. **Render**
    - URL: https://render.com/dashboard
    - Action: Delete app + account
-   - Note: Had database connection issues
+   - Note: Had database connection issues (IPv4/IPv6 incompatibility)
 
 2. **PythonAnywhere**
    - URL: https://www.pythonanywhere.com/accounts/
@@ -1020,18 +1021,18 @@ docs/
    - Action: Delete the Adonis project + account if desired
    - Note: Attempted Flask deployment, not ideal for static sites
 
+4. **Supabase**
+   - URL: https://supabase.com/dashboard
+   - Action: Delete project + account
+   - Note: Data exists locally, no need for cloud database
+
+5. **Replit**
+   - URL: https://replit.com/@dionysus0x42d/
+   - Action: Delete Adonis project + account if desired
+   - Note: Local Flask development sufficient, no need for cloud IDE
+
 ### Accounts to Keep
 
-- **Replit** (https://replit.com/@dionysus0x42d/)
-  - Keep for local development reference
-  - Archive the old Adonis project (mark as private/deprecated)
-  - No need for active deployment
-
-- **Supabase** (https://supabase.com/)
-  - Keep for local development database
-  - This is where your actual data lives
-  - Used from localhost, not public deployment
-
 - **GitHub** (https://github.com/dionysus0x42d/)
-  - Obviously keep this
-  - This becomes your deployment platform (Pages)
+  - Keep - This is your deployment platform (GitHub Pages)
+  - Also your source control for code
