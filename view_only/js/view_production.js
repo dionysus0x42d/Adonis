@@ -483,7 +483,7 @@ function renderResults(data) {
     tbody.innerHTML = '';
 
     if (data.results.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="11" class="no-results-message">沒有符合條件的作品</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" class="no-results-message">沒有符合條件的作品</td></tr>';
         return;
     }
 
@@ -521,13 +521,22 @@ function createResultRow(item) {
         window.debugLogged = true;
     }
 
+    // 過濾演員：專輪不顯示匿名演員，片段顯示
+    let displayActors = item.actors || [];
+    if (item.type === 'album') {
+        displayActors = displayActors.filter(actor => {
+            const name = actor.stageName || actor.actorName || '';
+            return !['ANONYMOUS_POOL', 'GIRL_POOL', 'UNKNOWN_POOL'].some(pattern => name.includes(pattern));
+        });
+    }
+
     tr.innerHTML = `
         <td class="toggle-btn" data-id="${item.id}" data-type="${item.type}">${toggleIcon}</td>
         <td>${escapeHtml(item.code || '')}</td>
         <td><span class="studio-badge" style="background-color: ${getStudioColor(item.studio_name)}">${escapeHtml(item.studio_name || '')}</span></td>
         <td class="truncate">${escapeHtml(item.title || '')}</td>
         <td>${escapeHtml(item.release_date || '')}</td>
-        <td class="truncate">${formatActors(item.actors || [])}</td>
+        <td class="truncate">${formatActors(displayActors)}</td>
         <td>${renderTags(item.tags?.sex_acts, 'sex-act')}</td>
         <td>${renderTags(item.tags?.styles, 'style')}</td>
         <td>${renderTags(item.tags?.body_types, 'body-type')}</td>
