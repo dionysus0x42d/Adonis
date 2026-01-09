@@ -821,3 +821,217 @@ FLASK_ENV=production
 - [ ] Host frontend on GitHub Pages or Replit static files
 - [ ] Configure API endpoint to point to Replit URL
 - [ ] Test all CRUD operations
+
+---
+
+## New Architecture (2026-01-09) - View-Only Model
+
+After trying multiple cloud deployment approaches, migrating to a **Static Data + Local Development** model.
+
+### Rationale
+- **Read Access**: Users only need to view/search data (no real-time editing)
+- **Write Access**: Only developer (you) updates data
+- **Deployment**: No backend server needed (except local development)
+- **Cost**: Free GitHub Pages hosting
+- **Reliability**: Static content, no server downtime
+
+### Architecture
+
+```
+┌─────────────────────────────────────────┐
+│  Local Development (localhost)           │
+│  ├─ Flask app (localhost:5000)          │
+│  ├─ PostgreSQL/Supabase database        │
+│  └─ Complete CRUD (edit + delete)       │
+│     (Only accessible locally + API Key) │
+└─────────────┬───────────────────────────┘
+              │
+        Define scheduleged Export
+              │ (Python script)
+              ▼
+        ┌──────────────┐
+        │ JSON Files   │
+        │ docs/data/   │
+        │ ├─ studios.json
+        │ ├─ actors.json
+        │ ├─ productions.json
+        │ ├─ tags.json
+        │ └─ stage_names.json
+        └──────┬───────┘
+               │ git push
+               ▼
+      ┌──────────────────────┐
+      │  GitHub view_only    │
+      │  Branch              │
+      └──────┬───────────────┘
+             │ Deploy
+             ▼
+      ┌──────────────────────┐
+      │  GitHub Pages        │
+      │  (https://...)       │
+      │  ├─ HTML pages       │
+      │  ├─ JSON data        │
+      │  └─ IndexedDB cache  │
+      └──────────────────────┘
+             ▲
+             │ Users access
+        ┌────┴─────────────┐
+        │   Browser        │
+        │ (view-only)      │
+        └──────────────────┘
+```
+
+### Branch Strategy
+
+| Branch | Purpose | Audience |
+|--------|---------|----------|
+| `main` | Abandoned - too complex | N/A |
+| `legacy` | Local development only | Developer |
+| `view_only` | Public static website | End users |
+
+### Data Flow
+
+1. **Local Development** (`legacy` branch)
+   - Edit data in Flask app on localhost:5000
+   - API Key authentication required
+   - Full CRUD operations
+   - Data stored in local PostgreSQL/Supabase
+
+2. **Data Export** (periodic, manual)
+   - Run `python scripts/export_to_json.py`
+   - Exports all tables from database to JSON files
+   - JSON files saved to `docs/data/`
+   - No transformation needed - direct export
+
+3. **Deploy to Public** (`view_only` branch)
+   - Commit updated JSON files
+   - Push to `origin view_only`
+   - GitHub Pages automatically deploys
+   - Users see latest data within 1-2 minutes
+
+4. **User Access** (GitHub Pages)
+   - Load static HTML from GitHub Pages
+   - Fetch JSON data from GitHub CDN
+   - Parse and import into browser IndexedDB
+   - All queries/searches run locally (fast)
+   - No backend API needed
+
+### File Structure
+
+```
+docs/
+├── index.html          # Home page
+├── search.html         # Search productions
+├── view_actor.html     # Browse actors
+├── css/
+│   ├── style.css
+│   ├── view_production.css
+│   └── view_actor.css
+├── js/
+│   ├── script.js       # Config: API_BASE (unused), IndexedDB loader
+│   ├── view_production.js
+│   └── view_actor.js
+└── data/               # NEW - Static JSON data
+    ├── studios.json
+    ├── actors.json
+    ├── productions.json
+    ├── performances.json
+    ├── stage_names.json
+    ├── tags.json
+    └── production_tags.json
+```
+
+### GitHub Pages Configuration
+
+**Settings → Pages**:
+- **Source**: Deploy from a branch
+- **Branch**: `view_only`
+- **Folder**: `/docs`
+- **Custom domain**: (optional)
+
+### Advantages
+
+✅ **Zero maintenance backend**
+- No server to manage
+- No idle timeout issues
+- No memory/CPU limits
+
+✅ **Fast user experience**
+- Data cached locally (IndexedDB)
+- Searches run in browser (no network latency)
+- Works offline after first load
+
+✅ **Git-based version control**
+- Full history of data changes
+- Easy to rollback if needed
+- Transparent changelog
+
+✅ **Free hosting**
+- GitHub Pages is free
+- No infrastructure costs
+- No subscription fees
+
+✅ **Simple development workflow**
+- Edit locally → Export → Push → Done
+- No deployment scripts or CI/CD needed
+
+### Limitations
+
+⚠️ **Data updates not real-time**
+- Users must refresh to see new data
+- Delay between local edit and public availability (1-2 min for deployment)
+
+⚠️ **No collaborative editing**
+- Only one developer can edit at a time
+- No multi-user simultaneous updates
+
+⚠️ **No transaction guarantees**
+- If export fails halfway, data may be incomplete
+- Should implement validation in export script
+
+---
+
+## Cloud Deployment Attempts Summary (2026-01-08)
+
+### Attempted Platforms
+
+| Platform | Free Tier | Issue | Reason for Exit | Account Action |
+|----------|-----------|-------|-----------------|-----------------|
+| **Render** | ✅ Yes | IPv4-only, Supabase uses IPv6 | Network incompatibility | ❌ DELETE |
+| **PythonAnywhere** | ✅ Yes | No external DB access | Security restrictions | ❌ DELETE |
+| **GCP App Engine** | ⚠️ Limited | Requires billing account | No credit card | N/A (Never created account) |
+| **Replit** | ✅ Yes | 1-hour idle timeout | Not viable for public site | ✅ KEEP (local dev) |
+| **Vercel** | ✅ Yes | Flask not ideal for serverless | Architectural mismatch | ❌ DELETE |
+
+### Accounts to Delete
+
+1. **Render**
+   - URL: https://render.com/dashboard
+   - Action: Delete app + account
+   - Note: Had database connection issues
+
+2. **PythonAnywhere**
+   - URL: https://www.pythonanywhere.com/accounts/
+   - Action: Delete account
+   - Note: Couldn't connect to external PostgreSQL
+
+3. **Vercel**
+   - URL: https://vercel.com/account
+   - Action: Delete the Adonis project + account if desired
+   - Note: Attempted Flask deployment, not ideal for static sites
+
+### Accounts to Keep
+
+- **Replit** (https://replit.com/@dionysus0x42d/)
+  - Keep for local development reference
+  - Archive the old Adonis project (mark as private/deprecated)
+  - No need for active deployment
+
+- **Supabase** (https://supabase.com/)
+  - Keep for local development database
+  - This is where your actual data lives
+  - Used from localhost, not public deployment
+
+- **GitHub** (https://github.com/dionysus0x42d/)
+  - Obviously keep this
+  - This becomes your deployment platform (Pages)
