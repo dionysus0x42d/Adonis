@@ -571,38 +571,71 @@ class GVDBData {
      */
     static async getProductionDetails(productionId) {
         const prod = await this.get('productions', productionId);
-        let performances = [];
+        const actors = [];
+        const seenActorIds = new Set(); // 去重演员
 
-        // 获取演员
+        // 特殊演员过滤
+        const specialActorPatterns = [
+            'ANONYMOUS_POOL',
+            'UNKNOWN_POOL',
+            'GIRL_POOL',
+            'STUDIO_',  // 墨鏡男和路人甲
+        ];
+
         if (prod.type === 'album') {
-            // 专辑：从所有片段聚合演员
-            const allProductions = await this.getAll('productions');
-            const segments = allProductions.filter(p => p.type === 'segment' && p.parent_id === productionId);
+            // 专辑：使用 denormalized performer_ids（数据库中已聚合）
+            const performerIds = prod.performer_ids || [];
 
-            // 从所有片段获取 performances
-            for (const segment of segments) {
-                const segmentPerfs = await this.getByIndex('performances', 'production_id', segment.id);
-                performances.push(...segmentPerfs);
+            for (const stageNameId of performerIds) {
+                // 避免重复
+                if (seenActorIds.has(stageNameId)) continue;
+                seenActorIds.add(stageNameId);
+
+                const sn = await this.get('stage_names', stageNameId);
+                if (!sn) continue;
+
+                const actor = await this.get('actors', sn.actor_id);
+                if (!actor) continue;
+
+                // 过滤掉特殊演员
+                const isSpecial = specialActorPatterns.some(pattern => actor.actor_tag.includes(pattern));
+                if (isSpecial) continue;
+
+                const studio = await this.get('studios', sn.studio_id);
+
+                actors.push({
+                    stageName: sn.stage_name,
+                    actorName: actor.actor_tag,
+                    studioName: studio.name,
+                    role: null, // 专辑不显示角色
+                    performerType: null
+                });
             }
         } else {
-            // 单片/片段：直接获取
-            performances = await this.getByIndex('performances', 'production_id', productionId);
-        }
+            // 单片/片段：从 performances 获取
+            const performances = await this.getByIndex('performances', 'production_id', productionId);
 
-        const actors = [];
+            for (const perf of performances) {
+                const sn = await this.get('stage_names', perf.stage_name_id);
+                if (!sn) continue;
 
-        for (const perf of performances) {
-            const sn = await this.get('stage_names', perf.stage_name_id);
-            const actor = await this.get('actors', sn.actor_id);
-            const studio = await this.get('studios', sn.studio_id);
+                const actor = await this.get('actors', sn.actor_id);
+                if (!actor) continue;
 
-            actors.push({
-                stageName: sn.stage_name,
-                actorName: actor.actor_tag,
-                studioName: studio.name,
-                role: perf.role,
-                performerType: perf.performer_type
-            });
+                // 过滤掉特殊演员
+                const isSpecial = specialActorPatterns.some(pattern => actor.actor_tag.includes(pattern));
+                if (isSpecial) continue;
+
+                const studio = await this.get('studios', sn.studio_id);
+
+                actors.push({
+                    stageName: sn.stage_name,
+                    actorName: actor.actor_tag,
+                    studioName: studio.name,
+                    role: perf.role,
+                    performerType: perf.performer_type
+                });
+            }
         }
 
         // 获取标签
