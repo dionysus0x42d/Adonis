@@ -570,8 +570,25 @@ class GVDBData {
      * 获取作品详情（演员和标签）
      */
     static async getProductionDetails(productionId) {
+        const prod = await this.get('productions', productionId);
+        let performances = [];
+
         // 获取演员
-        const performances = await this.getByIndex('performances', 'production_id', productionId);
+        if (prod.type === 'album') {
+            // 专辑：从所有片段聚合演员
+            const allProductions = await this.getAll('productions');
+            const segments = allProductions.filter(p => p.type === 'segment' && p.parent_id === productionId);
+
+            // 从所有片段获取 performances
+            for (const segment of segments) {
+                const segmentPerfs = await this.getByIndex('performances', 'production_id', segment.id);
+                performances.push(...segmentPerfs);
+            }
+        } else {
+            // 单片/片段：直接获取
+            performances = await this.getByIndex('performances', 'production_id', productionId);
+        }
+
         const actors = [];
 
         for (const perf of performances) {
