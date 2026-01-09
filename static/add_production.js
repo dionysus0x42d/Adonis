@@ -132,7 +132,7 @@ if (parentAlbumInput) {
         }
         
         albumSearchTimeout = setTimeout(() => {
-            fetch(`/api/search_albums?q=${encodeURIComponent(query)}`)
+            fetch(`${API_BASE}/api/search_albums?q=${encodeURIComponent(query)}`)
                 .then(res => res.json())
                 .then(albums => {
                     if (albums.length === 0) {
@@ -254,7 +254,7 @@ function updateActorList() {
 }
 
 function loadStudioActors(studioId) {
-    fetch(`/api/studio_actors/${studioId}`)
+    fetch(`${API_BASE}/api/studio_actors/${studioId}`)
         .then(res => res.json())
         .then(actors => {
             currentActors = actors;

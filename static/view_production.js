@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // 載入篩選選項
 async function loadFilterOptions() {
     try {
-        const response = await fetch('/api/filter-options');
+        const response = await fetch(`${API_BASE}/api/filter-options`);
         state.filterOptions = await response.json();
         
         renderStudioFilters();
@@ -239,7 +239,7 @@ function updateFiltersFromCheckboxes() {
 // 演員搜尋
 async function searchActors(query) {
     try {
-        const response = await fetch(`/api/actors/search?q=${encodeURIComponent(query)}`);
+        const response = await fetch(`${API_BASE}/api/actors/search?q=${encodeURIComponent(query)}`);
         const actors = await response.json();
         
         showActorSuggestions(actors);
@@ -444,7 +444,7 @@ async function performSearch() {
             params.append('date_to', state.filters.date_to);
         }
         
-        const response = await fetch(`/api/search?${params.toString()}`);
+        const response = await fetch(`${API_BASE}/api/search?${params.toString()}`);
         const data = await response.json();
         
         renderResults(data);
@@ -572,7 +572,7 @@ async function toggleAlbum(albumId) {
 // 渲染片段
 async function renderSegments(albumId, tbody = null) {
     try {
-        const response = await fetch(`/api/segments/${albumId}`);
+        const response = await fetch(`${API_BASE}/api/segments/${albumId}`);
         const segments = await response.json();
         
         if (!tbody) {

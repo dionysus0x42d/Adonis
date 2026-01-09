@@ -3,11 +3,13 @@ GVDB 資料庫管理系統 - Flask 應用程式
 """
 
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
+from flask_cors import CORS
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from config import DB_CONFIG, SECRET_KEY, DEBUG
 
 app = Flask(__name__)
+CORS(app)  # 启用 CORS，允许跨域请求
 app.secret_key = SECRET_KEY
 app.config['DEBUG'] = DEBUG
 

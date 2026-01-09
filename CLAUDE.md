@@ -676,3 +676,97 @@ This design trades storage space for query performance, since `/api/search` is u
 - Database RLS policies enforce authorization at data layer
 - HTTPS required for all requests
 - API key rotation mechanism for security updates
+
+---
+
+## Deployment Status & Issues (2026-01-08)
+
+### Current Deployment
+- **Backend**: Replit (deployed, running without errors)
+- **Database**: Supabase PostgreSQL with Session Pooler (port 6543)
+- **Frontend**: Not yet deployed (static files need to be hosted)
+- **Replit URL**: https://[user-replit-url]
+
+### Deployment History
+
+#### 1. Render + Supabase (FAILED)
+- **Issue**: Render is IPv4-only, Supabase Direct Connection uses IPv6
+- **Error**: "Network is unreachable"
+- **Solution attempted**: Used Session Pooler instead (port 6543)
+- **Result**: Connection successful but performance issues
+- **Reason for abandonment**: IPv4/IPv6 incompatibility with free tier
+
+#### 2. PythonAnywhere (FAILED)
+- **Issue**: PythonAnywhere free tier cannot connect to external PostgreSQL
+- **Reason for abandonment**: Network restrictions on free plan
+
+#### 3. GCP App Engine (FAILED)
+- **Issue**: Requires billing account to enable Cloud Build API
+- **Reason for abandonment**: Credit card required
+
+#### 4. Replit (CURRENT - WORKING)
+- **Backend**: Running on Replit ✅
+- **Database connection**: Working with Supabase Session Pooler ✅
+- **Issue**: No data in database (empty studios, tags, etc.)
+- **Idle timeout**: 1 hour (app stops, restarts on access with delay)
+
+### Data Migration Issue
+
+**Problem**:
+- Local PostgreSQL database has data, but when exporting to Supabase, encountered:
+  - Foreign key constraint violations: `productions_parent_id_fkey`
+  - Some segments reference non-existent parent albums
+  - Performances reference non-existent productions
+
+**Possible causes**:
+1. Local database may also have data integrity issues (but app displays normally)
+2. pg_dump exports data in wrong order (doesn't respect foreign key dependencies)
+3. Supabase enforces stricter foreign key constraints on import
+
+**Attempted solutions**:
+1. `pg_dump --data-only --inserts`: Generated INSERT statements, but Supabase SQL Editor couldn't parse
+2. Direct psql connection: `psql "db_url" < backup.sql` - worked but with FK errors
+3. Disabling foreign key checks: `SET session_replication_role = replica;` - reduces errors
+
+**Next steps to try**:
+1. Check local database for orphaned data (query in local psql):
+   ```sql
+   -- Find performances referencing non-existent productions
+   SELECT p.id, p.production_id FROM performances p
+   WHERE p.production_id NOT IN (SELECT id FROM productions);
+
+   -- Find segments with non-existent parents
+   SELECT p.id, p.parent_id FROM productions p
+   WHERE p.type = 'segment' AND p.parent_id NOT IN (SELECT id FROM productions);
+   ```
+
+2. If local data is clean, use complete dump with disabled constraints:
+   ```bash
+   pg_dump -h localhost -U postgres -d gvdb_red -f gvdb_complete.sql
+   # Then import to Supabase with: SET session_replication_role = replica; before INSERT
+   ```
+
+3. Or clean both databases and use test data only
+
+### Environment Variables (Replit)
+```
+DATABASE_URL=postgresql://postgres.pmatcqcmanhuikyhuuxh:hellodionysus0x42@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=require
+SECRET_KEY=46cba3ca76c36ce6def4c5865289ae7cfb3ec04cf05c77fef1476a4226c9b97f
+FLASK_ENV=production
+```
+
+### .replit Configuration
+- Uses gunicorn as production server
+- Port 5000 (internal) → 80 (external)
+- Auto-deployment workflow configured
+- Node.js 20 + Python 3.11 installed
+
+### API Status
+- ✅ `/api/filter-options` returns successfully but with empty data
+- ✅ Database connection working
+- ❌ No data in database (studios[], tags empty, etc.)
+
+### Frontend TODO
+- [ ] Host frontend on GitHub Pages or Replit static files
+- [ ] Configure API endpoint to point to Replit URL
+- [ ] Test all CRUD operations

@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // 載入公司清單
 async function loadStudios() {
     try {
-        const response = await fetch('/api/studios');
+        const response = await fetch(`${API_BASE}/api/studios`);
         state.studios = await response.json();
         
         // 填充下拉選單
@@ -122,7 +122,7 @@ function updateKeyboardSelection(items) {
 // 搜尋演員
 async function searchActors(query) {
     try {
-        const response = await fetch(`/api/actors/search?q=${encodeURIComponent(query)}`);
+        const response = await fetch(`${API_BASE}/api/actors/search?q=${encodeURIComponent(query)}`);
         const actors = await response.json();
         
         showActorSuggestions(actors);
@@ -175,7 +175,7 @@ async function selectActor(actor) {
     
     // 載入演員完整資料
     try {
-        const response = await fetch(`/api/actor/${actor.actor_id}`);
+        const response = await fetch(`${API_BASE}/api/actor/${actor.actor_id}`);
         const actorData = await response.json();
         
         state.currentActor = actorData;
@@ -349,7 +349,7 @@ async function saveActor() {
     }
 
     try {
-        const response = await fetch(`/api/actor/${actorId}`, {
+        const response = await fetch(`${API_BASE}/api/actor/${actorId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

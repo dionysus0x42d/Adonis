@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadFilters() {
     try {
-        const response = await fetch('/api/actors/filters');
+        const response = await fetch(`${API_BASE}/api/actors/filters`);
         const data = await response.json();
 
         // 渲染公司篩選複選框
@@ -149,7 +149,7 @@ async function performSearch() {
             params.append('studios', state.filters.studios.join(','));
         }
 
-        const response = await fetch(`/api/actors/query?${params.toString()}`);
+        const response = await fetch(`${API_BASE}/api/actors/query?${params.toString()}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

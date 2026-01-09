@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // 載入公司清單
 async function loadStudios() {
     try {
-        const response = await fetch('/api/studios');
+        const response = await fetch(`${API_BASE}/api/studios`);
         state.studios = await response.json();
 
         // 填充公司下拉選單
@@ -53,7 +53,7 @@ async function loadStudios() {
 // 載入篩選選項（用於標籤）
 async function loadFilterOptions() {
     try {
-        const response = await fetch('/api/filter-options');
+        const response = await fetch(`${API_BASE}/api/filter-options`);
         const data = await response.json();
         state.availableTags = data.tags;
     } catch (error) {
@@ -283,7 +283,7 @@ function updatePerformerKeyboardSelection(items) {
 async function searchProductions(query) {
     try {
         const filters = getSelectedFilters();
-        const url = `/api/search_productions?q=${encodeURIComponent(query)}&types=${encodeURIComponent(filters.types)}&studios=${encodeURIComponent(filters.studios)}`;
+        const url = `${API_BASE}/api/search_productions?q=${encodeURIComponent(query)}&types=${encodeURIComponent(filters.types)}&studios=${encodeURIComponent(filters.studios)}`;
         const response = await fetch(url);
         const productions = await response.json();
 
@@ -349,7 +349,7 @@ async function selectProduction(productionId) {
     document.getElementById('productionSearch').value = '';
 
     try {
-        const response = await fetch(`/api/production/${productionId}`);
+        const response = await fetch(`${API_BASE}/api/production/${productionId}`);
         const productionData = await response.json();
 
         state.currentProduction = productionData;
@@ -536,7 +536,7 @@ function cancelEditPerformer(index) {
 // 搜尋演員
 async function searchPerformers(query, studioId) {
     try {
-        const response = await fetch(`/api/studio_actors/${studioId}`);
+        const response = await fetch(`${API_BASE}/api/studio_actors/${studioId}`);
         const allActors = await response.json();
 
         // 進行本地過濾
@@ -752,7 +752,7 @@ async function saveProduction() {
     };
 
     try {
-        const response = await fetch(`/api/production/${productionId}`, {
+        const response = await fetch(`${API_BASE}/api/production/${productionId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
