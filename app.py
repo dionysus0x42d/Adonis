@@ -1232,24 +1232,19 @@ def query_actors():
         for actor_id in actor_ids:
             actor = next((a for a in all_actors if a['actor_id'] == actor_id), None)
 
-            # 取得該演員的最新作品代碼
+            # 取得該演員的最新作品代碼和日期
             cur.execute("""
-                SELECT p.code FROM performances perf
+                SELECT p.code, p.release_date as code_date, p.type FROM performances perf
                 JOIN stage_names sn ON perf.stage_name_id = sn.id
                 JOIN productions p ON perf.production_id = p.id
                 WHERE sn.actor_id = %s AND p.type = 'single'
                 UNION
-                SELECT p.code FROM performances perf
+                SELECT p.code, p.release_date as code_date, p.type FROM performances perf
                 JOIN stage_names sn ON perf.stage_name_id = sn.id
                 JOIN productions seg ON perf.production_id = seg.id
                 JOIN productions p ON seg.parent_id = p.id
                 WHERE sn.actor_id = %s AND seg.type = 'segment' AND p.type = 'album'
-                ORDER BY (
-                    SELECT CASE
-                        WHEN p2.type = 'single' THEN p2.release_date
-                        WHEN p2.type = 'segment' THEN (SELECT release_date FROM productions WHERE id = p2.parent_id)
-                    END
-                ) DESC
+                ORDER BY code_date DESC
                 LIMIT 1
             """, (actor_id, actor_id))
             latest_code = cur.fetchone()
