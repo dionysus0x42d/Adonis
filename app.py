@@ -1177,34 +1177,94 @@ def query_actors():
         else:
             sort_clause = "a.actor_tag ASC"
 
-        # 優化的主查詢：一次性獲取所有需要的數據
+        # 優化的主查詢：一次性獲取所有演員及統計
         offset = (page - 1) * per_page
 
+        # 簡化版本：先獲取需要的所有數據，然後在 Python 層進行排序
         main_query = f"""
-            WITH actor_list AS (
-                -- 獲取符合篩選條件的演員 ID 和排序值
+            SELECT DISTINCT
+                a.id as actor_id,
+                a.actor_tag,
+                a.gvdb_id,
+                a.notes,
+                COUNT(DISTINCT CASE
+                    WHEN p.type = 'single' THEN p.id
+                    WHEN p.type = 'segment' THEN p.parent_id
+                END) as total_productions,
+                COALESCE(SUM(CASE WHEN perf.role = 'top' THEN 1 ELSE 0 END), 0) as role_top,
+                COALESCE(SUM(CASE WHEN perf.role = 'bottom' THEN 1 ELSE 0 END), 0) as role_bottom,
+                COALESCE(SUM(CASE WHEN perf.role = 'giver' THEN 1 ELSE 0 END), 0) as role_giver,
+                COALESCE(SUM(CASE WHEN perf.role = 'receiver' THEN 1 ELSE 0 END), 0) as role_receiver,
+                COALESCE(SUM(CASE WHEN perf.role NOT IN ('top', 'bottom', 'giver', 'receiver') OR perf.role IS NULL THEN 1 ELSE 0 END), 0) as role_other,
+                MAX(CASE
+                    WHEN p.type = 'single' THEN p.release_date
+                    WHEN p.type = 'segment' THEN album.release_date
+                END) as latest_date
+            FROM actors a
+            LEFT JOIN stage_names sn ON a.id = sn.actor_id
+            LEFT JOIN performances perf ON sn.id = perf.stage_name_id
+            LEFT JOIN productions p ON perf.production_id = p.id AND p.type IN ('single', 'segment')
+            LEFT JOIN productions album ON p.parent_id = album.id
+            WHERE {query_where}
+            GROUP BY a.id, a.actor_tag, a.gvdb_id, a.notes
+        """
+
+        cur.execute(main_query, params)
+        all_actors = cur.fetchall()
+
+        # 在 Python 層進行排序（避免複雜的 SQL 排序邏輯）
+        if sort == 'name':
+            all_actors.sort(key=lambda x: x['actor_tag'], reverse=(sort_order == 'desc'))
+        elif sort == 'latest':
+            all_actors.sort(key=lambda x: x['latest_date'] or '0000-01-01', reverse=True)
+        elif sort == 'count':
+            all_actors.sort(key=lambda x: x['total_productions'], reverse=True)
+        elif sort == 'newest_edit':
+            # 需要額外查詢以獲取最新編輯時間，暫時用日期代替
+            all_actors.sort(key=lambda x: x['latest_date'] or '0000-01-01', reverse=True)
+
+        # 分頁
+        paginated_actors = all_actors[offset:offset + per_page]
+        actor_ids = [actor['actor_id'] for actor in paginated_actors]
+
+        # 為分頁後的演員獲取公司詳細信息
+        rows = []
+        for actor_id in actor_ids:
+            actor = next((a for a in all_actors if a['actor_id'] == actor_id), None)
+
+            # 取得該演員的最新作品代碼
+            cur.execute("""
+                SELECT p.code FROM performances perf
+                JOIN stage_names sn ON perf.stage_name_id = sn.id
+                JOIN productions p ON perf.production_id = p.id
+                WHERE sn.actor_id = %s AND p.type = 'single'
+                UNION
+                SELECT p.code FROM performances perf
+                JOIN stage_names sn ON perf.stage_name_id = sn.id
+                JOIN productions seg ON perf.production_id = seg.id
+                JOIN productions p ON seg.parent_id = p.id
+                WHERE sn.actor_id = %s AND seg.type = 'segment' AND p.type = 'album'
+                ORDER BY (
+                    SELECT CASE
+                        WHEN p2.type = 'single' THEN p2.release_date
+                        WHEN p2.type = 'segment' THEN (SELECT release_date FROM productions WHERE id = p2.parent_id)
+                    END
+                ) DESC
+                LIMIT 1
+            """, (actor_id, actor_id))
+            latest_code = cur.fetchone()
+
+            # 取得公司詳細信息
+            cur.execute("""
                 SELECT
-                    a.id,
-                    a.actor_tag,
-                    a.gvdb_id,
-                    a.notes,
-                    ROW_NUMBER() OVER (ORDER BY {sort_clause}) as rn
-                FROM actors a
-                LEFT JOIN stage_names sn ON a.id = sn.actor_id
-                LEFT JOIN performances perf ON sn.id = perf.stage_name_id
-                LEFT JOIN productions p ON perf.production_id = p.id
-                LEFT JOIN productions album ON p.parent_id = album.id
-                WHERE {query_where}
-                GROUP BY a.id, a.actor_tag, a.gvdb_id, a.notes
-            ),
-            global_stats AS (
-                -- 計算全局統計（所有公司合計）
-                SELECT
-                    a.id as actor_id,
+                    s.id as studio_id,
+                    s.name as studio_name,
+                    sn.id as stage_name_id,
+                    sn.stage_name,
                     COUNT(DISTINCT CASE
                         WHEN p.type = 'single' THEN p.id
                         WHEN p.type = 'segment' THEN p.parent_id
-                    END) as total_productions,
+                    END) as productions,
                     COALESCE(SUM(CASE WHEN perf.role = 'top' THEN 1 ELSE 0 END), 0) as role_top,
                     COALESCE(SUM(CASE WHEN perf.role = 'bottom' THEN 1 ELSE 0 END), 0) as role_bottom,
                     COALESCE(SUM(CASE WHEN perf.role = 'giver' THEN 1 ELSE 0 END), 0) as role_giver,
@@ -1212,127 +1272,58 @@ def query_actors():
                     COALESCE(SUM(CASE WHEN perf.role NOT IN ('top', 'bottom', 'giver', 'receiver') OR perf.role IS NULL THEN 1 ELSE 0 END), 0) as role_other,
                     MAX(CASE
                         WHEN p.type = 'single' THEN p.release_date
-                        WHEN p.type = 'segment' THEN album.release_date
-                    END) as latest_date,
-                    FIRST_VALUE(p.code) OVER (
-                        PARTITION BY a.id
-                        ORDER BY CASE
-                            WHEN p.type = 'single' THEN p.release_date
-                            WHEN p.type = 'segment' THEN album.release_date
-                        END DESC
-                    ) as latest_production_code
-                FROM actors a
-                LEFT JOIN stage_names sn ON a.id = sn.actor_id
-                LEFT JOIN performances perf ON sn.id = perf.stage_name_id
-                LEFT JOIN productions p ON perf.production_id = p.id AND p.type IN ('single', 'segment')
-                LEFT JOIN productions album ON p.parent_id = album.id
-                GROUP BY a.id
-            ),
-            studio_details_agg AS (
-                -- 聚合所有公司的詳細統計
-                SELECT
-                    a.id as actor_id,
-                    JSON_AGG(
-                        JSON_BUILD_OBJECT(
-                            'studio_id', COALESCE(s.id, -1),
-                            'studio_name', COALESCE(s.name, ''),
-                            'stage_name_id', sn.id,
-                            'stage_name', COALESCE(sn.stage_name, ''),
-                            'productions', COUNT(DISTINCT CASE
-                                WHEN p.type = 'single' THEN p.id
-                                WHEN p.type = 'segment' THEN p.parent_id
-                            END),
-                            'role_top', COALESCE(SUM(CASE WHEN perf.role = 'top' THEN 1 ELSE 0 END), 0),
-                            'role_bottom', COALESCE(SUM(CASE WHEN perf.role = 'bottom' THEN 1 ELSE 0 END), 0),
-                            'role_giver', COALESCE(SUM(CASE WHEN perf.role = 'giver' THEN 1 ELSE 0 END), 0),
-                            'role_receiver', COALESCE(SUM(CASE WHEN perf.role = 'receiver' THEN 1 ELSE 0 END), 0),
-                            'role_other', COALESCE(SUM(CASE WHEN perf.role NOT IN ('top', 'bottom', 'giver', 'receiver') OR perf.role IS NULL THEN 1 ELSE 0 END), 0),
-                            'latest_date', MAX(CASE
-                                WHEN p.type = 'single' THEN p.release_date
-                                WHEN p.type = 'segment' THEN album.release_date
-                            END),
-                            'latest_production_code', FIRST_VALUE(p.code) OVER (
-                                PARTITION BY sn.id
-                                ORDER BY CASE
-                                    WHEN p.type = 'single' THEN p.release_date
-                                    WHEN p.type = 'segment' THEN album.release_date
-                                END DESC
-                            )
-                        ) ORDER BY COALESCE(s.name, '')
-                    ) as studio_details
-                FROM actors a
-                LEFT JOIN stage_names sn ON a.id = sn.actor_id
+                        WHEN p.type = 'segment' THEN (SELECT release_date FROM productions WHERE id = p.parent_id)
+                    END) as latest_date
+                FROM stage_names sn
                 LEFT JOIN studios s ON sn.studio_id = s.id
                 LEFT JOIN performances perf ON sn.id = perf.stage_name_id
                 LEFT JOIN productions p ON perf.production_id = p.id AND p.type IN ('single', 'segment')
-                LEFT JOIN productions album ON p.parent_id = album.id
-                GROUP BY a.id
-            )
-            SELECT
-                al.id as actor_id,
-                al.actor_tag,
-                al.gvdb_id,
-                al.notes,
-                gs.total_productions,
-                gs.role_top,
-                gs.role_bottom,
-                gs.role_giver,
-                gs.role_receiver,
-                gs.role_other,
-                gs.latest_date,
-                gs.latest_production_code,
-                COALESCE(sda.studio_details, '[]'::json) as studio_details
-            FROM actor_list al
-            LEFT JOIN global_stats gs ON al.id = gs.actor_id
-            LEFT JOIN studio_details_agg sda ON al.id = sda.actor_id
-            WHERE al.rn > {offset} AND al.rn <= {offset + per_page}
-            ORDER BY al.rn
-        """
+                WHERE sn.actor_id = %s
+                GROUP BY s.id, s.name, sn.id, sn.stage_name
+                ORDER BY s.name
+            """, (actor_id,))
+            studio_details = cur.fetchall()
 
-        cur.execute(main_query, params)
-        rows = cur.fetchall()
+            # 組合結果
+            row = dict(actor)
+            row['studio_details'] = studio_details
+            row['latest_production_code'] = latest_code['code'] if latest_code else None
+            rows.append(row)
 
         # 在 Python 中組織結果
         results = []
         for row in rows:
             studio_details_list = []
 
-            if row['studio_details'] and row['studio_details'] != '[]':
-                studio_data = row['studio_details']
-                if isinstance(studio_data, str):
-                    studio_data = json.loads(studio_data)
+            # row['studio_details'] 已經是列表（來自 cur.fetchall()）
+            for studio in row['studio_details']:
+                total_roles = (studio['role_top'] + studio['role_bottom'] +
+                             studio['role_giver'] + studio['role_receiver'] +
+                             studio['role_other']) or 1
 
-                for studio in studio_data:
-                    if studio['studio_id'] == -1:  # 跳過沒有公司的記錄
-                        continue
-
-                    total_roles = (studio['role_top'] + studio['role_bottom'] +
-                                 studio['role_giver'] + studio['role_receiver'] +
-                                 studio['role_other']) or 1
-
-                    studio_details_list.append({
-                        'studio_id': studio['studio_id'],
-                        'studio_name': studio['studio_name'],
-                        'stage_name_id': studio['stage_name_id'],
-                        'stage_name': studio['stage_name'],
-                        'productions': studio['productions'],
-                        'latest_date': studio['latest_date'],
-                        'latest_production_code': studio['latest_production_code'],
-                        'role_breakdown': {
-                            'top': studio['role_top'],
-                            'bottom': studio['role_bottom'],
-                            'giver': studio['role_giver'],
-                            'receiver': studio['role_receiver'],
-                            'other': studio['role_other']
-                        },
-                        'role_percentage': {
-                            'top': round((studio['role_top'] / total_roles) * 100) if studio['role_top'] > 0 else 0,
-                            'bottom': round((studio['role_bottom'] / total_roles) * 100) if studio['role_bottom'] > 0 else 0,
-                            'giver': round((studio['role_giver'] / total_roles) * 100) if studio['role_giver'] > 0 else 0,
-                            'receiver': round((studio['role_receiver'] / total_roles) * 100) if studio['role_receiver'] > 0 else 0,
-                            'other': round((studio['role_other'] / total_roles) * 100) if studio['role_other'] > 0 else 0
-                        }
-                    })
+                studio_details_list.append({
+                    'studio_id': studio['studio_id'],
+                    'studio_name': studio['studio_name'],
+                    'stage_name_id': studio['stage_name_id'],
+                    'stage_name': studio['stage_name'],
+                    'productions': studio['productions'],
+                    'latest_date': studio['latest_date'],
+                    'latest_production_code': studio.get('latest_production_code'),
+                    'role_breakdown': {
+                        'top': studio['role_top'],
+                        'bottom': studio['role_bottom'],
+                        'giver': studio['role_giver'],
+                        'receiver': studio['role_receiver'],
+                        'other': studio['role_other']
+                    },
+                    'role_percentage': {
+                        'top': round((studio['role_top'] / total_roles) * 100) if studio['role_top'] > 0 else 0,
+                        'bottom': round((studio['role_bottom'] / total_roles) * 100) if studio['role_bottom'] > 0 else 0,
+                        'giver': round((studio['role_giver'] / total_roles) * 100) if studio['role_giver'] > 0 else 0,
+                        'receiver': round((studio['role_receiver'] / total_roles) * 100) if studio['role_receiver'] > 0 else 0,
+                        'other': round((studio['role_other'] / total_roles) * 100) if studio['role_other'] > 0 else 0
+                    }
+                })
 
             global_total_roles = (row['role_top'] + row['role_bottom'] +
                                 row['role_giver'] + row['role_receiver'] +
