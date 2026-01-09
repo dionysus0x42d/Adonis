@@ -176,22 +176,42 @@ class GVDBData {
      * 获取演员统计信息
      */
     static async getActorStats(actorId) {
-        const performances = await this.getByIndex('performances', 'stage_name_id', 0);
         const stageNames = await this.getByIndex('stage_names', 'actor_id', actorId);
-        const stageNameIds = stageNames.map(s => s.id);
 
         let totalProductions = 0;
-        let roleStats = {
-            role_top: 0,
-            role_bottom: 0,
-            role_giver: 0,
-            role_receiver: 0,
-            role_other: 0
+        let roleCounts = {
+            top: 0,
+            bottom: 0,
+            giver: 0,
+            receiver: 0,
+            other: 0
         };
 
+        let latestCode = '無';
+        let latestDate = '無';
+        let latestTime = 0;
+
         const seenProductions = new Set();
+        const studioStats = {}; // 按公司的统计
 
         for (const sn of stageNames) {
+            const studio = await this.get('studios', sn.studio_id);
+            const studioName = studio.name;
+
+            // 初始化该公司的统计
+            if (!studioStats[sn.studio_id]) {
+                studioStats[sn.studio_id] = {
+                    studio_id: sn.studio_id,
+                    studio_name: studioName,
+                    stage_name: sn.stage_name,
+                    productions: 0,
+                    role_breakdown: { top: 0, bottom: 0, giver: 0, receiver: 0, other: 0 },
+                    role_percentage: { top: 0, bottom: 0, giver: 0, receiver: 0, other: 0 },
+                    latest_production_code: '---',
+                    latest_date: '無'
+                };
+            }
+
             const stagePerfs = await this.getByIndex('performances', 'stage_name_id', sn.id);
 
             for (const perf of stagePerfs) {
@@ -205,19 +225,55 @@ class GVDBData {
                     totalProductions++;
                 }
 
-                // 角色统计
-                const role = perf.role;
-                if (role === 'top') roleStats.role_top++;
-                else if (role === 'bottom') roleStats.role_bottom++;
-                else if (role === 'giver') roleStats.role_giver++;
-                else if (role === 'receiver') roleStats.role_receiver++;
-                else roleStats.role_other++;
+                // 全局角色统计
+                const role = perf.role || 'other';
+                if (role === 'top') roleCounts.top++;
+                else if (role === 'bottom') roleCounts.bottom++;
+                else if (role === 'giver') roleCounts.giver++;
+                else if (role === 'receiver') roleCounts.receiver++;
+                else roleCounts.other++;
+
+                // 按公司的角色统计
+                studioStats[sn.studio_id].role_breakdown[role]++;
+                studioStats[sn.studio_id].productions++;
+
+                // 更新最新作品（全局）
+                const prodTime = new Date(prod.release_date || prod.updated_at || 0).getTime();
+                if (prodTime > latestTime) {
+                    latestTime = prodTime;
+                    latestCode = prod.code || '無';
+                    latestDate = prod.release_date || '無';
+                }
+
+                // 更新最新作品（按公司）
+                const studioProdTime = new Date(prod.release_date || prod.updated_at || 0).getTime();
+                const studioLatestTime = new Date(studioStats[sn.studio_id].latest_date || 0).getTime();
+                if (studioProdTime > studioLatestTime) {
+                    studioStats[sn.studio_id].latest_production_code = prod.code || '---';
+                    studioStats[sn.studio_id].latest_date = prod.release_date || '無';
+                }
             }
         }
 
+        // 计算按公司的角色百分比
+        for (const studioId in studioStats) {
+            const stats = studioStats[studioId];
+            const total = stats.productions || 1;
+            stats.role_percentage = {
+                top: Math.round((stats.role_breakdown.top / total) * 100),
+                bottom: Math.round((stats.role_breakdown.bottom / total) * 100),
+                giver: Math.round((stats.role_breakdown.giver / total) * 100),
+                receiver: Math.round((stats.role_breakdown.receiver / total) * 100),
+                other: Math.round((stats.role_breakdown.other / total) * 100)
+            };
+        }
+
         return {
-            total_productions: totalProductions,
-            ...roleStats
+            totalProductions: totalProductions,
+            roleCounts: roleCounts,
+            latestCode: latestCode,
+            latestDate: latestDate,
+            studio_details: Object.values(studioStats)
         };
     }
 
@@ -234,8 +290,16 @@ class GVDBData {
                     bVal = b.actor_tag || '';
                     break;
                 case 'count':
-                    aVal = a.total_productions || 0;
-                    bVal = b.total_productions || 0;
+                    aVal = a.totalProductions || 0;
+                    bVal = b.totalProductions || 0;
+                    break;
+                case 'latest':
+                    aVal = a.latestDate || '';
+                    bVal = b.latestDate || '';
+                    break;
+                case 'newest_edit':
+                    aVal = a.updated_at || '';
+                    bVal = b.updated_at || '';
                     break;
                 default:
                     return 0;

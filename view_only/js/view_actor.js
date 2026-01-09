@@ -164,20 +164,26 @@ async function performSearch() {
 
         // 格式化資料以匹配現有的 UI 期望
         const formattedResult = {
-            results: result.data.map(actor => ({
-                actor_id: actor.id,
-                actor_tag: actor.actor_tag,
-                gvdb_id: actor.gvdb_id,
-                total_productions: actor.totalProductions || 0,
-                studios: actor.studios || [],
-                studio_details: actor.studio_details || [],
-                global_stats: {
+            results: result.data.map(actor => {
+                // 提取按公司的統計數據
+                const studioDetails = actor.studio_details || [];
+                const studioNames = studioDetails.map(s => s.studio_name);
+
+                return {
+                    actor_id: actor.id,
+                    actor_tag: actor.actor_tag,
+                    gvdb_id: actor.gvdb_id,
                     total_productions: actor.totalProductions || 0,
-                    role_breakdown: actor.roleCounts || { top: 0, bottom: 0, giver: 0, receiver: 0, other: 0 },
-                    latest_production_code: actor.latestCode || '無',
-                    latest_release_date: actor.latestDate || '無'
-                }
-            })),
+                    studios: studioNames, // 公司名稱列表
+                    studio_details: studioDetails, // 詳細統計資訊
+                    global_stats: {
+                        total_productions: actor.totalProductions || 0,
+                        role_breakdown: actor.roleCounts || { top: 0, bottom: 0, giver: 0, receiver: 0, other: 0 },
+                        latest_production_code: actor.latestCode || '無',
+                        latest_release_date: actor.latestDate || '無'
+                    }
+                };
+            }),
             total: result.total,
             total_pages: result.totalPages,
             current_page: result.page,
