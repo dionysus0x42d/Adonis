@@ -9,7 +9,6 @@ const state = {
         sex_acts: [],
         styles: [],
         body_types: [],
-        sources: [],
         keyword: '',
         date_from: '',
         date_to: ''
@@ -53,8 +52,7 @@ async function loadFilterOptions() {
             tags: {
                 sex_acts: tags.filter(t => t.category === 'sex_act').map(t => t.name),
                 styles: tags.filter(t => t.category === 'style').map(t => t.name),
-                body_types: tags.filter(t => t.category === 'body_type').map(t => t.name),
-                sources: tags.filter(t => t.category === 'source').map(t => t.name)
+                body_types: tags.filter(t => t.category === 'body_type').map(t => t.name)
             }
         };
 
@@ -85,8 +83,7 @@ function renderTagFilters() {
     const categories = {
         'sex_acts': { id: 'sexActFilters' },
         'styles': { id: 'styleFilters' },
-        'body_types': { id: 'bodyTypeFilters' },
-        'sources': { id: 'sourceFilters' }
+        'body_types': { id: 'bodyTypeFilters' }
     };
     
     Object.entries(categories).forEach(([category, config]) => {
@@ -244,7 +241,7 @@ function updateKeyboardSelection(items) {
 
 // 更新篩選狀態 (從 checkboxes)
 function updateFiltersFromCheckboxes() {
-    const filterTypes = ['studios', 'types', 'sex_acts', 'styles', 'body_types', 'sources'];
+    const filterTypes = ['studios', 'types', 'sex_acts', 'styles', 'body_types'];
     
     filterTypes.forEach(type => {
         const checkboxes = document.querySelectorAll(`input[data-filter="${type}"]:checked`);
@@ -382,7 +379,6 @@ function clearAllFilters() {
         sex_acts: [],
         styles: [],
         body_types: [],
-        sources: [],
         keyword: '',
         date_from: '',
         date_to: ''
@@ -429,7 +425,6 @@ async function performSearch() {
             sex_acts: state.filters.sex_acts.length > 0 ? state.filters.sex_acts : null,
             styles: state.filters.styles.length > 0 ? state.filters.styles : null,
             body_types: state.filters.body_types.length > 0 ? state.filters.body_types : null,
-            sources: state.filters.sources.length > 0 ? state.filters.sources : null,
             keyword: state.filters.keyword || null,
             dateFrom: state.filters.date_from || null,
             dateTo: state.filters.date_to || null
@@ -536,7 +531,6 @@ function createResultRow(item) {
         <td>${renderTags(item.tags?.sex_acts, 'sex-act')}</td>
         <td>${renderTags(item.tags?.styles, 'style')}</td>
         <td>${renderTags(item.tags?.body_types, 'body-type')}</td>
-        <td>${renderTags(item.tags?.sources, 'source')}</td>
         <td class="truncate">${escapeHtml(item.comment || '')}</td>
     `;
     

@@ -457,13 +457,8 @@ class GVDBData {
         const actors = [];
         const seenActorIds = new Set();
 
-        // 特殊演员过滤
-        const specialActorPatterns = [
-            'ANONYMOUS_POOL',
-            'UNKNOWN_POOL',
-            'GIRL_POOL',
-            'STUDIO_',
-        ];
+        // 仅过滤 STUDIO_* 模式的自动生成演员，保留匿名演员（作品查询页面允许显示）
+        const excludeActorPatterns = ['STUDIO_'];
 
         if (prod.type === 'album') {
             // 专辑：使用 denormalized performer_ids
@@ -479,8 +474,8 @@ class GVDBData {
                 const actor = await this.get('actors', sn.actor_id);
                 if (!actor) continue;
 
-                const isSpecial = specialActorPatterns.some(pattern => actor.actor_tag.includes(pattern));
-                if (isSpecial) continue;
+                const isExcluded = excludeActorPatterns.some(pattern => actor.actor_tag.includes(pattern));
+                if (isExcluded) continue;
 
                 const studio = await this.get('studios', sn.studio_id);
 
@@ -503,8 +498,8 @@ class GVDBData {
                 const actor = await this.get('actors', sn.actor_id);
                 if (!actor) continue;
 
-                const isSpecial = specialActorPatterns.some(pattern => actor.actor_tag.includes(pattern));
-                if (isSpecial) continue;
+                const isExcluded = excludeActorPatterns.some(pattern => actor.actor_tag.includes(pattern));
+                if (isExcluded) continue;
 
                 const studio = await this.get('studios', sn.studio_id);
 
