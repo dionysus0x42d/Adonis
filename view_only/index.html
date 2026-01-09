@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GVDB 資料庫 - 查詢系統</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">GVDB 查詢系統</h1>
+            <ul class="nav-menu">
+                <li><a href="./index.html">首頁</a></li>
+                <li><a href="./view_actor.html">👥查詢演員</a></li>
+                <li><a href="./view_production.html">🔍查詢作品</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h2>歡迎使用 GVDB 查詢系統</h2>
+            <p>成人視頻資料庫 - 只讀查詢版本</p>
+        </div>
+
+        <div class="function-cards">
+            <a href="./view_actor.html" class="function-card">
+                <h3>👥 查詢演員</h3>
+                <p>搜尋演員、查看出演統計和角色分佈</p>
+            </a>
+
+            <a href="./view_production.html" class="function-card">
+                <h3>🔍 查詢作品</h3>
+                <p>搜尋和瀏覽作品，按公司、類型、標籤篩選</p>
+            </a>
+
+            <div class="function-card-blank"></div>
+            <div class="function-card-blank"></div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 GVDB 資料庫管理系統</p>
+        </div>
+    </footer>
+
+    <script src="./js/indexeddb-loader.js"></script>
+    <script src="./js/script.js"></script>
+</body>
+</html>
