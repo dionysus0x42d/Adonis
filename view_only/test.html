@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GVDB Data Diagnostic Test</title>
+    <style>
+        body { font-family: monospace; margin: 20px; background: #f5f5f5; }
+        .section { background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #0066cc; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .info { color: #0066cc; }
+        pre { background: #f0f0f0; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>GVDB Tags Diagnostic Test</h1>
+    <div id="output"></div>
+
+    <script src="./js/indexeddb-loader.js"></script>
+    <script>
+        const output = document.getElementById('output');
+
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = msg;
+            output.appendChild(div);
+            console.log(`[${type}] ${msg}`);
+        }
+
+        function section(title) {
+            const div = document.createElement('div');
+            div.className = 'section';
+            const h2 = document.createElement('h2');
+            h2.textContent = title;
+            div.appendChild(h2);
+            output.appendChild(div);
+            return div;
+        }
+
+        async function runTest() {
+            try {
+                log('Starting GVDB data diagnostic...', 'info');
+
+                const sec1 = section('Step 1: Initialize IndexedDB');
+                await GVDBData.init();
+                log('IndexedDB initialized successfully', 'success');
+
+                const sec2 = section('Step 2: Load Data Counts');
+                const studios = await GVDBData.getAll('studios');
+                const tags = await GVDBData.getAll('tags');
+                const productions = await GVDBData.getAll('productions');
+                const prodTags = await GVDBData.getAll('production_tags');
+
+                log(`Studios loaded: ${studios.length}`, 'info');
+                log(`Tags loaded: ${tags.length}`, 'info');
+                log(`Productions loaded: ${productions.length}`, 'info');
+                log(`Production_tags loaded: ${prodTags.length}`, 'info');
+
+                const sec3 = section('Step 3: Test Production 3');
+                const prod3 = await GVDBData.get('productions', 3);
+                log(`Production 3 found: ${prod3?.code} (${prod3?.type})`, 'info');
+
+                const sec4 = section('Step 4: Get Production Details');
+                const details = await GVDBData.getProductionDetails(3);
+                log(`Actors: ${details.actors.length}`, 'info');
+                log(`Tags structure: ${JSON.stringify(details.tags)}`, 'info');
+
+                const totalTags = Object.values(details.tags).flat().length;
+                log(`Total tags resolved: ${totalTags}`, totalTags > 0 ? 'success' : 'error');
+
+                const sec5 = section('Step 5: Check Product Entry in List');
+                const prods = await GVDBData.getProductions({}, {}, {page: 1, pageSize: 5});
+                if (prods.data.length > 0) {
+                    const firstProd = prods.data[0];
+                    log(`First production: ${firstProd.code}`, 'info');
+                    log(`Has tags property: ${firstProd.tags ? 'YES' : 'NO'}`, firstProd.tags ? 'success' : 'error');
+                    if (firstProd.tags) {
+                        log(`Tags content: ${JSON.stringify(firstProd.tags)}`, 'info');
+                    }
+                }
+
+                const sec6 = section('FINAL DIAGNOSIS');
+                if (totalTags > 0) {
+                    log('Data is loaded correctly in IndexedDB', 'success');
+                    log('Tags are being resolved properly', 'success');
+                    log('If tags still dont show on page, check renderTags() function', 'info');
+                } else {
+                    log('Tags are NOT being loaded from IndexedDB', 'error');
+                    log('Check getProductionDetails() function', 'error');
+                }
+
+            } catch (error) {
+                log(`ERROR: ${error.message}`, 'error');
+                console.error(error);
+            }
+        }
+
+        // Run test when page loads
+        runTest();
+    </script>
+</body>
+</html>

@@ -441,11 +441,16 @@ class GVDBData {
         productions = await Promise.all(productions.map(async (prod) => {
             const details = await this.getProductionDetails(prod.id);
             const studio = await this.get('studios', prod.studio_id);
-            return {
+            const result = {
                 ...prod,
                 ...details,
                 studio_name: studio.name
             };
+            // 调试：检查标签是否存在
+            if (prod.id === 3) {
+                console.log(`[DEBUG] Production ${prod.id}:`, { tags: result.tags, actors: result.actors ? result.actors.length : 0 });
+            }
+            return result;
         }));
 
         // 应用排序
@@ -587,12 +592,26 @@ class GVDBData {
         const prodTags = await this.getByIndex('production_tags', 'production_id', productionId);
         const tags = { sex_acts: [], styles: [], body_types: [], sources: [] };
 
+        // 调试：记录 production_tags 查询
+        if (productionId === 3 || productionId === 7) {
+            console.log(`[getProductionDetails] ProdID ${productionId}: Found ${prodTags.length} tag records`);
+        }
+
         for (const pt of prodTags) {
             const tag = await this.get('tags', pt.tag_id);
+            if (!tag) {
+                console.warn(`[getProductionDetails] Tag ${pt.tag_id} not found!`);
+                continue;
+            }
             if (tag.category === 'sex_act') tags.sex_acts.push(tag.name);
             else if (tag.category === 'style') tags.styles.push(tag.name);
             else if (tag.category === 'body_type') tags.body_types.push(tag.name);
             else if (tag.category === 'source') tags.sources.push(tag.name);
+        }
+
+        // 调试：最终结果
+        if (productionId === 3 || productionId === 7) {
+            console.log(`[getProductionDetails] ProdID ${productionId}: Result tags=`, tags);
         }
 
         return {

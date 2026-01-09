@@ -486,16 +486,20 @@ function showError(message) {
 function renderResults(data) {
     const tbody = document.getElementById('resultsBody');
     tbody.innerHTML = '';
-    
+
     if (data.results.length === 0) {
         tbody.innerHTML = '<tr><td colspan="11" class="no-results-message">沒有符合條件的作品</td></tr>';
         return;
     }
-    
-    data.results.forEach(item => {
+
+    data.results.forEach((item, index) => {
+        // 調試：第一項數據
+        if (index === 0) {
+            console.log('[renderResults] First item structure:', item);
+        }
         const row = createResultRow(item);
         tbody.appendChild(row);
-        
+
         // 如果是已展開的專輯，渲染其片段
         if (item.type === 'album' && state.expandedAlbums.has(item.id)) {
             renderSegments(item.id, tbody);
@@ -506,16 +510,22 @@ function renderResults(data) {
 // 建立結果列
 function createResultRow(item) {
     const tr = document.createElement('tr');
-    
+
     if (item.type === 'album') {
         tr.className = 'album-row';
     } else if (item.type === 'segment') {
         tr.className = 'segment-row';
     }
-    
+
     const isExpanded = state.expandedAlbums.has(item.id);
     const toggleIcon = item.type === 'album' ? (isExpanded ? '▼' : '▶') : '';
-    
+
+    // 調試：檢查標籤
+    if (!window.debugLogged) {
+        console.log('[createResultRow] item.tags=', item.tags);
+        window.debugLogged = true;
+    }
+
     tr.innerHTML = `
         <td class="toggle-btn" data-id="${item.id}" data-type="${item.type}">${toggleIcon}</td>
         <td>${escapeHtml(item.code || '')}</td>
@@ -550,16 +560,19 @@ function formatActors(actors) {
         if (typeof actor === 'string') {
             return escapeHtml(actor);
         }
-        // 如果是對象，格式化為 "演員名 (角色)"
+        // 只顯示演員名字
         const name = actor.stageName || actor.actorName || '';
-        const role = actor.role ? `(${actor.role})` : '';
-        return escapeHtml(`${name} ${role}`.trim());
+        return escapeHtml(name);
     }).join(', ');
 }
 
 // 渲染標籤
 function renderTags(tags, type) {
-    if (!tags || tags.length === 0) return '';
+    console.log(`[renderTags] type=${type}, tags=`, tags);
+
+    if (!tags || tags.length === 0) {
+        return '';
+    }
 
     return tags.map(tag => `<span class="tag-badge tag-${type}">${escapeHtml(tag)}</span>`).join(' ');
 }
