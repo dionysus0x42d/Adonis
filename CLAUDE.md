@@ -643,6 +643,57 @@ This design trades storage space for query performance, since `/api/search` is u
   - `add_studio()`: Auto-creates 3 pool stage names (ANONYMOUS, UNKNOWN, GIRL) for each new studio
   - ON CONFLICT DO NOTHING: Safely handles duplicate inserts
 
+### 10. Vercel Deployment & API Integration (2026-01-09)
+- **Frontend to Vercel**:
+  - Updated all fetch calls to use `API_BASE` constant (static/script.js)
+  - HTML form actions point to Vercel backend URL
+  - Added Flask-CORS for cross-domain requests
+- **Backend Optimization**:
+  - `/api/actors/query`: Optimized from N+1 queries (82 calls) to simplified approach
+  - Uses Python-level sorting instead of complex SQL window functions
+  - Reduced query complexity by moving pagination logic to application layer
+- **Infrastructure**:
+  - Created `api/index.py` for Vercel serverless functions
+  - Added `vercel.json` configuration
+  - Environment variables: DATABASE_URL (Supabase), SECRET_KEY, FLASK_ENV
+- **Performance**:
+  - Vercel free tier: ~5-10 seconds cold start
+  - After warm start: 1-2 seconds query time (vs 10+ seconds before)
+  - Main benefit: Eliminates repeated database round-trips
+
+### 11. Favicon & Logging Cleanup (2026-01-09)
+- **Frontend** (templates/base.html):
+  - Added `<link rel="icon" href="data:,">` to prevent browser favicon requests
+- **Backend** (app.py:47-53):
+  - Added `/favicon.ico` and `/favicon.png` routes returning 204 No Content
+  - Eliminates 404 errors from browser automatic favicon requests
+- **Result**: Clean logs without unnecessary favicon 404 errors
+
+### 12. API Key Authentication System (2026-01-09)
+- **Phase 1: Admin-Only Write Access**
+  - Configuration (config.py:30):
+    - Added `ADMIN_API_KEY` environment variable with default dev key
+  - Backend (app.py:19-39):
+    - Added `require_api_key()` decorator for authentication
+    - Modified POST routes (/add_actor, /add_studio, /add_production):
+      - Checks API Key from form data before processing
+      - Returns 403 Forbidden and flash message if key invalid
+    - Modified PUT routes (/api/actor/<id>, /api/production/<id>):
+      - Checks API Key from JSON request body
+      - Returns 403 Unauthorized if key invalid
+  - Frontend (templates):
+    - Added API Key input field to: add_actor.html, add_studio.html, add_production.html
+    - Added API Key input field to: edit_actor.html, edit_production.html
+  - Frontend (JavaScript):
+    - Modified edit_actor.js: Added API Key validation and inclusion in PUT request
+    - Modified edit_production.js: Added API Key validation and inclusion in PUT request
+  - Environment:
+    - Updated .env.example with ADMIN_API_KEY configuration
+- **Access Control**:
+  - ✅ Only users with valid API Key can add/edit data
+  - ✅ Viewers with invalid/missing API Key see permission error
+  - ✅ API Key sent via form data (POST) or JSON request body (PUT)
+
 ---
 
 ## Public Website Deployment Concept (For Future Implementation)

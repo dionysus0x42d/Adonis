@@ -721,9 +721,15 @@ async function saveProduction() {
     const code = document.getElementById('productionCode').value.trim();
     const title = document.getElementById('productionTitle').value.trim() || null;
     const comment = document.getElementById('comment').value.trim() || null;
+    const apiKey = document.getElementById('apiKey').value.trim();
 
     if (!code) {
         showFlashMessage('作品編號不可為空', 'error');
+        return;
+    }
+
+    if (!apiKey) {
+        showFlashMessage('API Key 不可為空', 'error');
         return;
     }
 
@@ -735,6 +741,7 @@ async function saveProduction() {
     const studioId = (studioIdEl && !studioIdEl.disabled && studioIdEl.value) ? parseInt(studioIdEl.value) : null;
 
     const requestData = {
+        api_key: apiKey,
         code: code,
         title: title,
         comment: comment,

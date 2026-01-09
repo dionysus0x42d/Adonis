@@ -6,13 +6,37 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, f
 from flask_cors import CORS
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from config import DB_CONFIG, SECRET_KEY, DEBUG
+from config import DB_CONFIG, SECRET_KEY, DEBUG, ADMIN_API_KEY
 import json
+from functools import wraps
 
 app = Flask(__name__)
 CORS(app)  # 启用 CORS，允许跨域请求
 app.secret_key = SECRET_KEY
 app.config['DEBUG'] = DEBUG
+
+
+# ==================== API 權限驗證 ====================
+
+def require_api_key(f):
+    """驗證 API Key 的裝飾器（用於 POST/PUT 路由）"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # 從 request headers 或 POST data 中獲取 API Key
+        api_key = request.headers.get('X-API-Key') or request.form.get('api_key') or request.json.get('api_key') if request.is_json else None
+
+        # 驗證 API Key
+        if not api_key or api_key != ADMIN_API_KEY:
+            if request.path.startswith('/api/'):
+                # API 路由返回 JSON
+                return jsonify({'error': 'Unauthorized: Invalid or missing API key'}), 403
+            else:
+                # 表單路由重定向到首頁
+                flash('權限不足：請提供有效的 API Key', 'error')
+                return redirect(url_for('index'))
+
+        return f(*args, **kwargs)
+    return decorated_function
 
 # ==================== 全域配置：標籤圖示和排序 ====================
 STYLE_ICONS = {
@@ -82,6 +106,12 @@ def add_actor():
         return render_template('add_actor.html', studios=studios)
     
     elif request.method == 'POST':
+        # 驗證 API Key
+        api_key = request.form.get('api_key', '').strip()
+        if not api_key or api_key != ADMIN_API_KEY:
+            flash('權限不足：請提供有效的 API Key', 'error')
+            return redirect(url_for('add_actor'))
+
         # 處理表單提交
         try:
             # 取得表單資料
@@ -229,6 +259,12 @@ def add_studio():
         return render_template('add_studio.html')
     
     elif request.method == 'POST':
+        # 驗證 API Key
+        api_key = request.form.get('api_key', '').strip()
+        if not api_key or api_key != ADMIN_API_KEY:
+            flash('權限不足：請提供有效的 API Key', 'error')
+            return redirect(url_for('add_studio'))
+
         # 處理表單提交
         try:
             # 取得表單資料
@@ -357,6 +393,12 @@ def add_production():
         return render_template('add_production.html', studios=studios, tags=tags)
     
     elif request.method == 'POST':
+        # 驗證 API Key
+        api_key = request.form.get('api_key', '').strip()
+        if not api_key or api_key != ADMIN_API_KEY:
+            flash('權限不足：請提供有效的 API Key', 'error')
+            return redirect(url_for('add_production'))
+
         # 處理表單提交
         try:
             # 取得基本資料
@@ -967,6 +1009,11 @@ def update_actor(actor_id):
     """更新演員資料"""
     data = request.get_json()
 
+    # 驗證 API Key
+    api_key = data.get('api_key', '').strip()
+    if not api_key or api_key != ADMIN_API_KEY:
+        return jsonify({'error': 'Unauthorized: Invalid or missing API key'}), 403
+
     actor_tag = (data.get('actor_tag') or '').strip()
     gvdb_id = (data.get('gvdb_id') or '').strip() or None
     notes = (data.get('notes') or '').strip() or None
@@ -1543,6 +1590,11 @@ def get_production(production_id):
 def update_production(production_id):
     """更新作品資料"""
     data = request.get_json()
+
+    # 驗證 API Key
+    api_key = data.get('api_key', '').strip()
+    if not api_key or api_key != ADMIN_API_KEY:
+        return jsonify({'error': 'Unauthorized: Invalid or missing API key'}), 403
 
     code = (data.get('code') or '').strip()
     title = (data.get('title') or '').strip() or None

@@ -342,9 +342,15 @@ async function saveActor() {
     const actorTag = document.getElementById('actorTag').value.trim();
     const gvdbId = document.getElementById('gvdbId').value.trim() || null;
     const notes = document.getElementById('notes').value.trim() || null;
+    const apiKey = document.getElementById('apiKey').value.trim();
 
     if (!actorTag) {
         showFlashMessage('Actor Tag 不可為空', 'error');
+        return;
+    }
+
+    if (!apiKey) {
+        showFlashMessage('API Key 不可為空', 'error');
         return;
     }
 
@@ -355,6 +361,7 @@ async function saveActor() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+                api_key: apiKey,
                 actor_tag: actorTag,
                 gvdb_id: gvdbId,
                 notes: notes,

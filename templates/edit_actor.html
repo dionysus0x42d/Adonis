@@ -109,6 +109,22 @@
             </div>
         </section>
 
+        <!-- API Key 驗證 -->
+        <section class="form-section">
+            <h3>【權限驗證】</h3>
+            <div class="form-group">
+                <label for="apiKey">API Key <span class="required">*</span></label>
+                <input
+                    type="password"
+                    id="apiKey"
+                    name="api_key"
+                    placeholder="輸入 API Key 以確認權限"
+                    required
+                >
+                <small>只有擁有有效 API Key 的用戶才能編輯資料</small>
+            </div>
+        </section>
+
         <!-- 送出按鈕 -->
         <div class="form-actions">
             <button type="submit" class="btn-primary">儲存所有修改</button>
