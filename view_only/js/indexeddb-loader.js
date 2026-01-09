@@ -437,10 +437,15 @@ class GVDBData {
         // 应用过滤器
         productions = await this.applyProductionFilters(productions, filters);
 
-        // 添加演员和标签信息
+        // 添加演员、标签和工作室信息
         productions = await Promise.all(productions.map(async (prod) => {
             const details = await this.getProductionDetails(prod.id);
-            return { ...prod, ...details };
+            const studio = await this.get('studios', prod.studio_id);
+            return {
+                ...prod,
+                ...details,
+                studio_name: studio.name
+            };
         }));
 
         // 应用排序

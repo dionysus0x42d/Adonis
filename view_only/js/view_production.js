@@ -416,14 +416,6 @@ function clearAllFilters() {
     performSearch();
 }
 
-// 建立排序字串
-function buildSortString() {
-    return state.sortFields.map(field => {
-        const order = state.sortOrders[field];
-        return `${field}_${order}`;
-    }).join(',');
-}
-
 // 執行搜尋
 async function performSearch() {
     showLoading();
@@ -444,13 +436,10 @@ async function performSearch() {
         };
 
         // 構建排序物件
-        const sortString = buildSortString();
-        const sortParts = sortString.split(',').map(s => s.trim());
         const sort = {};
-        if (sortParts.length > 0) {
-            const firstSort = sortParts[0].split(':');
-            sort.field = firstSort[0];
-            sort.order = firstSort[1] || 'asc';
+        if (state.sortFields.length > 0) {
+            sort.field = state.sortFields[0];
+            sort.order = state.sortOrders[sort.field] || 'asc';
         }
 
         // 構建分頁物件
@@ -530,14 +519,14 @@ function createResultRow(item) {
     tr.innerHTML = `
         <td class="toggle-btn" data-id="${item.id}" data-type="${item.type}">${toggleIcon}</td>
         <td>${escapeHtml(item.code || '')}</td>
-        <td><span class="studio-badge" style="background-color: ${getStudioColor(item.studio)}">${escapeHtml(item.studio || '')}</span></td>
+        <td><span class="studio-badge" style="background-color: ${getStudioColor(item.studio_name)}">${escapeHtml(item.studio_name || '')}</span></td>
         <td class="truncate">${escapeHtml(item.title || '')}</td>
         <td>${escapeHtml(item.release_date || '')}</td>
-        <td class="truncate">${escapeHtml(item.actors || '')}</td>
-        <td>${renderTags(item.sex_acts, 'sex-act')}</td>
-        <td>${renderTags(item.styles, 'style')}</td>
-        <td>${renderTags(item.body_types, 'body-type')}</td>
-        <td>${renderTags(item.sources, 'source')}</td>
+        <td class="truncate">${formatActors(item.actors || [])}</td>
+        <td>${renderTags(item.tags?.sex_acts, 'sex-act')}</td>
+        <td>${renderTags(item.tags?.styles, 'style')}</td>
+        <td>${renderTags(item.tags?.body_types, 'body-type')}</td>
+        <td>${renderTags(item.tags?.sources, 'source')}</td>
         <td class="truncate">${escapeHtml(item.comment || '')}</td>
     `;
     
@@ -553,10 +542,25 @@ function createResultRow(item) {
     return tr;
 }
 
+// 格式化演員列表
+function formatActors(actors) {
+    if (!Array.isArray(actors) || actors.length === 0) return '';
+
+    return actors.map(actor => {
+        if (typeof actor === 'string') {
+            return escapeHtml(actor);
+        }
+        // 如果是對象，格式化為 "演員名 (角色)"
+        const name = actor.stageName || actor.actorName || '';
+        const role = actor.role ? `(${actor.role})` : '';
+        return escapeHtml(`${name} ${role}`.trim());
+    }).join(', ');
+}
+
 // 渲染標籤
 function renderTags(tags, type) {
     if (!tags || tags.length === 0) return '';
-    
+
     return tags.map(tag => `<span class="tag-badge tag-${type}">${escapeHtml(tag)}</span>`).join(' ');
 }
 
@@ -596,27 +600,40 @@ async function toggleAlbum(albumId) {
 // 渲染片段
 async function renderSegments(albumId, tbody = null) {
     try {
-        const response = await fetch(`/api/segments/${albumId}`);
-        const segments = await response.json();
-        
         if (!tbody) {
             tbody = document.getElementById('resultsBody');
         }
-        
+
         const albumRow = tbody.querySelector(`.toggle-btn[data-id="${albumId}"]`)?.closest('tr');
         if (!albumRow) return;
-        
+
         // 移除舊的片段
         removeSegments(albumId);
-        
+
+        // 從 IndexedDB 獲取父專輯資訊
+        const album = await GVDBData.get('productions', albumId);
+        const studio = await GVDBData.get('studios', album.studio_id);
+
+        // 從 IndexedDB 獲取片段
+        const allProductions = await GVDBData.getAll('productions');
+        const segments = allProductions.filter(p => p.type === 'segment' && p.parent_id === albumId);
+
+        // 為每個片段添加詳情（演員、標籤）
+        const segmentsWithDetails = await Promise.all(
+            segments.map(async (segment) => {
+                const details = await GVDBData.getProductionDetails(segment.id);
+                return { ...segment, ...details, studio_name: studio.name };
+            })
+        );
+
         // 插入新片段
         let insertAfter = albumRow;
-        segments.forEach(segment => {
+        segmentsWithDetails.forEach(segment => {
             const segmentRow = createResultRow(segment);
             insertAfter.insertAdjacentElement('afterend', segmentRow);
             insertAfter = segmentRow;
         });
-        
+
     } catch (error) {
         console.error('載入片段失敗:', error);
     }
