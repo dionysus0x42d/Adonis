@@ -1,0 +1,387 @@
+[
+  {
+    "id": 1,
+    "actor_tag": "ACTOR_言嘉佑",
+    "gvdb_id": null,
+    "notes": "言嘉佑",
+    "created_at": "2025-12-31T02:39:46.518249"
+  },
+  {
+    "id": 2,
+    "actor_tag": "ACTOR_狼叔",
+    "gvdb_id": null,
+    "notes": "狼叔",
+    "created_at": "2025-12-31T02:39:46.518249"
+  },
+  {
+    "id": 3,
+    "actor_tag": "ANONYMOUS_POOL",
+    "gvdb_id": null,
+    "notes": "匿名演員池（墨鏡男）",
+    "created_at": "2025-12-31T18:30:02.045991"
+  },
+  {
+    "id": 5,
+    "actor_tag": "UNKNOWN_POOL",
+    "gvdb_id": null,
+    "notes": "路人演員池",
+    "created_at": "2025-12-31T18:30:02.045991"
+  },
+  {
+    "id": 6,
+    "actor_tag": "阿須加_Asuka",
+    "gvdb_id": "39187",
+    "notes": null,
+    "created_at": "2025-12-31T18:50:38.795312"
+  },
+  {
+    "id": 7,
+    "actor_tag": "Matsunaga Fumio_松永文生",
+    "gvdb_id": "140100",
+    "notes": null,
+    "created_at": "2025-12-31T18:54:18.340952"
+  },
+  {
+    "id": 8,
+    "actor_tag": "衝浪小哥 Araw",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2025-12-31T19:12:51.402262"
+  },
+  {
+    "id": 9,
+    "actor_tag": "颯大 Sodai",
+    "gvdb_id": "44801",
+    "notes": null,
+    "created_at": "2025-12-31T19:40:23.802057"
+  },
+  {
+    "id": 10,
+    "actor_tag": "瑠輝 Ruki",
+    "gvdb_id": "105954",
+    "notes": null,
+    "created_at": "2026-01-01T01:57:39.696262"
+  },
+  {
+    "id": 11,
+    "actor_tag": "柳澤悠平 Yanagisawa Yuhei",
+    "gvdb_id": "103299",
+    "notes": "雙胞胎弟弟",
+    "created_at": "2026-01-01T01:58:32.170129"
+  },
+  {
+    "id": 12,
+    "actor_tag": "柳澤恭平 Yanagisawa Kyohei",
+    "gvdb_id": "89903",
+    "notes": "雙胞胎哥哥",
+    "created_at": "2026-01-01T01:59:01.687979"
+  },
+  {
+    "id": 13,
+    "actor_tag": "薩爾",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-01T02:12:52.602545"
+  },
+  {
+    "id": 14,
+    "actor_tag": "沖修斗 Oki Syuto",
+    "gvdb_id": null,
+    "notes": "在其他地方也有演",
+    "created_at": "2026-01-01T02:15:26.400559"
+  },
+  {
+    "id": 15,
+    "actor_tag": "神崎 涼 Kanzaki Ryo",
+    "gvdb_id": "134",
+    "notes": null,
+    "created_at": "2026-01-01T02:20:27.625386"
+  },
+  {
+    "id": 16,
+    "actor_tag": "Leo_gaydar",
+    "gvdb_id": null,
+    "notes": "應該也有在OF或twitter",
+    "created_at": "2026-01-01T02:22:08.619931"
+  },
+  {
+    "id": 17,
+    "actor_tag": "小黑",
+    "gvdb_id": null,
+    "notes": "之後要新增OF 和推特",
+    "created_at": "2026-01-01T02:23:56.952826"
+  },
+  {
+    "id": 18,
+    "actor_tag": "杯麵",
+    "gvdb_id": null,
+    "notes": "之後要新增OF 和推特",
+    "created_at": "2026-01-01T02:24:24.512690"
+  },
+  {
+    "id": 19,
+    "actor_tag": "小鐵",
+    "gvdb_id": null,
+    "notes": "應該有OF 推特",
+    "created_at": "2026-01-01T02:51:47.896348"
+  },
+  {
+    "id": 20,
+    "actor_tag": "五十嵐裕也 Igarashi Hiroya",
+    "gvdb_id": "3553",
+    "notes": "也有在 GAMES 擔任匿名\r\n另外有trance OF 推特",
+    "created_at": "2026-01-01T02:55:10.137535"
+  },
+  {
+    "id": 21,
+    "actor_tag": "仔仔",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-01T02:58:12.985940"
+  },
+  {
+    "id": 22,
+    "actor_tag": "少主_Gaydar",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-01T02:58:36.726423"
+  },
+  {
+    "id": 23,
+    "actor_tag": "憨吉",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-01T03:01:30.292968"
+  },
+  {
+    "id": 24,
+    "actor_tag": "宋江",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-01T03:02:01.490757"
+  },
+  {
+    "id": 25,
+    "actor_tag": "小狼_Gaydar",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-01T03:02:29.233922"
+  },
+  {
+    "id": 26,
+    "actor_tag": "哥本大根",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-01T03:02:51.846136"
+  },
+  {
+    "id": 27,
+    "actor_tag": "Jacky_Gaydar",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-01T03:03:04.510483"
+  },
+  {
+    "id": 28,
+    "actor_tag": "Andre_Gaydar",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-01T03:05:51.701172"
+  },
+  {
+    "id": 29,
+    "actor_tag": "Daniel_Gaydar",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-01T03:06:59.978060"
+  },
+  {
+    "id": 30,
+    "actor_tag": "烏龜_Gaydar",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-01T03:11:54.928675"
+  },
+  {
+    "id": 31,
+    "actor_tag": "威爾_Gaydar",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-01T03:13:07.132937"
+  },
+  {
+    "id": 32,
+    "actor_tag": "跑跑_Gaydar",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-01T03:20:42.154797"
+  },
+  {
+    "id": 33,
+    "actor_tag": "德瑞克_Gaydar",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-01T03:20:59.560084"
+  },
+  {
+    "id": 34,
+    "actor_tag": "阿部_Gaydar",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-01T03:21:11.469135"
+  },
+  {
+    "id": 35,
+    "actor_tag": "房天樂",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-01T03:21:28.843762"
+  },
+  {
+    "id": 36,
+    "actor_tag": "小慶_Gaydar",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-01T03:21:47.167184"
+  },
+  {
+    "id": 37,
+    "actor_tag": "石田啓太 Ishida Keita",
+    "gvdb_id": "27483",
+    "notes": null,
+    "created_at": "2026-01-01T03:30:16.134633"
+  },
+  {
+    "id": 38,
+    "actor_tag": "立花蒼士 Tachibana Soshi",
+    "gvdb_id": "43",
+    "notes": null,
+    "created_at": "2026-01-01T03:30:39.758737"
+  },
+  {
+    "id": 39,
+    "actor_tag": "優仁 Yujin",
+    "gvdb_id": "29144",
+    "notes": null,
+    "created_at": "2026-01-01T03:31:08.621374"
+  },
+  {
+    "id": 40,
+    "actor_tag": "遥亮 Yosuke",
+    "gvdb_id": "32172",
+    "notes": null,
+    "created_at": "2026-01-01T03:31:30.235031"
+  },
+  {
+    "id": 41,
+    "actor_tag": "翔平 Shohei",
+    "gvdb_id": "24304",
+    "notes": null,
+    "created_at": "2026-01-01T03:32:03.266646"
+  },
+  {
+    "id": 44,
+    "actor_tag": "雄星 Yusei",
+    "gvdb_id": "145321",
+    "notes": null,
+    "created_at": "2026-01-04T01:20:07.356125"
+  },
+  {
+    "id": 45,
+    "actor_tag": "本郷 Hongo",
+    "gvdb_id": "114620",
+    "notes": null,
+    "created_at": "2026-01-04T01:51:42.904764"
+  },
+  {
+    "id": 46,
+    "actor_tag": "潮噴き格闘技大学生 Squirting Martial Arts Student",
+    "gvdb_id": "145288",
+    "notes": null,
+    "created_at": "2026-01-04T01:59:56.618559"
+  },
+  {
+    "id": 47,
+    "actor_tag": "STUDIO_ACCEED_SUNGLASSES",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-04T03:58:28.998397"
+  },
+  {
+    "id": 48,
+    "actor_tag": "STUDIO_ACCEED_PASSERBY",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-04T03:58:28.998397"
+  },
+  {
+    "id": 49,
+    "actor_tag": "智和 Tomokazu",
+    "gvdb_id": "140564",
+    "notes": null,
+    "created_at": "2026-01-04T04:08:33.676553"
+  },
+  {
+    "id": 50,
+    "actor_tag": "一聖 Issei",
+    "gvdb_id": "142236",
+    "notes": null,
+    "created_at": "2026-01-04T04:15:36.761072"
+  },
+  {
+    "id": 51,
+    "actor_tag": "平野一斗 Hirano Itto",
+    "gvdb_id": "132388",
+    "notes": "游泳的 蠻可愛的 跟宏翔類似",
+    "created_at": "2026-01-04T04:35:19.587425"
+  },
+  {
+    "id": 52,
+    "actor_tag": "敦貴 Atsuki",
+    "gvdb_id": "150883",
+    "notes": "有點像修矢",
+    "created_at": "2026-01-04T04:39:14.866353"
+  },
+  {
+    "id": 53,
+    "actor_tag": "中山 穂 Nakayama Minoru",
+    "gvdb_id": "122404",
+    "notes": null,
+    "created_at": "2026-01-04T04:41:19.892715"
+  },
+  {
+    "id": 54,
+    "actor_tag": "逸人 Hayato",
+    "gvdb_id": "113575",
+    "notes": null,
+    "created_at": "2026-01-04T04:42:29.323755"
+  },
+  {
+    "id": 55,
+    "actor_tag": "幸成 Yukinari",
+    "gvdb_id": "54896",
+    "notes": null,
+    "created_at": "2026-01-04T20:27:10.630559"
+  },
+  {
+    "id": 56,
+    "actor_tag": "瑛貴 Eiki",
+    "gvdb_id": "69436",
+    "notes": null,
+    "created_at": "2026-01-04T20:31:29.269875"
+  },
+  {
+    "id": 57,
+    "actor_tag": "優介 Yusuke",
+    "gvdb_id": "63917",
+    "notes": "有點童顏?",
+    "created_at": "2026-01-04T20:48:35.020994"
+  },
+  {
+    "id": 66,
+    "actor_tag": "GIRL_POOL",
+    "gvdb_id": null,
+    "notes": null,
+    "created_at": "2026-01-07T15:46:00.754635"
+  }
+]

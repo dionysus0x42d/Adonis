@@ -1,0 +1,597 @@
+[
+  {
+    "id": 1,
+    "actor_id": 1,
+    "studio_id": 4,
+    "stage_name": "言嘉佑",
+    "created_at": "2025-12-31T02:39:46.518249"
+  },
+  {
+    "id": 2,
+    "actor_id": 2,
+    "studio_id": 4,
+    "stage_name": "狼叔",
+    "created_at": "2025-12-31T02:39:46.518249"
+  },
+  {
+    "id": 3,
+    "actor_id": 3,
+    "studio_id": 1,
+    "stage_name": "墨鏡男_KO video",
+    "created_at": "2025-12-31T18:30:02.045991"
+  },
+  {
+    "id": 4,
+    "actor_id": 3,
+    "studio_id": 2,
+    "stage_name": "墨鏡男_GAMES",
+    "created_at": "2025-12-31T18:30:02.045991"
+  },
+  {
+    "id": 5,
+    "actor_id": 3,
+    "studio_id": 3,
+    "stage_name": "墨鏡男_COAT",
+    "created_at": "2025-12-31T18:30:02.045991"
+  },
+  {
+    "id": 6,
+    "actor_id": 3,
+    "studio_id": 4,
+    "stage_name": "墨鏡男_Gaydar",
+    "created_at": "2025-12-31T18:30:02.045991"
+  },
+  {
+    "id": 7,
+    "actor_id": 3,
+    "studio_id": 5,
+    "stage_name": "墨鏡男_Men's Rush TV",
+    "created_at": "2025-12-31T18:30:02.045991"
+  },
+  {
+    "id": 8,
+    "actor_id": 3,
+    "studio_id": 6,
+    "stage_name": "墨鏡男_G-BOT",
+    "created_at": "2025-12-31T18:30:02.045991"
+  },
+  {
+    "id": 15,
+    "actor_id": 5,
+    "studio_id": 1,
+    "stage_name": "不知名_KO video",
+    "created_at": "2025-12-31T18:30:02.045991"
+  },
+  {
+    "id": 16,
+    "actor_id": 5,
+    "studio_id": 2,
+    "stage_name": "不知名_GAMES",
+    "created_at": "2025-12-31T18:30:02.045991"
+  },
+  {
+    "id": 17,
+    "actor_id": 5,
+    "studio_id": 3,
+    "stage_name": "不知名_COAT",
+    "created_at": "2025-12-31T18:30:02.045991"
+  },
+  {
+    "id": 18,
+    "actor_id": 5,
+    "studio_id": 4,
+    "stage_name": "不知名_Gaydar",
+    "created_at": "2025-12-31T18:30:02.045991"
+  },
+  {
+    "id": 19,
+    "actor_id": 5,
+    "studio_id": 5,
+    "stage_name": "不知名_Men's Rush TV",
+    "created_at": "2025-12-31T18:30:02.045991"
+  },
+  {
+    "id": 20,
+    "actor_id": 5,
+    "studio_id": 6,
+    "stage_name": "不知名_G-BOT",
+    "created_at": "2025-12-31T18:30:02.045991"
+  },
+  {
+    "id": 21,
+    "actor_id": 6,
+    "studio_id": 3,
+    "stage_name": "阿須加",
+    "created_at": "2025-12-31T18:50:38.795312"
+  },
+  {
+    "id": 22,
+    "actor_id": 7,
+    "studio_id": 2,
+    "stage_name": "文生",
+    "created_at": "2025-12-31T18:54:18.340952"
+  },
+  {
+    "id": 23,
+    "actor_id": 7,
+    "studio_id": 6,
+    "stage_name": "爽一",
+    "created_at": "2025-12-31T18:54:18.340952"
+  },
+  {
+    "id": 24,
+    "actor_id": 7,
+    "studio_id": 1,
+    "stage_name": "岬 俊太郎",
+    "created_at": "2025-12-31T18:54:18.340952"
+  },
+  {
+    "id": 25,
+    "actor_id": 7,
+    "studio_id": 3,
+    "stage_name": "銀樹",
+    "created_at": "2025-12-31T18:54:18.340952"
+  },
+  {
+    "id": 26,
+    "actor_id": 8,
+    "studio_id": 4,
+    "stage_name": "衝浪小哥 Araw",
+    "created_at": "2025-12-31T19:12:51.402262"
+  },
+  {
+    "id": 27,
+    "actor_id": 9,
+    "studio_id": 3,
+    "stage_name": "颯大",
+    "created_at": "2025-12-31T19:40:23.802057"
+  },
+  {
+    "id": 28,
+    "actor_id": 10,
+    "studio_id": 3,
+    "stage_name": "瑠輝",
+    "created_at": "2026-01-01T01:57:39.696262"
+  },
+  {
+    "id": 29,
+    "actor_id": 11,
+    "studio_id": 3,
+    "stage_name": "悠平",
+    "created_at": "2026-01-01T01:58:32.170129"
+  },
+  {
+    "id": 30,
+    "actor_id": 12,
+    "studio_id": 3,
+    "stage_name": "恭平",
+    "created_at": "2026-01-01T01:59:01.687979"
+  },
+  {
+    "id": 31,
+    "actor_id": 13,
+    "studio_id": 4,
+    "stage_name": "薩爾",
+    "created_at": "2026-01-01T02:12:52.602545"
+  },
+  {
+    "id": 32,
+    "actor_id": 14,
+    "studio_id": 4,
+    "stage_name": "沖修斗",
+    "created_at": "2026-01-01T02:15:26.400559"
+  },
+  {
+    "id": 33,
+    "actor_id": 15,
+    "studio_id": 3,
+    "stage_name": "涼",
+    "created_at": "2026-01-01T02:20:27.625386"
+  },
+  {
+    "id": 34,
+    "actor_id": 15,
+    "studio_id": 4,
+    "stage_name": "神崎涼",
+    "created_at": "2026-01-01T02:20:27.625386"
+  },
+  {
+    "id": 35,
+    "actor_id": 16,
+    "studio_id": 4,
+    "stage_name": "Leo",
+    "created_at": "2026-01-01T02:22:08.619931"
+  },
+  {
+    "id": 36,
+    "actor_id": 17,
+    "studio_id": 4,
+    "stage_name": "小黑",
+    "created_at": "2026-01-01T02:23:56.952826"
+  },
+  {
+    "id": 37,
+    "actor_id": 18,
+    "studio_id": 4,
+    "stage_name": "杯麵",
+    "created_at": "2026-01-01T02:24:24.512690"
+  },
+  {
+    "id": 38,
+    "actor_id": 19,
+    "studio_id": 4,
+    "stage_name": "小鐵",
+    "created_at": "2026-01-01T02:51:47.896348"
+  },
+  {
+    "id": 39,
+    "actor_id": 20,
+    "studio_id": 4,
+    "stage_name": "五十嵐",
+    "created_at": "2026-01-01T02:55:10.137535"
+  },
+  {
+    "id": 40,
+    "actor_id": 21,
+    "studio_id": 4,
+    "stage_name": "仔仔",
+    "created_at": "2026-01-01T02:58:12.985940"
+  },
+  {
+    "id": 41,
+    "actor_id": 22,
+    "studio_id": 4,
+    "stage_name": "少主",
+    "created_at": "2026-01-01T02:58:36.726423"
+  },
+  {
+    "id": 42,
+    "actor_id": 23,
+    "studio_id": 4,
+    "stage_name": "憨吉",
+    "created_at": "2026-01-01T03:01:30.292968"
+  },
+  {
+    "id": 43,
+    "actor_id": 24,
+    "studio_id": 4,
+    "stage_name": "宋江",
+    "created_at": "2026-01-01T03:02:01.490757"
+  },
+  {
+    "id": 44,
+    "actor_id": 25,
+    "studio_id": 4,
+    "stage_name": "小狼",
+    "created_at": "2026-01-01T03:02:29.233922"
+  },
+  {
+    "id": 45,
+    "actor_id": 26,
+    "studio_id": 4,
+    "stage_name": "哥本大根",
+    "created_at": "2026-01-01T03:02:51.846136"
+  },
+  {
+    "id": 46,
+    "actor_id": 27,
+    "studio_id": 4,
+    "stage_name": "Jacky",
+    "created_at": "2026-01-01T03:03:04.510483"
+  },
+  {
+    "id": 47,
+    "actor_id": 28,
+    "studio_id": 4,
+    "stage_name": "Andre",
+    "created_at": "2026-01-01T03:05:51.701172"
+  },
+  {
+    "id": 48,
+    "actor_id": 29,
+    "studio_id": 4,
+    "stage_name": "Daniel",
+    "created_at": "2026-01-01T03:06:59.978060"
+  },
+  {
+    "id": 49,
+    "actor_id": 30,
+    "studio_id": 4,
+    "stage_name": "烏龜",
+    "created_at": "2026-01-01T03:11:54.928675"
+  },
+  {
+    "id": 50,
+    "actor_id": 31,
+    "studio_id": 4,
+    "stage_name": "威爾",
+    "created_at": "2026-01-01T03:13:07.132937"
+  },
+  {
+    "id": 51,
+    "actor_id": 32,
+    "studio_id": 4,
+    "stage_name": "跑跑",
+    "created_at": "2026-01-01T03:20:42.154797"
+  },
+  {
+    "id": 52,
+    "actor_id": 33,
+    "studio_id": 4,
+    "stage_name": "德瑞克",
+    "created_at": "2026-01-01T03:20:59.560084"
+  },
+  {
+    "id": 53,
+    "actor_id": 34,
+    "studio_id": 4,
+    "stage_name": "阿部",
+    "created_at": "2026-01-01T03:21:11.469135"
+  },
+  {
+    "id": 54,
+    "actor_id": 35,
+    "studio_id": 4,
+    "stage_name": "房天樂",
+    "created_at": "2026-01-01T03:21:28.843762"
+  },
+  {
+    "id": 55,
+    "actor_id": 36,
+    "studio_id": 4,
+    "stage_name": "小慶",
+    "created_at": "2026-01-01T03:21:47.167184"
+  },
+  {
+    "id": 56,
+    "actor_id": 37,
+    "studio_id": 3,
+    "stage_name": "啓太",
+    "created_at": "2026-01-01T03:30:16.134633"
+  },
+  {
+    "id": 57,
+    "actor_id": 38,
+    "studio_id": 3,
+    "stage_name": "蒼士",
+    "created_at": "2026-01-01T03:30:39.758737"
+  },
+  {
+    "id": 58,
+    "actor_id": 39,
+    "studio_id": 3,
+    "stage_name": "優仁",
+    "created_at": "2026-01-01T03:31:08.621374"
+  },
+  {
+    "id": 59,
+    "actor_id": 40,
+    "studio_id": 3,
+    "stage_name": "遥亮",
+    "created_at": "2026-01-01T03:31:30.235031"
+  },
+  {
+    "id": 60,
+    "actor_id": 41,
+    "studio_id": 3,
+    "stage_name": "翔平",
+    "created_at": "2026-01-01T03:32:03.266646"
+  },
+  {
+    "id": 63,
+    "actor_id": 3,
+    "studio_id": 8,
+    "stage_name": "墨鏡男_JUSTICE",
+    "created_at": "2026-01-01T21:37:09.796678"
+  },
+  {
+    "id": 64,
+    "actor_id": 5,
+    "studio_id": 8,
+    "stage_name": "不知名_JUSTICE",
+    "created_at": "2026-01-01T21:37:09.796678"
+  },
+  {
+    "id": 65,
+    "actor_id": 44,
+    "studio_id": 3,
+    "stage_name": "雄星",
+    "created_at": "2026-01-04T01:20:07.356125"
+  },
+  {
+    "id": 66,
+    "actor_id": 44,
+    "studio_id": 8,
+    "stage_name": "TAICHI",
+    "created_at": "2026-01-04T01:20:07.356125"
+  },
+  {
+    "id": 67,
+    "actor_id": 45,
+    "studio_id": 2,
+    "stage_name": "拓矢",
+    "created_at": "2026-01-04T01:51:42.904764"
+  },
+  {
+    "id": 68,
+    "actor_id": 45,
+    "studio_id": 3,
+    "stage_name": "本郷",
+    "created_at": "2026-01-04T01:51:42.904764"
+  },
+  {
+    "id": 69,
+    "actor_id": 46,
+    "studio_id": 3,
+    "stage_name": "潮噴き格闘技大学生",
+    "created_at": "2026-01-04T01:59:56.618559"
+  },
+  {
+    "id": 70,
+    "actor_id": 47,
+    "studio_id": 9,
+    "stage_name": "墨鏡男（ACCEED）",
+    "created_at": "2026-01-04T03:58:28.998397"
+  },
+  {
+    "id": 71,
+    "actor_id": 48,
+    "studio_id": 9,
+    "stage_name": "路人甲（ACCEED）",
+    "created_at": "2026-01-04T03:58:28.998397"
+  },
+  {
+    "id": 72,
+    "actor_id": 49,
+    "studio_id": 9,
+    "stage_name": "鹿嶋将人",
+    "created_at": "2026-01-04T04:08:33.676553"
+  },
+  {
+    "id": 73,
+    "actor_id": 49,
+    "studio_id": 3,
+    "stage_name": "彪太郎",
+    "created_at": "2026-01-04T04:08:33.676553"
+  },
+  {
+    "id": 74,
+    "actor_id": 49,
+    "studio_id": 1,
+    "stage_name": "甲斐雅斗",
+    "created_at": "2026-01-04T04:08:33.676553"
+  },
+  {
+    "id": 75,
+    "actor_id": 49,
+    "studio_id": 2,
+    "stage_name": "智和",
+    "created_at": "2026-01-04T04:08:33.676553"
+  },
+  {
+    "id": 76,
+    "actor_id": 50,
+    "studio_id": 3,
+    "stage_name": "仁",
+    "created_at": "2026-01-04T04:15:36.761072"
+  },
+  {
+    "id": 77,
+    "actor_id": 50,
+    "studio_id": 5,
+    "stage_name": "変態ワンコ Pervert Dog",
+    "created_at": "2026-01-04T04:15:36.761072"
+  },
+  {
+    "id": 78,
+    "actor_id": 50,
+    "studio_id": 2,
+    "stage_name": "一聖",
+    "created_at": "2026-01-04T04:15:36.761072"
+  },
+  {
+    "id": 79,
+    "actor_id": 51,
+    "studio_id": 2,
+    "stage_name": "一斗",
+    "created_at": "2026-01-04T04:35:19.587425"
+  },
+  {
+    "id": 80,
+    "actor_id": 52,
+    "studio_id": 2,
+    "stage_name": "敦貴",
+    "created_at": "2026-01-04T04:39:14.866353"
+  },
+  {
+    "id": 81,
+    "actor_id": 53,
+    "studio_id": 2,
+    "stage_name": "中山 穂",
+    "created_at": "2026-01-04T04:41:19.892715"
+  },
+  {
+    "id": 82,
+    "actor_id": 54,
+    "studio_id": 2,
+    "stage_name": "逸人 Hayato",
+    "created_at": "2026-01-04T04:42:29.323755"
+  },
+  {
+    "id": 83,
+    "actor_id": 55,
+    "studio_id": 3,
+    "stage_name": "幸成",
+    "created_at": "2026-01-04T20:27:10.630559"
+  },
+  {
+    "id": 84,
+    "actor_id": 56,
+    "studio_id": 3,
+    "stage_name": "瑛貴",
+    "created_at": "2026-01-04T20:31:29.269875"
+  },
+  {
+    "id": 85,
+    "actor_id": 57,
+    "studio_id": 3,
+    "stage_name": "優介",
+    "created_at": "2026-01-04T20:48:35.020994"
+  },
+  {
+    "id": 94,
+    "actor_id": 66,
+    "studio_id": 1,
+    "stage_name": "女（KO video）",
+    "created_at": "2026-01-07T15:46:08.859014"
+  },
+  {
+    "id": 95,
+    "actor_id": 66,
+    "studio_id": 2,
+    "stage_name": "女（GAMES）",
+    "created_at": "2026-01-07T15:46:08.859014"
+  },
+  {
+    "id": 96,
+    "actor_id": 66,
+    "studio_id": 3,
+    "stage_name": "女（COAT）",
+    "created_at": "2026-01-07T15:46:08.859014"
+  },
+  {
+    "id": 97,
+    "actor_id": 66,
+    "studio_id": 4,
+    "stage_name": "女（Gaydar）",
+    "created_at": "2026-01-07T15:46:08.859014"
+  },
+  {
+    "id": 98,
+    "actor_id": 66,
+    "studio_id": 5,
+    "stage_name": "女（Men's Rush TV）",
+    "created_at": "2026-01-07T15:46:08.859014"
+  },
+  {
+    "id": 99,
+    "actor_id": 66,
+    "studio_id": 6,
+    "stage_name": "女（G-BOT）",
+    "created_at": "2026-01-07T15:46:08.859014"
+  },
+  {
+    "id": 100,
+    "actor_id": 66,
+    "studio_id": 8,
+    "stage_name": "女（JUSTICE）",
+    "created_at": "2026-01-07T15:46:08.859014"
+  },
+  {
+    "id": 101,
+    "actor_id": 66,
+    "studio_id": 9,
+    "stage_name": "女（ACCEED）",
+    "created_at": "2026-01-07T15:46:08.859014"
+  }
+]

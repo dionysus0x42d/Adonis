@@ -1,0 +1,920 @@
+[
+  {
+    "id": 3,
+    "production_id": 3,
+    "stage_name_id": 26,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2025-12-31T19:33:33.436944"
+  },
+  {
+    "id": 4,
+    "production_id": 3,
+    "stage_name_id": 2,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2025-12-31T19:33:33.436944"
+  },
+  {
+    "id": 9,
+    "production_id": 7,
+    "stage_name_id": 27,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2025-12-31T19:56:23.477088"
+  },
+  {
+    "id": 10,
+    "production_id": 7,
+    "stage_name_id": 21,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2025-12-31T19:56:23.477088"
+  },
+  {
+    "id": 11,
+    "production_id": 8,
+    "stage_name_id": 21,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T02:01:07.282578"
+  },
+  {
+    "id": 12,
+    "production_id": 8,
+    "stage_name_id": 28,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T02:01:07.282578"
+  },
+  {
+    "id": 16,
+    "production_id": 10,
+    "stage_name_id": 21,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T02:06:31.917087"
+  },
+  {
+    "id": 17,
+    "production_id": 10,
+    "stage_name_id": 30,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T02:06:31.917087"
+  },
+  {
+    "id": 18,
+    "production_id": 11,
+    "stage_name_id": 21,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T02:09:06.843849"
+  },
+  {
+    "id": 19,
+    "production_id": 11,
+    "stage_name_id": 29,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T02:09:06.843849"
+  },
+  {
+    "id": 20,
+    "production_id": 11,
+    "stage_name_id": 30,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T02:09:06.843849"
+  },
+  {
+    "id": 21,
+    "production_id": 12,
+    "stage_name_id": 1,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T02:11:12.079807"
+  },
+  {
+    "id": 22,
+    "production_id": 12,
+    "stage_name_id": 2,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T02:11:12.079807"
+  },
+  {
+    "id": 23,
+    "production_id": 13,
+    "stage_name_id": 35,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T02:23:10.848525"
+  },
+  {
+    "id": 24,
+    "production_id": 13,
+    "stage_name_id": 34,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T02:23:10.848525"
+  },
+  {
+    "id": 25,
+    "production_id": 14,
+    "stage_name_id": 1,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T02:49:43.563742"
+  },
+  {
+    "id": 26,
+    "production_id": 14,
+    "stage_name_id": 31,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T02:49:43.563742"
+  },
+  {
+    "id": 27,
+    "production_id": 14,
+    "stage_name_id": 32,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T02:49:43.563742"
+  },
+  {
+    "id": 28,
+    "production_id": 15,
+    "stage_name_id": 36,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T02:53:16.585903"
+  },
+  {
+    "id": 29,
+    "production_id": 15,
+    "stage_name_id": 38,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T02:53:16.585903"
+  },
+  {
+    "id": 30,
+    "production_id": 16,
+    "stage_name_id": 1,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T02:56:34.641883"
+  },
+  {
+    "id": 31,
+    "production_id": 16,
+    "stage_name_id": 39,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T02:56:34.641883"
+  },
+  {
+    "id": 32,
+    "production_id": 17,
+    "stage_name_id": 35,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:00:08.756688"
+  },
+  {
+    "id": 33,
+    "production_id": 17,
+    "stage_name_id": 2,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:00:08.756688"
+  },
+  {
+    "id": 34,
+    "production_id": 18,
+    "stage_name_id": 1,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:00:57.875940"
+  },
+  {
+    "id": 35,
+    "production_id": 18,
+    "stage_name_id": 2,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:00:57.875940"
+  },
+  {
+    "id": 36,
+    "production_id": 18,
+    "stage_name_id": 35,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:00:57.875940"
+  },
+  {
+    "id": 37,
+    "production_id": 19,
+    "stage_name_id": 45,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:04:08.129335"
+  },
+  {
+    "id": 38,
+    "production_id": 19,
+    "stage_name_id": 46,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:04:08.129335"
+  },
+  {
+    "id": 39,
+    "production_id": 20,
+    "stage_name_id": 36,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:05:13.505141"
+  },
+  {
+    "id": 40,
+    "production_id": 20,
+    "stage_name_id": 37,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:05:13.505141"
+  },
+  {
+    "id": 41,
+    "production_id": 21,
+    "stage_name_id": 47,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:07:42.353970"
+  },
+  {
+    "id": 42,
+    "production_id": 21,
+    "stage_name_id": 48,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:07:42.353970"
+  },
+  {
+    "id": 43,
+    "production_id": 22,
+    "stage_name_id": 18,
+    "role": "giver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:11:27.754183"
+  },
+  {
+    "id": 44,
+    "production_id": 22,
+    "stage_name_id": 35,
+    "role": "receiver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:11:27.754183"
+  },
+  {
+    "id": 45,
+    "production_id": 23,
+    "stage_name_id": 18,
+    "role": "giver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:12:43.434319"
+  },
+  {
+    "id": 46,
+    "production_id": 23,
+    "stage_name_id": 49,
+    "role": "receiver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:12:43.434319"
+  },
+  {
+    "id": 47,
+    "production_id": 24,
+    "stage_name_id": 18,
+    "role": "giver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:13:50.217515"
+  },
+  {
+    "id": 48,
+    "production_id": 24,
+    "stage_name_id": 50,
+    "role": "receiver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:13:50.217515"
+  },
+  {
+    "id": 49,
+    "production_id": 25,
+    "stage_name_id": 18,
+    "role": "giver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:15:24.698223"
+  },
+  {
+    "id": 50,
+    "production_id": 25,
+    "stage_name_id": 40,
+    "role": "receiver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:15:24.698223"
+  },
+  {
+    "id": 51,
+    "production_id": 26,
+    "stage_name_id": 18,
+    "role": "giver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:17:01.498904"
+  },
+  {
+    "id": 52,
+    "production_id": 26,
+    "stage_name_id": 42,
+    "role": "receiver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:17:01.498904"
+  },
+  {
+    "id": 53,
+    "production_id": 27,
+    "stage_name_id": 18,
+    "role": "giver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:18:12.092410"
+  },
+  {
+    "id": 54,
+    "production_id": 27,
+    "stage_name_id": 1,
+    "role": "receiver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:18:12.092410"
+  },
+  {
+    "id": 55,
+    "production_id": 28,
+    "stage_name_id": 18,
+    "role": "giver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:19:27.148946"
+  },
+  {
+    "id": 56,
+    "production_id": 28,
+    "stage_name_id": 46,
+    "role": "receiver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:19:27.148946"
+  },
+  {
+    "id": 57,
+    "production_id": 29,
+    "stage_name_id": 18,
+    "role": "giver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:22:38.856098"
+  },
+  {
+    "id": 58,
+    "production_id": 29,
+    "stage_name_id": 51,
+    "role": "receiver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:22:38.856098"
+  },
+  {
+    "id": 59,
+    "production_id": 30,
+    "stage_name_id": 18,
+    "role": "giver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:23:20.196263"
+  },
+  {
+    "id": 60,
+    "production_id": 30,
+    "stage_name_id": 52,
+    "role": "receiver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:23:20.196263"
+  },
+  {
+    "id": 61,
+    "production_id": 31,
+    "stage_name_id": 18,
+    "role": "giver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:24:45.230602"
+  },
+  {
+    "id": 62,
+    "production_id": 31,
+    "stage_name_id": 53,
+    "role": "receiver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:24:45.230602"
+  },
+  {
+    "id": 63,
+    "production_id": 32,
+    "stage_name_id": 18,
+    "role": "giver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:26:28.895507"
+  },
+  {
+    "id": 64,
+    "production_id": 32,
+    "stage_name_id": 37,
+    "role": "receiver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:26:28.895507"
+  },
+  {
+    "id": 65,
+    "production_id": 33,
+    "stage_name_id": 18,
+    "role": "giver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:28:23.642501"
+  },
+  {
+    "id": 66,
+    "production_id": 33,
+    "stage_name_id": 45,
+    "role": "receiver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:28:23.642501"
+  },
+  {
+    "id": 67,
+    "production_id": 35,
+    "stage_name_id": 58,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:36:20.354592"
+  },
+  {
+    "id": 68,
+    "production_id": 35,
+    "stage_name_id": 57,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:36:20.354592"
+  },
+  {
+    "id": 69,
+    "production_id": 36,
+    "stage_name_id": 56,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:38:43.517812"
+  },
+  {
+    "id": 70,
+    "production_id": 36,
+    "stage_name_id": 57,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:38:43.517812"
+  },
+  {
+    "id": 71,
+    "production_id": 37,
+    "stage_name_id": 57,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:40:25.116527"
+  },
+  {
+    "id": 72,
+    "production_id": 37,
+    "stage_name_id": 59,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:40:25.116527"
+  },
+  {
+    "id": 73,
+    "production_id": 38,
+    "stage_name_id": 60,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:42:05.472168"
+  },
+  {
+    "id": 74,
+    "production_id": 38,
+    "stage_name_id": 57,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-01T03:42:05.472168"
+  },
+  {
+    "id": 75,
+    "production_id": 40,
+    "stage_name_id": 65,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T01:22:02.104999"
+  },
+  {
+    "id": 76,
+    "production_id": 40,
+    "stage_name_id": 5,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T01:22:02.104999"
+  },
+  {
+    "id": 77,
+    "production_id": 41,
+    "stage_name_id": 5,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T01:38:08.917459"
+  },
+  {
+    "id": 78,
+    "production_id": 41,
+    "stage_name_id": 65,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T01:38:08.917459"
+  },
+  {
+    "id": 79,
+    "production_id": 42,
+    "stage_name_id": 5,
+    "role": "giver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T01:48:46.469490"
+  },
+  {
+    "id": 80,
+    "production_id": 42,
+    "stage_name_id": 65,
+    "role": "receiver",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T01:48:46.469490"
+  },
+  {
+    "id": 81,
+    "production_id": 43,
+    "stage_name_id": 68,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T01:52:51.857662"
+  },
+  {
+    "id": 82,
+    "production_id": 43,
+    "stage_name_id": 65,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T01:52:51.857662"
+  },
+  {
+    "id": 83,
+    "production_id": 45,
+    "stage_name_id": 69,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T02:01:05.730203"
+  },
+  {
+    "id": 84,
+    "production_id": 45,
+    "stage_name_id": 65,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T02:01:05.730203"
+  },
+  {
+    "id": 85,
+    "production_id": 45,
+    "stage_name_id": 5,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T02:01:05.730203"
+  },
+  {
+    "id": 86,
+    "production_id": 46,
+    "stage_name_id": 4,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T04:10:47.024494"
+  },
+  {
+    "id": 87,
+    "production_id": 46,
+    "stage_name_id": 75,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T04:10:47.024494"
+  },
+  {
+    "id": 88,
+    "production_id": 47,
+    "stage_name_id": 4,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T04:17:53.779482"
+  },
+  {
+    "id": 89,
+    "production_id": 47,
+    "stage_name_id": 78,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T04:17:53.779482"
+  },
+  {
+    "id": 90,
+    "production_id": 48,
+    "stage_name_id": 4,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T04:36:12.767375"
+  },
+  {
+    "id": 91,
+    "production_id": 48,
+    "stage_name_id": 79,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T04:36:12.767375"
+  },
+  {
+    "id": 92,
+    "production_id": 49,
+    "stage_name_id": 4,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T04:40:03.391916"
+  },
+  {
+    "id": 93,
+    "production_id": 49,
+    "stage_name_id": 80,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T04:40:03.391916"
+  },
+  {
+    "id": 94,
+    "production_id": 50,
+    "stage_name_id": 82,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T04:47:29.955381"
+  },
+  {
+    "id": 95,
+    "production_id": 50,
+    "stage_name_id": 81,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T04:47:29.955381"
+  },
+  {
+    "id": 96,
+    "production_id": 50,
+    "stage_name_id": 4,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T04:47:29.955381"
+  },
+  {
+    "id": 97,
+    "production_id": 52,
+    "stage_name_id": 83,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T20:29:36.360493"
+  },
+  {
+    "id": 98,
+    "production_id": 52,
+    "stage_name_id": 21,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T20:29:36.360493"
+  },
+  {
+    "id": 99,
+    "production_id": 53,
+    "stage_name_id": 21,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T20:30:58.922126"
+  },
+  {
+    "id": 100,
+    "production_id": 54,
+    "stage_name_id": 5,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T20:33:42.989929"
+  },
+  {
+    "id": 101,
+    "production_id": 54,
+    "stage_name_id": 21,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T20:33:42.989929"
+  },
+  {
+    "id": 102,
+    "production_id": 55,
+    "stage_name_id": 84,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T20:35:32.878460"
+  },
+  {
+    "id": 103,
+    "production_id": 55,
+    "stage_name_id": 21,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T20:35:32.878460"
+  },
+  {
+    "id": 104,
+    "production_id": 56,
+    "stage_name_id": 5,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T20:46:23.101651"
+  },
+  {
+    "id": 105,
+    "production_id": 56,
+    "stage_name_id": 65,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T20:46:23.101651"
+  },
+  {
+    "id": 106,
+    "production_id": 57,
+    "stage_name_id": 85,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T20:57:00.093391"
+  },
+  {
+    "id": 107,
+    "production_id": 57,
+    "stage_name_id": 65,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T20:57:00.093391"
+  },
+  {
+    "id": 108,
+    "production_id": 58,
+    "stage_name_id": 65,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T20:58:52.350022"
+  },
+  {
+    "id": 109,
+    "production_id": 58,
+    "stage_name_id": 5,
+    "role": null,
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T20:58:52.350022"
+  },
+  {
+    "id": 110,
+    "production_id": 59,
+    "stage_name_id": 35,
+    "role": "top",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T21:02:39.127343"
+  },
+  {
+    "id": 111,
+    "production_id": 59,
+    "stage_name_id": 32,
+    "role": "bottom",
+    "performer_type": "named",
+    "notes": null,
+    "created_at": "2026-01-04T21:02:39.127343"
+  }
+]

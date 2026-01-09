@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>演員查詢 - GVDB 資料庫</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/view_actor.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">GVDB 查詢系統</h1>
+            <ul class="nav-menu">
+                <li><a href="./index.html">首頁</a></li>
+                <li><a href="./view_actor.html">👥查詢演員</a></li>
+                <li><a href="./view_production.html">🔍查詢作品</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="actors-search-container">
+            <h1>👥 演員查詢</h1>
+
+            <!-- 搜尋和篩選區 -->
+            <div class="filter-section">
+                <!-- 字串搜尋 -->
+                <div class="filter-row">
+                    <label>🔍 搜尋：</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="actorSearch" placeholder="搜尋演員名字或藝名...">
+                    </div>
+                </div>
+
+                <!-- 公司篩選 -->
+                <div class="filter-row">
+                    <label>🏢 按公司篩選：</label>
+                    <div id="studioFilters" class="checkbox-group"></div>
+                </div>
+
+                <!-- 匿名演員篩選 -->
+                <div class="filter-row">
+                    <label>👤 顯示匿名演員：</label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="showAnonymous">
+                            <span>包括匿名演員</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 操作按鈕 -->
+                <div class="filter-actions">
+                    <button id="clearFilters" class="btn-secondary">清除篩選</button>
+                </div>
+            </div>
+
+            <!-- 排序控制 -->
+            <div class="controls">
+                <div class="sort-controls">
+                    <label>排序:</label>
+                    <button class="sort-btn active" data-field="name" data-order="asc">
+                        名字 ▲
+                    </button>
+                    <span class="sort-separator">></span>
+                    <button class="sort-btn" data-field="latest" data-order="asc">
+                        最新作品 ▲
+                    </button>
+                    <span class="sort-separator">></span>
+                    <button class="sort-btn" data-field="count" data-order="asc">
+                        作品數量 ▲
+                    </button>
+                    <span class="sort-separator">></span>
+                    <button class="sort-btn" data-field="newest_edit" data-order="desc">
+                        最新編輯 ▼
+                    </button>
+                </div>
+            </div>
+
+            <!-- 結果區 -->
+            <div class="results-section">
+                <div id="resultCount" class="result-count"></div>
+
+                <!-- 列標題 -->
+                <div class="list-header">
+                    <div class="header-toggle"></div>
+                    <div class="header-name">名字</div>
+                    <div class="header-companies">公司</div>
+                    <div class="header-count">作品數</div>
+                    <div class="header-roles">角色統計</div>
+                    <div class="header-latest">最新作品</div>
+                    <div class="header-date">最近日期</div>
+                </div>
+
+                <!-- 演員列表 -->
+                <div id="actorsList" class="actors-list">
+                    <!-- 動態渲染 -->
+                </div>
+
+                <!-- 載入中 -->
+                <div id="loading" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>載入中...</p>
+                </div>
+
+                <!-- 錯誤信息 -->
+                <div id="errorMessage" class="error-message" style="display: none;">
+                    <!-- 動態顯示 -->
+                </div>
+            </div>
+
+            <!-- 分頁 -->
+            <div id="pagination" class="pagination">
+                <!-- 動態渲染 -->
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 GVDB 資料庫管理系統</p>
+        </div>
+    </footer>
+
+    <script src="./js/indexeddb-loader.js"></script>
+    <script src="./js/script.js"></script>
+    <script src="./js/view_actor.js"></script>
+</body>
+</html>

@@ -19,9 +19,13 @@
 !templates/
 !templates/**
 
-# 允許 view_only 靜態網站（用於 GitHub Pages）
+# 允許 view_only 靜態網站（用於本地開發）
 !view_only/
 !view_only/**
+
+# 允許 docs 目錄（用於 GitHub Pages 部署）
+!docs/
+!docs/**
 
 # 允許 scripts 目錄（用於資料匯出等工具）
 !scripts/

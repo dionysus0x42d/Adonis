@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作品查詢 - GVDB 資料庫</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/view_production.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">GVDB 查詢系統</h1>
+            <ul class="nav-menu">
+                <li><a href="./index.html">首頁</a></li>
+                <li><a href="./view_actor.html">👥查詢演員</a></li>
+                <li><a href="./view_production.html">🔍查詢作品</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="search-container">
+            <h1>🔍 作品查詢</h1>
+
+            <!-- 基礎搜尋區 -->
+            <div class="filter-section">
+                <!-- 公司 -->
+                <div class="filter-row">
+                    <label>🏢 公司:</label>
+                    <div id="studioFilters" class="checkbox-group"></div>
+                </div>
+
+                <!-- 演員 -->
+                <div class="filter-row">
+                    <label>👤 演員:</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="actorSearch" placeholder="開始輸入以搜尋演員..." autocomplete="off">
+                        <div id="actorSuggestions" class="autocomplete-suggestions"></div>
+                        <div id="selectedActors" class="selected-items"></div>
+                    </div>
+                </div>
+                <!-- 作品類型 -->
+                <div class="filter-row">
+                    <label>📦 顯示內容:</label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" value="album" data-filter="types">
+                            <span>專輯(含片段)</span>
+                        </label>
+                        <label>
+                            <input type="checkbox" value="single" data-filter="types">
+                            <span>單片</span>
+                        </label>
+                    </div>
+                </div>
+                <!-- 日期範圍 -->
+                <div class="filter-row">
+                    <label>📅 日期範圍:</label>
+                    <div class="input-wrapper date-range-wrapper">
+                        <input type="text" id="dateFrom" placeholder="YYYY.MM" maxlength="7">
+                        <span class="range-separator">到</span>
+                        <input type="text" id="dateTo" placeholder="YYYY.MM" maxlength="7">
+                    </div>
+                </div>
+
+                <!-- 關鍵字 -->
+                <div class="filter-row">
+                    <label>🔤 關鍵字:</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="keyword" placeholder="搜尋 code / title / comment">
+                    </div>
+                </div>
+
+                <!-- Tags -->
+                <div class="filter-row">
+                    <label>🏷️ Sex Act:</label>
+                    <div id="sexActFilters" class="checkbox-group"></div>
+                </div>
+
+                <div class="filter-row">
+                    <label>🎨 Style:</label>
+                    <div id="styleFilters" class="checkbox-group"></div>
+                </div>
+
+                <div class="filter-row">
+                    <label>💪 Body Type:</label>
+                    <div id="bodyTypeFilters" class="checkbox-group"></div>
+                </div>
+
+                <div class="filter-row">
+                    <label>📦 Source:</label>
+                    <div id="sourceFilters" class="checkbox-group"></div>
+                </div>
+
+                <!-- 操作按鈕 -->
+                <div class="filter-actions">
+                    <button id="clearFilters" class="btn-secondary">清除所有篩選</button>
+                    <span id="resultCount" class="result-count"></span>
+                </div>
+            </div>
+
+            <!-- 排序與分頁控制 -->
+            <div class="controls">
+                <div class="sort-controls">
+                    <label>排序:</label>
+                    <button class="sort-btn active" data-field="studio" data-order="asc">
+                        Studio ▲
+                    </button>
+                    <span class="sort-separator">></span>
+                    <button class="sort-btn" data-field="code" data-order="asc">
+                        Code ▲
+                    </button>
+                    <span class="sort-separator">></span>
+                    <button class="sort-btn" data-field="title" data-order="asc">
+                        Title ▲
+                    </button>
+                    <span class="sort-separator">></span>
+                    <button class="sort-btn" data-field="date" data-order="asc">
+                        Date ▲
+                    </button>
+                    <span class="sort-separator">></span>
+                    <button class="sort-btn" data-field="updated" data-order="desc">
+                        Updated ▼
+                    </button>
+                </div>
+                <div class="page-controls">
+                    <label>每頁顯示:</label>
+                    <select id="perPage">
+                        <option value="20">20</option>
+                        <option value="30" selected>30</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 結果表格 -->
+            <div class="results-container">
+                <table id="resultsTable" class="results-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;"></th>
+                            <th>Code</th>
+                            <th>Studio</th>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Actors</th>
+                            <th>Sex Act</th>
+                            <th>Style</th>
+                            <th>Body Type</th>
+                            <th>Source</th>
+                            <th>Comment</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody">
+                        <tr>
+                            <td colspan="11" style="text-align: center; padding: 50px;">
+                                載入中...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 分頁 -->
+            <div id="pagination" class="pagination"></div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 GVDB 資料庫管理系統</p>
+        </div>
+    </footer>
+
+    <script src="./js/indexeddb-loader.js"></script>
+    <script src="./js/script.js"></script>
+    <script src="./js/view_production.js"></script>
+</body>
+</html>
