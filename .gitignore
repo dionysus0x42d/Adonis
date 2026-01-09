@@ -28,4 +28,9 @@ __pycache__/
 
 !templates/
 !templates/**
+
+# 允許 docs（GitHub Pages 靜態網頁）
+!docs/
+!docs/**
+
 CLAUDE.md
