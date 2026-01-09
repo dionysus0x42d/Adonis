@@ -1,185 +1,95 @@
 /**
- * GVDB IndexedDB 数据加载和查询模块
- * 用于将 JSON 数据导入浏览器 IndexedDB，提供快速离线查询
+ * GVDB 数据加载模块 - 直接加载 JSON
+ * 简化版：不使用 IndexedDB，直接在内存中存储和查询
  */
 
 class GVDBData {
-    static dbName = 'GVDB-Database';
-    static dbVersion = 1;
-    static db = null;
+    static data = null;
     static dataLoaded = false;
 
     /**
-     * 初始化 IndexedDB
+     * 初始化：加载所有 JSON 数据
      */
     static async init() {
-        if (this.db && this.dataLoaded) {
+        if (this.dataLoaded) {
             console.log('✓ GVDB data already loaded');
             return;
         }
 
         try {
-            // 打开或创建数据库
-            this.db = await this.openDatabase();
-            console.log('✓ IndexedDB opened:', this.dbName);
+            console.log('Loading GVDB data from JSON...');
 
-            // 检查是否需要加载数据
-            const count = await this.countRecords('studios');
-            if (count === 0) {
-                console.log('Loading GVDB data from JSON...');
-                await this.loadDataFromJSON();
-                this.dataLoaded = true;
-                console.log('✓ All data loaded into IndexedDB');
-            } else {
-                this.dataLoaded = true;
-                console.log('✓ Data already exists in IndexedDB');
-            }
+            // 并行加载所有 JSON 文件
+            const [studios, actors, stageNames, productions, performances, tags, productionTags] =
+                await Promise.all([
+                    this.loadJSON('data/studios.json'),
+                    this.loadJSON('data/actors.json'),
+                    this.loadJSON('data/stage_names.json'),
+                    this.loadJSON('data/productions.json'),
+                    this.loadJSON('data/performances.json'),
+                    this.loadJSON('data/tags.json'),
+                    this.loadJSON('data/production_tags.json')
+                ]);
+
+            // 存储在内存中
+            this.data = {
+                studios,
+                actors,
+                stage_names: stageNames,
+                productions,
+                performances,
+                tags,
+                production_tags: productionTags
+            };
+
+            this.dataLoaded = true;
+            console.log('✓ All data loaded successfully');
+            console.log(`  Studios: ${studios.length}`);
+            console.log(`  Actors: ${actors.length}`);
+            console.log(`  Productions: ${productions.length}`);
+            console.log(`  Performances: ${performances.length}`);
+            console.log(`  Tags: ${tags.length}`);
+            console.log(`  Production_tags: ${productionTags.length}`);
+
         } catch (error) {
-            console.error('Failed to initialize IndexedDB:', error);
+            console.error('Failed to load data:', error);
             throw error;
         }
     }
 
     /**
-     * 打开或创建 IndexedDB 数据库
+     * 加载单个 JSON 文件
      */
-    static openDatabase() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open(this.dbName, this.dbVersion);
-
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => resolve(request.result);
-
-            request.onupgradeneeded = (event) => {
-                const db = event.target.result;
-
-                // 创建对象存储库
-                this.createObjectStores(db);
-            };
-        });
-    }
-
-    /**
-     * 创建对象存储库
-     */
-    static createObjectStores(db) {
-        const stores = [
-            { name: 'studios', keyPath: 'id', indexes: [{ name: 'name', unique: true }] },
-            { name: 'actors', keyPath: 'id', indexes: [{ name: 'actor_tag', unique: true }] },
-            { name: 'stage_names', keyPath: 'id', indexes: [{ name: 'actor_id' }, { name: 'studio_id' }, { name: 'composite', keyPath: ['actor_id', 'studio_id'], unique: true }] },
-            { name: 'productions', keyPath: 'id', indexes: [{ name: 'code', unique: true }, { name: 'type' }, { name: 'studio_id' }, { name: 'parent_id' }] },
-            { name: 'performances', keyPath: 'id', indexes: [{ name: 'production_id' }, { name: 'stage_name_id' }, { name: 'composite', keyPath: ['production_id', 'stage_name_id'], unique: true }] },
-            { name: 'tags', keyPath: 'id', indexes: [{ name: 'composite', keyPath: ['category', 'name'], unique: true }] },
-            { name: 'production_tags', keyPath: ['production_id', 'tag_id'], indexes: [{ name: 'production_id' }, { name: 'tag_id' }] }
-        ];
-
-        for (const store of stores) {
-            if (!db.objectStoreNames.contains(store.name)) {
-                const objStore = db.createObjectStore(store.name, { keyPath: store.keyPath });
-                if (store.indexes) {
-                    for (const index of store.indexes) {
-                        objStore.createIndex(index.name, index.keyPath || index.name, { unique: index.unique || false });
-                    }
-                }
-            }
+    static async loadJSON(path) {
+        const response = await fetch(path);
+        if (!response.ok) {
+            throw new Error(`Failed to load ${path}: ${response.statusText}`);
         }
-    }
-
-    /**
-     * 从 JSON 文件加载数据
-     */
-    static async loadDataFromJSON() {
-        const tables = ['studios', 'actors', 'stage_names', 'productions', 'performances', 'tags', 'production_tags'];
-
-        for (const table of tables) {
-            try {
-                const response = await fetch(`./data/${table}.json`);
-                if (!response.ok) {
-                    console.warn(`Warning: ${table}.json not found`);
-                    continue;
-                }
-
-                const data = await response.json();
-                await this.insertBatch(table, Array.isArray(data) ? data : data[table] || []);
-                console.log(`✓ Loaded ${table}`);
-            } catch (error) {
-                console.error(`Error loading ${table}:`, error);
-            }
-        }
-    }
-
-    /**
-     * 批量插入数据
-     */
-    static async insertBatch(storeName, items) {
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction([storeName], 'readwrite');
-            const store = transaction.objectStore(storeName);
-
-            for (const item of items) {
-                store.add(item);
-            }
-
-            transaction.onerror = () => reject(transaction.error);
-            transaction.oncomplete = () => resolve();
-        });
-    }
-
-    /**
-     * 计算存储库中的记录数
-     */
-    static async countRecords(storeName) {
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction([storeName], 'readonly');
-            const store = transaction.objectStore(storeName);
-            const request = store.count();
-
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => resolve(request.result);
-        });
+        const data = await response.json();
+        return Array.isArray(data) ? data : data[Object.keys(data)[0]] || [];
     }
 
     /**
      * 从存储库获取所有记录
      */
     static async getAll(storeName) {
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction([storeName], 'readonly');
-            const store = transaction.objectStore(storeName);
-            const request = store.getAll();
-
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => resolve(request.result);
-        });
-    }
-
-    /**
-     * 按索引查询
-     */
-    static async getByIndex(storeName, indexName, value) {
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction([storeName], 'readonly');
-            const store = transaction.objectStore(storeName);
-            const index = store.index(indexName);
-            const request = index.getAll(value);
-
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => resolve(request.result);
-        });
+        return this.data[storeName] || [];
     }
 
     /**
      * 获取单条记录
      */
     static async get(storeName, key) {
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction([storeName], 'readonly');
-            const store = transaction.objectStore(storeName);
-            const request = store.get(key);
+        const store = this.data[storeName] || [];
+        return store.find(item => item.id === key);
+    }
 
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => resolve(request.result);
-        });
+    /**
+     * 按索引查询（简单过滤）
+     */
+    static async getByIndex(storeName, indexName, value) {
+        const store = this.data[storeName] || [];
+        return store.filter(item => item[indexName] === value);
     }
 
     /**
@@ -226,6 +136,9 @@ class GVDBData {
     static async applyActorFilters(actors, filters) {
         let filtered = actors;
 
+        // 排除 STUDIO_* 模式的自动生成演员
+        filtered = filtered.filter(a => !a.actor_tag.startsWith('STUDIO_'));
+
         // 按公司过滤
         if (filters.studios && filters.studios.length > 0) {
             const stageNames = await this.getAll('stage_names');
@@ -240,19 +153,20 @@ class GVDBData {
             filtered = filtered.filter(a => actorsByStudio.has(a.id));
         }
 
-        // 按名字过滤
-        if (filters.search) {
+        // 按搜索词过滤
+        if (filters.search && filters.search.length > 0) {
             const searchLower = filters.search.toLowerCase();
-            filtered = filtered.filter(a =>
-                a.actor_tag.toLowerCase().includes(searchLower)
-            );
-        }
+            const stageNames = await this.getAll('stage_names');
+            const matchingActorIds = new Set();
 
-        // 隐藏匿名演员
-        if (!filters.showAnonymous) {
-            filtered = filtered.filter(a =>
-                !a.actor_tag.match(/^(STUDIO_|ANONYMOUS|UNKNOWN|GIRL)/)
-            );
+            for (const sn of stageNames) {
+                if (sn.stage_name.toLowerCase().includes(searchLower) ||
+                    sn.actor_id.toString() === filters.search) {
+                    matchingActorIds.add(sn.actor_id);
+                }
+            }
+
+            filtered = filtered.filter(a => matchingActorIds.has(a.id));
         }
 
         return filtered;
@@ -262,125 +176,48 @@ class GVDBData {
      * 获取演员统计信息
      */
     static async getActorStats(actorId) {
+        const performances = await this.getByIndex('performances', 'stage_name_id', 0);
         const stageNames = await this.getByIndex('stage_names', 'actor_id', actorId);
-        const performances = [];
-        const studioMap = new Map(); // studio_id -> { stage_names: [sn], performances: [perf] }
-        const studios = new Set();
+        const stageNameIds = stageNames.map(s => s.id);
 
-        // 按工作室组织舞台名称和演出
+        let totalProductions = 0;
+        let roleStats = {
+            role_top: 0,
+            role_bottom: 0,
+            role_giver: 0,
+            role_receiver: 0,
+            role_other: 0
+        };
+
+        const seenProductions = new Set();
+
         for (const sn of stageNames) {
-            studios.add(sn.studio_id);
-            if (!studioMap.has(sn.studio_id)) {
-                studioMap.set(sn.studio_id, { stage_names: [], performances: [] });
-            }
-            studioMap.get(sn.studio_id).stage_names.push(sn);
+            const stagePerfs = await this.getByIndex('performances', 'stage_name_id', sn.id);
 
-            const perfs = await this.getByIndex('performances', 'stage_name_id', sn.id);
-            performances.push(...perfs);
-            studioMap.get(sn.studio_id).performances.push(...perfs);
-        }
-
-        // 计算全局作品数（去重）
-        const productionIds = new Set();
-        for (const perf of performances) {
-            const prod = await this.get('productions', perf.production_id);
-            if (prod.type === 'segment') {
-                productionIds.add(prod.parent_id);
-            } else {
-                productionIds.add(prod.id);
-            }
-        }
-
-        // 计算全局角色统计
-        const roleCounts = { top: 0, bottom: 0, giver: 0, receiver: 0, other: 0 };
-        for (const perf of performances) {
-            const role = perf.role || 'other';
-            if (role in roleCounts) {
-                roleCounts[role]++;
-            }
-        }
-
-        // 获取最新作品日期
-        let latestDate = null;
-        let latestCode = null;
-        for (const prodId of productionIds) {
-            const prod = await this.get('productions', prodId);
-            if (prod && prod.release_date) {
-                if (!latestDate || prod.release_date > latestDate) {
-                    latestDate = prod.release_date;
-                    latestCode = prod.code;
-                }
-            }
-        }
-
-        // 构建每个工作室的统计信息
-        const studioDetails = [];
-        for (const [studioId, data] of studioMap) {
-            const studio = await this.get('studios', studioId);
-            const stageName = data.stage_names[0]?.stage_name || '';
-
-            // 该工作室的作品数（去重）
-            const studioProductions = new Set();
-            for (const perf of data.performances) {
+            for (const perf of stagePerfs) {
                 const prod = await this.get('productions', perf.production_id);
-                if (prod.type === 'segment') {
-                    studioProductions.add(prod.parent_id);
-                } else {
-                    studioProductions.add(prod.id);
+                if (!prod) continue;
+
+                // 去重：只计算实际作品（去除片段重复）
+                const key = prod.type === 'segment' ? prod.parent_id : prod.id;
+                if (!seenProductions.has(key)) {
+                    seenProductions.add(key);
+                    totalProductions++;
                 }
+
+                // 角色统计
+                const role = perf.role;
+                if (role === 'top') roleStats.role_top++;
+                else if (role === 'bottom') roleStats.role_bottom++;
+                else if (role === 'giver') roleStats.role_giver++;
+                else if (role === 'receiver') roleStats.role_receiver++;
+                else roleStats.role_other++;
             }
-
-            // 该工作室的角色统计
-            const studioRoleCounts = { top: 0, bottom: 0, giver: 0, receiver: 0, other: 0 };
-            for (const perf of data.performances) {
-                const role = perf.role || 'other';
-                if (role in studioRoleCounts) {
-                    studioRoleCounts[role]++;
-                }
-            }
-
-            // 计算该工作室的角色百分比
-            const totalRoles = Object.values(studioRoleCounts).reduce((a, b) => a + b, 0) || 1;
-            const rolePercentage = {
-                top: Math.round((studioRoleCounts.top / totalRoles) * 100),
-                bottom: Math.round((studioRoleCounts.bottom / totalRoles) * 100),
-                giver: Math.round((studioRoleCounts.giver / totalRoles) * 100),
-                receiver: Math.round((studioRoleCounts.receiver / totalRoles) * 100),
-                other: Math.round((studioRoleCounts.other / totalRoles) * 100)
-            };
-
-            // 该工作室的最新作品
-            let studioLatestDate = null;
-            let studioLatestCode = null;
-            for (const prodId of studioProductions) {
-                const prod = await this.get('productions', prodId);
-                if (prod && prod.release_date) {
-                    if (!studioLatestDate || prod.release_date > studioLatestDate) {
-                        studioLatestDate = prod.release_date;
-                        studioLatestCode = prod.code;
-                    }
-                }
-            }
-
-            studioDetails.push({
-                studio_id: studioId,
-                studio_name: studio.name,
-                stage_name: stageName,
-                productions: studioProductions.size,
-                role_breakdown: studioRoleCounts,
-                role_percentage: rolePercentage,
-                latest_production_code: studioLatestCode || '無',
-                latest_date: studioLatestDate || '無'
-            });
         }
 
         return {
-            totalProductions: productionIds.size,
-            studios: Array.from(studios),
-            studio_details: studioDetails,
-            roleCounts: roleCounts,
-            latestDate: latestDate,
-            latestCode: latestCode
+            total_productions: totalProductions,
+            ...roleStats
         };
     }
 
@@ -393,20 +230,12 @@ class GVDBData {
 
             switch (field) {
                 case 'name':
-                    aVal = a.actor_tag.toLowerCase();
-                    bVal = b.actor_tag.toLowerCase();
-                    break;
-                case 'latest':
-                    aVal = a.latestDate || '';
-                    bVal = b.latestDate || '';
+                    aVal = a.actor_tag || '';
+                    bVal = b.actor_tag || '';
                     break;
                 case 'count':
-                    aVal = a.totalProductions || 0;
-                    bVal = b.totalProductions || 0;
-                    break;
-                case 'newest_edit':
-                    aVal = a.newest_edit || '';
-                    bVal = b.newest_edit || '';
+                    aVal = a.total_productions || 0;
+                    bVal = b.total_productions || 0;
                     break;
                 default:
                     return 0;
@@ -441,16 +270,11 @@ class GVDBData {
         productions = await Promise.all(productions.map(async (prod) => {
             const details = await this.getProductionDetails(prod.id);
             const studio = await this.get('studios', prod.studio_id);
-            const result = {
+            return {
                 ...prod,
                 ...details,
                 studio_name: studio.name
             };
-            // 调试：检查标签是否存在
-            if (prod.id === 3) {
-                console.log(`[DEBUG] Production ${prod.id}:`, { tags: result.tags, actors: result.actors ? result.actors.length : 0 });
-            }
-            return result;
         }));
 
         // 应用排序
@@ -487,20 +311,17 @@ class GVDBData {
             filtered = filtered.filter(p => filters.types.includes(p.type));
         }
 
-        // 按演员(舞台名称ID)过滤
+        // 按演员过滤
         if (filters.actors && filters.actors.length > 0) {
             const filteredByActors = [];
             for (const prod of filtered) {
-                // 获取该作品的所有演出
                 let perfs = await this.getByIndex('performances', 'production_id', prod.id);
 
-                // 如果是段，也要检查父作品
                 if (prod.type === 'segment' && prod.parent_id) {
                     const parentPerfs = await this.getByIndex('performances', 'production_id', prod.parent_id);
                     perfs = [...perfs, ...parentPerfs];
                 }
 
-                // 检查是否有任何演出的舞台名称ID匹配过滤器
                 const hasMatchingActor = perfs.some(p => filters.actors.includes(p.stage_name_id));
                 if (hasMatchingActor) {
                     filteredByActors.push(prod);
@@ -518,7 +339,7 @@ class GVDBData {
             });
         }
 
-        // 按标签过滤（性爱行为、风格、体型、来源）
+        // 按标签过滤
         const tagCategories = {
             sex_acts: 'sex_act',
             styles: 'style',
@@ -530,11 +351,9 @@ class GVDBData {
             if (filters[filterKey] && filters[filterKey].length > 0) {
                 const filteredByTags = [];
                 for (const prod of filtered) {
-                    // 获取该作品的所有标签
                     const prodTags = await this.getByIndex('production_tags', 'production_id', prod.id);
                     const tagIds = prodTags.map(pt => pt.tag_id);
 
-                    // 获取这些标签的详细信息
                     const tags = [];
                     for (const tagId of tagIds) {
                         const tag = await this.get('tags', tagId);
@@ -543,7 +362,6 @@ class GVDBData {
                         }
                     }
 
-                    // 检查是否有任何标签匹配过滤器
                     const hasMatchingTag = tags.some(t => filters[filterKey].includes(t));
                     if (hasMatchingTag) {
                         filteredByTags.push(prod);
@@ -572,22 +390,21 @@ class GVDBData {
     static async getProductionDetails(productionId) {
         const prod = await this.get('productions', productionId);
         const actors = [];
-        const seenActorIds = new Set(); // 去重演员
+        const seenActorIds = new Set();
 
         // 特殊演员过滤
         const specialActorPatterns = [
             'ANONYMOUS_POOL',
             'UNKNOWN_POOL',
             'GIRL_POOL',
-            'STUDIO_',  // 墨鏡男和路人甲
+            'STUDIO_',
         ];
 
         if (prod.type === 'album') {
-            // 专辑：使用 denormalized performer_ids（数据库中已聚合）
+            // 专辑：使用 denormalized performer_ids
             const performerIds = prod.performer_ids || [];
 
             for (const stageNameId of performerIds) {
-                // 避免重复
                 if (seenActorIds.has(stageNameId)) continue;
                 seenActorIds.add(stageNameId);
 
@@ -597,7 +414,6 @@ class GVDBData {
                 const actor = await this.get('actors', sn.actor_id);
                 if (!actor) continue;
 
-                // 过滤掉特殊演员
                 const isSpecial = specialActorPatterns.some(pattern => actor.actor_tag.includes(pattern));
                 if (isSpecial) continue;
 
@@ -607,7 +423,7 @@ class GVDBData {
                     stageName: sn.stage_name,
                     actorName: actor.actor_tag,
                     studioName: studio.name,
-                    role: null, // 专辑不显示角色
+                    role: null,
                     performerType: null
                 });
             }
@@ -622,7 +438,6 @@ class GVDBData {
                 const actor = await this.get('actors', sn.actor_id);
                 if (!actor) continue;
 
-                // 过滤掉特殊演员
                 const isSpecial = specialActorPatterns.some(pattern => actor.actor_tag.includes(pattern));
                 if (isSpecial) continue;
 
@@ -642,26 +457,14 @@ class GVDBData {
         const prodTags = await this.getByIndex('production_tags', 'production_id', productionId);
         const tags = { sex_acts: [], styles: [], body_types: [], sources: [] };
 
-        // 调试：记录 production_tags 查询
-        if (productionId === 3 || productionId === 7) {
-            console.log(`[getProductionDetails] ProdID ${productionId}: Found ${prodTags.length} tag records`);
-        }
-
         for (const pt of prodTags) {
             const tag = await this.get('tags', pt.tag_id);
-            if (!tag) {
-                console.warn(`[getProductionDetails] Tag ${pt.tag_id} not found!`);
-                continue;
-            }
+            if (!tag) continue;
+
             if (tag.category === 'sex_act') tags.sex_acts.push(tag.name);
             else if (tag.category === 'style') tags.styles.push(tag.name);
             else if (tag.category === 'body_type') tags.body_types.push(tag.name);
             else if (tag.category === 'source') tags.sources.push(tag.name);
-        }
-
-        // 调试：最终结果
-        if (productionId === 3 || productionId === 7) {
-            console.log(`[getProductionDetails] ProdID ${productionId}: Result tags=`, tags);
         }
 
         return {
@@ -737,15 +540,6 @@ class GVDBData {
             }
         }
 
-        return suggestions.slice(0, 20); // 限制前20个
+        return suggestions;
     }
 }
-
-// 页面加载时自动初始化
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        await GVDBData.init();
-    } catch (error) {
-        console.error('Failed to initialize GVDB:', error);
-    }
-});
